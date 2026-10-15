@@ -6,6 +6,7 @@ Dibuat untuk memudahkan proses staging, commit, dan push repositori ke GitHub se
 
 import os
 import sys
+import re
 import argparse
 import subprocess
 from datetime import datetime
@@ -55,8 +56,20 @@ def jalankan_perintah(perintah, tangkap_output=True, cek_error=False):
         return -1, "", str(e)
 
 
-def cek_prasyarat():
-    """Memverifikasi bahwa Git terpasang dan folder saat ini adalah repositori Git."""
+def cek_prasyarat(target_dir=None):
+    """Memverifikasi bahwa Git terpasang dan folder target adalah repositori Git."""
+    if target_dir:
+        p = Path(target_dir).resolve()
+        if p.exists() and p.is_dir():
+            try:
+                os.chdir(p)
+            except Exception as e:
+                print(f"[GAGAL] Tidak dapat berpindah ke direktori target '{p}': {e}")
+                sys.exit(1)
+        else:
+            print(f"[GAGAL] Direktori target tidak ditemukan: {target_dir}")
+            sys.exit(1)
+
     # 1. Cek git command
     kode, stdout, _ = jalankan_perintah("git --version")
     if kode != 0:
@@ -67,7 +80,7 @@ def cek_prasyarat():
     # 2. Cek apakah di dalam repository git
     kode, stdout, _ = jalankan_perintah("git rev-parse --is-inside-work-tree")
     if kode != 0 or stdout.strip() != "true":
-        print("[GAGAL] Direktori saat ini bukan repositori Git.")
+        print(f"[GAGAL] Direktori saat ini ({os.getcwd()}) bukan repositori Git.")
         print("Jalankan 'git init' terlebih dahulu atau pindah ke folder proyek yang tepat.")
         sys.exit(1)
 
@@ -137,6 +150,67 @@ def cek_file_berukuran_besar(daftar_perubahan):
     return file_besar
 
 
+# Pola regex deteksi rahasia / API Key yang tidak boleh lolos ke repositori publik
+POLA_RAHASIA = [
+    (re.compile(r"sk-or-v1-[0-9a-zA-Z]{32,}"), "OpenRouter API Key"),
+    (re.compile(r"sk-[0-9a-zA-Z]{32,}"), "OpenAI / Anthropic API Key"),
+    (re.compile(r"ghp_[0-9a-zA-Z]{36,}"), "GitHub Personal Access Token"),
+    (re.compile(r"github_pat_[0-9a-zA-Z_]{60,}"), "GitHub Fine-Grained Token"),
+    (re.compile(r"sk-ant-api[0-9a-zA-Z_-]{30,}"), "Anthropic API Key"),
+    (re.compile(r"AIzaSy[0-9a-zA-Z_-]{30,}"), "Google API Key"),
+]
+
+NAMA_FILE_BERBAHAYA = (
+    ".env",
+    "openrouter_api_key.txt",
+    "id_rsa",
+    "id_ed25519",
+    "credentials.json",
+    "secret.json",
+)
+
+
+def cek_kebocoran_rahasia(daftar_perubahan):
+    """
+    Memeriksa secara otomatis dan proaktif apakah ada berkas rahasia (.env, file key)
+    atau teks token / API key aktif di dalam berkas yang akan di-commit.
+    Mengembalikan daftar temuan: (nama_file, tipe_peringatan, cuplikan).
+    """
+    temuan = []
+    for _, path_file in daftar_perubahan:
+        if " -> " in path_file:
+            path_file = path_file.split(" -> ")[-1].strip()
+
+        p = Path(path_file)
+        nama_bawah = p.name.lower()
+
+        # 1. Cek nama berkas terlarang
+        if (
+            nama_bawah in NAMA_FILE_BERBAHAYA
+            or nama_bawah.startswith(".env.")
+            or (nama_bawah.endswith(".key") and not nama_bawah.endswith(".json"))
+        ):
+            temuan.append((str(p), "Berkas Kredensial / Variabel Lingkungan Sensitif", p.name))
+            continue
+
+        # 2. Cek isi berkas teks (< 1MB)
+        if p.is_file():
+            try:
+                if p.stat().st_size <= 1024 * 1024:
+                    teks = p.read_text(encoding="utf-8", errors="ignore")
+                    for regex, label in POLA_RAHASIA:
+                        cocok = regex.findall(teks)
+                        for c in cocok:
+                            # Abaikan placeholder dummy umum
+                            if any(k in c.lower() for k in ("xxxx", "tempel", "placeholder", "...")):
+                                continue
+                            sensor = c[:10] + "..." + c[-4:]
+                            temuan.append((str(p), f"Bocoran Token: {label}", sensor))
+            except Exception:
+                pass
+    return temuan
+
+
 def cek_unpushed_commits(branch):
     """Memeriksa jumlah commit lokal yang belum di-push ke remote origin."""
     kode, stdout, _ = jalankan_perintah(f"git log origin/{branch}..HEAD --oneline")
@@ -203,12 +277,12 @@ def tampilkan_ringkasan(branch, remote_url, daftar_perubahan, unpushed_commits):
     return True
 
 
-def proses_git_push(pesan_commit=None, auto_confirm=True, lakukan_pull=True):
+def proses_git_push(pesan_commit=None, auto_confirm=True, lakukan_pull=True, target_dir=None):
     """
     Alur utama pelaksanaan git add, git commit, git pull --rebase, dan git push.
     Secara default auto_confirm bernilai True agar proses berjalan langsung tanpa konfirmasi manual.
     """
-    cek_prasyarat()
+    cek_prasyarat(target_dir)
     branch = dapatkan_branch_aktif()
     remote_url = dapatkan_remote_info()
 
@@ -250,6 +324,24 @@ def proses_git_push(pesan_commit=None, auto_confirm=True, lakukan_pull=True):
                 print("[BATAL] Proses push dibatalkan untuk mencegah penolakan dari GitHub.")
                 return False
 
+    # Pengecekan keamanan kredensial & API key sebelum commit
+    kebocoran = cek_kebocoran_rahasia(daftar_perubahan)
+    if kebocoran:
+        cetak_garis("!")
+        print("   [BAHAYA KEAMANAN TINGGI] TERDETEKSI FILE / API KEY RAHASIA!")
+        cetak_garis("!")
+        print("Proses dihentikan seketika untuk melindungi privasi & keamanan Anda:")
+        for path_file, label, info in kebocoran:
+            print(f"  [X] {path_file}")
+            print(f"      Penyebab : {label}")
+            print(f"      Detail   : {info}")
+        print("\nSolusi:")
+        print("1. Tambahkan berkas tersebut ke file '.gitignore'.")
+        print("2. Hapus token/API key asli dari berkas sebelum melakukan push.")
+        print("3. Gunakan environment variable atau file profil lokal OS.")
+        cetak_garis("!")
+        return False
+
     # Tahap 1: Commit file jika ada perubahan berkas
     if daftar_perubahan:
         waktu_sekarang = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -272,9 +364,16 @@ def proses_git_push(pesan_commit=None, auto_confirm=True, lakukan_pull=True):
         print(f"[2/4] Menjalankan: git commit -m \"{pesan_commit}\"")
         kode, stdout, err = jalankan_perintah(["git", "commit", "-m", pesan_commit])
         if kode != 0:
-            # Jika tidak ada yang di-commit (misal hanya whitespace yang diabaikan)
-            if "nothing to commit" in err or "nothing to commit" in stdout:
-                print("[INFO] Tidak ada perubahan yang perlu di-commit.")
+            pesan_gabungan = (err + " " + stdout).lower()
+            if "nothing to commit" in pesan_gabungan or "no changes added to commit" in pesan_gabungan:
+                if "submodules" in pesan_gabungan or "untracked content" in pesan_gabungan or "modified content" in pesan_gabungan:
+                    print("\n[PENJELASAN SUBMODULE]")
+                    print("Ditemukan perubahan internal di dalam submodule (misal: vibe_tools).")
+                    print("Git mengharuskan perubahan di dalam submodule di-commit terlebih dahulu.")
+                    print("Jalankan perintah berikut untuk meng-commit & push submodule vibe_tools:")
+                    print("  python vibe_tools/push_to_github.py --vibe-tools")
+                else:
+                    print("[INFO] Tidak ada perubahan yang perlu di-commit.")
             else:
                 print(f"[GAGAL] Gagal membuat commit: {err or stdout}")
                 return False
@@ -365,12 +464,30 @@ def main():
         action="store_true",
         help="Hanya tampilkan ringkasan status perubahan dan commit tanpa melakukan add/commit/push."
     )
+    parser.add_argument(
+        "-C", "--dir",
+        type=str,
+        default=None,
+        help="Direktori target repositori Git (misal: 'vibe_tools' atau path repositori lain)."
+    )
+    parser.add_argument(
+        "--vibe-tools",
+        action="store_true",
+        help="Otomatis menargetkan repositori submodule vibe_tools."
+    )
 
     args = parser.parse_args()
 
+    # Menentukan direktori target repositori
+    target_dir = None
+    if args.vibe_tools:
+        target_dir = Path(__file__).resolve().parent
+    elif args.dir:
+        target_dir = Path(args.dir).resolve()
+
     # Mode hanya status
     if args.status:
-        cek_prasyarat()
+        cek_prasyarat(target_dir)
         branch = dapatkan_branch_aktif()
         remote_url = dapatkan_remote_info()
         daftar_perubahan = dapatkan_daftar_perubahan()
@@ -385,7 +502,8 @@ def main():
     sukses = proses_git_push(
         pesan_commit=args.message,
         auto_confirm=auto_confirm,
-        lakukan_pull=not args.no_pull
+        lakukan_pull=not args.no_pull,
+        target_dir=target_dir
     )
 
     if not sukses:
