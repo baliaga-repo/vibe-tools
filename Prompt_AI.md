@@ -113,3 +113,26 @@ Fokus hanya pada fungsi [nama_fungsi] di file @[nama_file.py]:
 - Masalah/Kebutuhan: [Jelaskan error atau parameter baru yang ingin ditambahkan].
 - Batasan: Lakukan penggantian baris terarah (micro-edit). Jangan scan atau modifikasi modul lain yang tidak relevan.
 ```
+
+### Template 4: Migrasi Remote Git & Username GitHub ke Akun Baru
+```text
+Tolong periksa dan perbarui remote Git di proyek ini karena saya telah mengganti username GitHub menjadi "baliaga-repo":
+1. Cek git remote origin saat ini, lalu ubah URL-nya agar mengarah ke username baru "baliaga-repo" (misal: https://github.com/baliaga-repo/<nama-repo-ini>.git).
+2. Jika proyek ini memiliki submodule (.gitmodules), perbarui juga URL submodule ke "baliaga-repo" dan jalankan `git submodule sync`.
+3. Cari apakah ada teks atau dokumentasi (seperti README.md, package.json, atau file markdown lainnya) yang masih mencantumkan username lama "mobogemuichi-creator", lalu ubah ke "baliaga-repo".
+4. Verifikasi hasilnya dengan `git remote -v` dan tampilkan status perubahannya.
+(Catatan: Jangan lakukan commit atau push otomatis sebelum meminta konfirmasi dari saya).
+```
+
+### Template 5: Migrasi Username Sekaligus Memasang Submodule `vibe_tools`
+```text
+Tolong bantu saya melakukan dua hal pada proyek ini:
+1. Perbarui remote Git proyek ini ke username baru saya "baliaga-repo" (https://github.com/baliaga-repo/<nama-repo-ini>.git).
+2. Pasang submodule vibe-tools dari repositori baru saya dengan menjalankan:
+   `git submodule add https://github.com/baliaga-repo/vibe-tools.git vibe_tools`
+3. Jalankan skrip installer ekosistemnya:
+   `python vibe_tools/setup_vibe_ecosystem.py`
+4. Cek dan pastikan tidak ada teks username lama "mobogemuichi-creator" di berkas proyek ini.
+(Catatan: Jangan lakukan commit atau push otomatis sebelum meminta konfirmasi dari saya).
+```
+
