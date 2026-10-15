@@ -98,18 +98,48 @@ graph TD
 
 ---
 
-## 🔄 Updating Across Projects
+## 🔄 Cross-Project Synchronization & Updates
 
-If you update `vibe-tools` in this repository, you can pull the latest tools into any project with a single command:
+Because `vibe_tools` is managed as a **Git Submodule**, you can edit, push, and sync changes directly from any project you are working on:
 
+### 1. Edit & Push Updates from Any Project
+If you improve a prompt, modify an MCP server, or add new scripts inside `vibe_tools/`:
+```bash
+# Enter the submodule directory
+cd vibe_tools
+
+# Push directly to the vibe-tools repository (interactive script or raw git)
+python push_to_github.py
+# Or manually: git add . && git commit -m "feat: new feature" && git push origin main
+
+# Return to parent project root and update the version pointer
+cd ..
+git add vibe_tools
+git commit -m "chore: update vibe_tools to latest version"
+git push
+```
+
+### 2. Pull Updates in Another Project (Same PC or Another Machine)
+Open a terminal in the root of any other project using `vibe_tools` and run:
 ```bash
 git submodule update --remote --merge
 ```
+*Git will instantly pull the latest commits from the `vibe-tools` repository and merge them into the submodule directory.*
 
-To edit and push changes from within any project's submodule:
+### 3. Clone Projects on a New Computer / Machine
+When setting up an existing project on a new computer:
 ```bash
-cd vibe_tools
-python push_to_github.py
+# Clone the repository along with all submodules automatically
+git clone --recurse-submodules <YOUR_PROJECT_REPO_URL>
+
+# If already cloned without --recurse-submodules:
+git submodule update --init --recursive
+```
+
+### 4. Re-running the Installer (When New Tools / MCPs Are Added)
+Whenever an update includes new MCP servers, dependencies, or schemas:
+```bash
+python vibe_tools/setup_vibe_ecosystem.py
 ```
 
 ---

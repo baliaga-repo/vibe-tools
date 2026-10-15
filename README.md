@@ -88,3 +88,66 @@ python vibe_tools/setup_vibe_ecosystem.py
 
 4. **`OPENROUTER_MCP_GUIDE.md`**  
    - Panduan konfigurasi OpenRouter MCP, alias cerdas (`r1`, `claude`, `sonnet`, `deepseek`, `free`), dan pengaman limit harian.
+
+---
+
+## 🔄 Alur Sinkronisasi & Pembaruan Lintas Proyek
+
+Karena `vibe_tools` menggunakan **Git Submodule**, Anda dapat mengeditnya langsung dari proyek mana pun yang sedang Anda kerjakan:
+
+### 1. Mengedit & Push Pembaruan dari Proyek Mana Saja
+Jika Anda menambahkan skrip atau memperbaiki prompt di dalam folder `vibe_tools/`:
+```bash
+# Masuk ke folder submodule
+cd vibe_tools
+
+# Push langsung ke repositori vibe-tools (otomatis atau git biasa)
+python push_to_github.py
+# Atau: git add . && git commit -m "feat: fitur baru" && git push origin main
+
+# Kembali ke root proyek utama dan simpan catatan pointer versi
+cd ..
+git add vibe_tools
+git commit -m "chore: perbarui vibe_tools ke versi terbaru"
+git push
+```
+
+### 2. Mengambil Pembaruan di Proyek Lain (PC Sama / PC Lain)
+Buka terminal di root proyek lain yang sudah terhubung dengan `vibe_tools`, lalu jalankan:
+```bash
+git submodule update --remote --merge
+```
+*Seketika seluruh file di folder `vibe_tools` pada proyek tersebut akan otomatis sinkron ke versi terbaru.*
+
+### 3. Clone Proyek di Komputer / Laptop Baru
+Saat meng-clone proyek yang memiliki submodule di komputer baru:
+```bash
+# Clone sekaligus mengunduh isi submodule
+git clone --recurse-submodules <URL_REPOSITORI_PROYEK>
+
+# Jika terlanjur clone biasa dan folder vibe_tools masih kosong:
+git submodule update --init --recursive
+```
+
+### 4. Menjalankan Ulang Setup (Jika Ada Tool / MCP Baru)
+Jika pembaruan menyertakan MCP server baru atau library baru:
+```bash
+python vibe_tools/setup_vibe_ecosystem.py
+```
+
+---
+
+## 🤝 Berkontribusi (Contributing)
+
+Kontribusi sangat terbuka untuk siapa saja! Baik berupa penambahan MCP server baru, perbaikan prompt template, optimasi token, maupun pengayaan skrip:
+1. **Fork** repositori ini: [github.com/mobogemuichi-creator/vibe-tools](https://github.com/mobogemuichi-creator/vibe-tools)
+2. Buat branch baru: `git checkout -b fitur/nama-fitur`
+3. Commit perubahan: `git commit -m "feat: deskripsi perubahan"`
+4. Push ke branch Anda: `git push origin fitur/nama-fitur`
+5. Buat **Pull Request (PR)** di GitHub.
+
+---
+
+## 📄 Lisensi (License)
+
+Proyek ini dilisensikan di bawah [MIT License](LICENSE) — bebas digunakan, dimodifikasi, dan didistribusikan untuk proyek pribadi maupun komersial.
