@@ -1,8 +1,13 @@
 r"""
-Hermes Agent Worker MCP Server untuk Antigravity IDE.
+[ID]: Hermes Agent Worker MCP Server untuk Antigravity IDE.
 Menghubungkan Antigravity dengan Hermes Agent lokal
 sebagai worker mandiri untuk eksekusi perintah, riset file, web search, dan scripting
 tanpa membebani token context model utama (Claude / GPT).
+
+[EN]: Hermes Agent Worker MCP Server for Antigravity IDE.
+Connects Antigravity with the local Hermes Agent
+as an independent worker for command execution, file research, web search, and scripting
+without burdening the main model context token (Claude / GPT).
 """
 import sys
 import os
@@ -75,13 +80,20 @@ DEFAULT_HERMES_MODEL = "deepseek/deepseek-r1"
 )
 def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DEFAULT_HERMES_MODEL) -> str:
     """
-    Kirim tugas ke Hermes Agent.
+[ID]: Kirim tugas ke Hermes Agent.
     
     Args:
         tugas: Deskripsi perintah atau tugas lengkap yang harus dilakukan Hermes.
         direktori_kerja: Folder tempat Hermes harus bekerja (opsional, otomatis menggunakan direktori kerja aktif saat ini).
         model: Model OpenRouter spesifik yang ingin dipakai (default: 'deepseek/deepseek-r1', atau alternatif: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
-    """
+
+[EN]: Submit a task to the Hermes Agent.
+
+    Args:
+        tugas: Full description of the command or task for Hermes to execute.
+        direktori_kerja: Folder where Hermes should operate (optional, defaults to the current working directory).
+        model: Specific OpenRouter model to use (default: 'deepseek/deepseek-r1', or alternatives: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
+"""
     # Tentukan direktori kerja aktif secara cerdas
     target_cwd = ""
     if direktori_kerja and Path(direktori_kerja).exists():

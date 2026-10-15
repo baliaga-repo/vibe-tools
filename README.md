@@ -36,8 +36,10 @@ python vibe_tools/setup_vibe_ecosystem.py
    - ✅ Memasang schema MCP Antigravity di `~/.gemini/antigravity-ide/mcp/`.
    - ✅ Memasang global skill `/graphify` di `~/.gemini/config/skills/graphify/SKILL.md`.
    - ✅ Menyinkronkan OpenRouter API Key secara otomatis di semua tempat.
-   - ✅ Memasang Hermes Agent CLI dan menyetel model default (`deepseek/deepseek-chat`).
-   - ✅ Membangun seluruh aturan `.agents/AGENTS.md` (Dual-Agent: Gemini context-heavy + OpenRouter/Hermes deep reasoning), rules, skills, dan `.agents/MAP.md`.
+   - ✅ Membangun seluruh aturan `.agents/AGENTS.md` (Dual-Agent: Gemini context-heavy + OpenRouter/Hermes deep reasoning).
+   - ✅ Memasang pengaman biaya cerdas: **Predictive Token Budgeting** (`cost_estimator.py`) dan **Interactive Model Selector** (`ask_question`).
+   - ✅ Mengaktifkan **Bilingual Token Optimization** (English Bridge Pipeline) untuk menghemat 30%–50% saldo token OpenRouter.
+   - ✅ Menegakkan aturan **Model Transparency & Confirmation** sebelum koding.
 4. **Restart Antigravity IDE**, dan semua tools langsung aktif 100%!
 
 ---
@@ -73,6 +75,11 @@ python vibe_tools/setup_vibe_ecosystem.py
 8. **`install_openrouter_mcp.py`**  
    - *Fungsi*: Installer mandiri OpenRouter MCP Server ke Antigravity IDE.
 
+9. **`cost_estimator.py`**  
+   - *Fungsi*: Kalkulator estimasi token & biaya USD berbasis tarif resmi OpenRouter serta generator opsi untuk modal interaktif `ask_question`.
+
+10. **`docstring_translator.py`**  
+    - *Fungsi*: Penerjemah docstring otomatis berbasis AST ke format dwibahasa `[ID]` & `[EN]` yang terintegrasi dengan GitHub Actions.
 
 ---
 
@@ -88,6 +95,12 @@ python vibe_tools/setup_vibe_ecosystem.py
 
 4. **`OPENROUTER_MCP_GUIDE.md`**  
    - Panduan konfigurasi OpenRouter MCP, alias cerdas (`r1`, `claude`, `sonnet`, `deepseek`, `free`), dan pengaman limit harian.
+
+5. **`TUTORIAL_TESTING_ASK_QUESTION.md`**  
+   - Panduan praktis, diagram alur, dan contoh prompt siap pakai untuk menguji modal interaktif pemilih model (`ask_question`).
+
+6. **`TUTORIAL_DOCSTRING_TRANSLATOR.md`**  
+   - Panduan lengkap penerjemah docstring bilingual (`[ID]` & `[EN]`), konfigurasi multi-key, gonta-ganti engine (Gemini & OpenRouter), penanganan limit kuota, dan auto-save saat pembatalan.
 
 ---
 

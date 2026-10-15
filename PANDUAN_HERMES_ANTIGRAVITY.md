@@ -186,11 +186,15 @@ Sistem ini menggunakan pembagian peran berdasarkan kekuatan alami masing-masing 
 Anda cukup berinteraksi santai dengan Gemini di IDE:
 > **"Tolong analisa error / bug pada fungsi ini dan perbaiki."**
 
-### Alur Eksekusi Otomatis:
-1. **Gemini**: Menyaring file dan log menjadi ringkasan masalah (~100 baris).
-2. **Otomatis Routing**: Gemini memanggil `tanya_openrouter(model="claude")` atau `hermes_agent` untuk penalaran mendalam.
-3. **Claude / R1**: Melakukan *deep thinking* dan menghasilkan desain solusi.
-4. **Gemini**: Langsung menerapkan perubahan kode ke file workspace Anda.
+### Alur Eksekusi Otomatis & Koordinasi Dual-Agent:
+1. **Konfirmasi & Transparansi Model**: AI wajib mengonfirmasi model mana yang sedang aktif digunakan (misal: *Model Utama IDE Gemini Flash*, *Hermes Worker*, atau *Claude Sonnet*) sebelum menulis/mengubah kode.
+2. **Context Distillation**: Gemini menyaring file luas dan log menjadi ringkasan masalah (~100 baris).
+3. **Interactive Model Selector**: Jika tugas bersifat arsitektural/penalaran rumit dan Anda belum menyebut model, AI memanggil `ask_question` untuk menampilkan pop-up estimasi biaya USD & token in/out (`cost_estimator.py`).
+4. **Bilingual Bridge (Hemat Token)**: Gemini menerjemahkan prompt ke Bahasa Inggris teknis padat sebelum dilempar ke OpenRouter (menghemat saldo 30%–50%).
+5. **Delegasi Sesuai Tugas**:
+   - **Tugas Penalaran / Logika**: Dirouting ke `tanya_openrouter` (Claude Sonnet 4.5 / DeepSeek R1).
+   - **Tugas Investigasi Otonom / Multi-step CLI**: Didelegasikan ke `hermes_agent` (background worker mandiri).
+6. **Eksekusi Presisi**: Gemini menerjemahkan kembali hasil penalaran ke Bahasa Indonesia dan menerapkan perubahan kode secara presisi ke berkas Anda secara gratis ($0.00).
 
 ---
 

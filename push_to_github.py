@@ -1,7 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Skrip Otomasi Git Push ke GitHub
-Dibuat untuk memudahkan proses staging, commit, dan push repositori ke GitHub secara interaktif atau otomatis.
+[ID]: Skrip Otomasi Git Staging, Commit & Push Interaktif dengan Pengaman Berkas.
+Fitur utama:
+- Verifikasi repositori git dan deteksi otomatis root workspace.
+- Pengaman berkas rahasia dan pencegah upload berkas berukuran besar (>50MB peringatan / >100MB diblokir).
+- Pembersihan berkas sistem desktop.ini (khusus sinkronisasi Google Drive).
+- Generator pesan commit cerdas berbasis analisis perubahan berkas.
+- Penanganan remote origin dan sinkronisasi branch utama (main/master).
+
+[EN]: Interactive Git Staging, Commit & Push Automation Script with File Guards.
+Key features:
+- Git repository verification and automatic workspace root detection.
+- Secret and large file payload guards (>50MB warning / >100MB blocked).
+- Automated desktop.ini system file cleanup (essential for Google Drive sync).
+- Intelligent commit message generator based on changed file analysis.
+- Remote origin configuration and main/master branch push management.
 """
 
 import os
@@ -26,16 +39,23 @@ BATAS_UKURAN_MAKSIMAL_MB = 100
 
 
 def cetak_garis(karakter="=", panjang=60):
-    """Mencetak garis pemisah untuk mempercantik tampilan CLI."""
+    """
+[ID]: Mencetak garis pemisah untuk mempercantik tampilan CLI.
+[EN]: Prints a separator line to enhance CLI appearance.
+"""
     print(karakter * panjang)
 
 
 def jalankan_perintah(perintah, tangkap_output=True, cek_error=False):
     """
-    Menjalankan perintah shell/proses secara aman menggunakan subprocess.
+[ID]: Menjalankan perintah shell/proses secara aman menggunakan subprocess.
     Dapat menerima string atau list argumen perintah.
     Mengembalikan tuple: (kode_keluar, stdout, stderr).
-    """
+
+[EN]: Executes a shell/process command securely using subprocess.
+Accepts either a string or a list of command arguments.
+Returns a tuple: (exit_code, stdout, stderr).
+"""
     try:
         use_shell = isinstance(perintah, str)
         hasil = subprocess.run(
@@ -57,7 +77,10 @@ def jalankan_perintah(perintah, tangkap_output=True, cek_error=False):
 
 
 def cek_prasyarat(target_dir=None):
-    """Memverifikasi bahwa Git terpasang dan folder target adalah repositori Git."""
+    """
+[ID]: Memverifikasi bahwa Git terpasang dan folder target adalah repositori Git.
+[EN]: Verifies that Git is installed and the target folder is a Git repository.
+"""
     if target_dir:
         p = Path(target_dir).resolve()
         if p.exists() and p.is_dir():
@@ -94,7 +117,10 @@ def cek_prasyarat(target_dir=None):
 
 
 def dapatkan_branch_aktif():
-    """Mengambil nama branch git yang sedang aktif."""
+    """
+[ID]: Mengambil nama branch git yang sedang aktif.
+[EN]: Returns the currently active git branch name.
+"""
     kode, stdout, _ = jalankan_perintah("git branch --show-current")
     if kode == 0 and stdout.strip():
         return stdout.strip()
@@ -104,17 +130,24 @@ def dapatkan_branch_aktif():
 
 
 def dapatkan_remote_info(nama_remote="origin"):
-    """Mengambil URL dari remote git."""
+    """
+[ID]: Mengambil URL dari remote git.
+[EN]: Retrieves the URL from the git remote.
+"""
     kode, stdout, _ = jalankan_perintah(f"git remote get-url {nama_remote}")
     return stdout.strip() if kode == 0 and stdout.strip() else None
 
 
 def dapatkan_daftar_perubahan():
     """
-    Mengambil daftar file yang mengalami perubahan (modified, added, deleted, untracked).
+[ID]: Mengambil daftar file yang mengalami perubahan (modified, added, deleted, untracked).
     Mengembalikan list of tuple: (kode_status, nama_file).
     Format porcelain Git: 2 karakter status, diikuti spasi, diikuti nama file.
-    """
+
+[EN]: Retrieves a list of files that have been modified, added, deleted, or untracked.
+Returns a list of tuples: (status_code, file_name).
+Git porcelain format: 2-character status, followed by a space, followed by the file name.
+"""
     kode, stdout, _ = jalankan_perintah("git status --porcelain")
     if kode != 0 or not stdout:
         return []
@@ -130,9 +163,12 @@ def dapatkan_daftar_perubahan():
 
 def cek_file_berukuran_besar(daftar_perubahan):
     """
-    Memeriksa apakah ada file yang akan di-commit yang melebihi batas ukuran GitHub.
+[ID]: Memeriksa apakah ada file yang akan di-commit yang melebihi batas ukuran GitHub.
     Mengembalikan daftar file yang terlalu besar.
-    """
+
+[EN]: Checks if any files to be committed exceed GitHub's size limit.
+Returns a list of files that are too large.
+"""
     file_besar = []
     for _, path_file in daftar_perubahan:
         # Jika ada rename (ditandai ' -> ')
@@ -172,10 +208,12 @@ NAMA_FILE_BERBAHAYA = (
 
 def cek_kebocoran_rahasia(daftar_perubahan):
     """
-    Memeriksa secara otomatis dan proaktif apakah ada berkas rahasia (.env, file key)
+[ID]: Memeriksa secara otomatis dan proaktif apakah ada berkas rahasia (.env, file key)
     atau teks token / API key aktif di dalam berkas yang akan di-commit.
     Mengembalikan daftar temuan: (nama_file, tipe_peringatan, cuplikan).
-    """
+
+[EN]: Automatically and proactively checks for secret files (.env, key files) or active token/API key text within files to be committed. Returns a list of findings: (file_name, warning_type, snippet).
+"""
     temuan = []
     for _, path_file in daftar_perubahan:
         if " -> " in path_file:
@@ -212,7 +250,10 @@ def cek_kebocoran_rahasia(daftar_perubahan):
 
 
 def cek_unpushed_commits(branch):
-    """Memeriksa jumlah commit lokal yang belum di-push ke remote origin."""
+    """
+[ID]: Memeriksa jumlah commit lokal yang belum di-push ke remote origin.
+[EN]: Checks the number of local commits that have not been pushed to the remote origin.
+"""
     kode, stdout, _ = jalankan_perintah(f"git log origin/{branch}..HEAD --oneline")
     if kode == 0 and stdout:
         return stdout.splitlines()
@@ -220,7 +261,10 @@ def cek_unpushed_commits(branch):
 
 
 def tanya_konfirmasi(pertanyaan, default_ya=True):
-    """Meminta konfirmasi dari pengguna (y/n)."""
+    """
+[ID]: Meminta konfirmasi dari pengguna (y/n).
+[EN]: Prompt the user for confirmation (y/n).
+"""
     pilihan = "[Y/n]" if default_ya else "[y/N]"
     while True:
         jawaban = input(f"{pertanyaan} {pilihan}: ").strip().lower()
@@ -234,7 +278,10 @@ def tanya_konfirmasi(pertanyaan, default_ya=True):
 
 
 def tampilkan_ringkasan(branch, remote_url, daftar_perubahan, unpushed_commits):
-    """Menampilkan ringkasan status repositori sebelum tindakan dilakukan."""
+    """
+[ID]: Menampilkan ringkasan status repositori sebelum tindakan dilakukan.
+[EN]: Displays a summary of the repository status before performing any actions.
+"""
     cetak_garis("=")
     print("           RINGKASAN STATUS REPOSITORI GITHUB")
     cetak_garis("=")
@@ -277,12 +324,69 @@ def tampilkan_ringkasan(branch, remote_url, daftar_perubahan, unpushed_commits):
     return True
 
 
+def periksa_submodules_berubah():
+    """
+[ID]: Memeriksa berkas .gitmodules di root repositori aktif.
+    Mengembalikan daftar path direktori submodule yang memiliki perubahan internal yang belum di-commit.
+
+[EN]: Checks the .gitmodules file in the root of the active repository.
+Returns a list of submodule directory paths with uncommitted internal changes.
+"""
+    gitmodules = Path(".gitmodules")
+    if not gitmodules.is_file():
+        return []
+
+    submodules_berubah = []
+    try:
+        konten = gitmodules.read_text(encoding="utf-8", errors="ignore")
+        for baris in konten.splitlines():
+            baris = baris.strip()
+            if baris.startswith("path =") or baris.startswith("path="):
+                sub_path = baris.split("=", 1)[-1].strip().strip('"').strip("'")
+                p = Path(sub_path)
+                if p.is_dir():
+                    kode, stdout, _ = jalankan_perintah(f'git -C "{sub_path}" status --porcelain')
+                    if kode == 0 and stdout.strip():
+                        submodules_berubah.append(sub_path)
+    except Exception:
+        pass
+    return submodules_berubah
+
+
 def proses_git_push(pesan_commit=None, auto_confirm=True, lakukan_pull=True, target_dir=None):
     """
-    Alur utama pelaksanaan git add, git commit, git pull --rebase, dan git push.
+[ID]: Alur utama pelaksanaan git add, git commit, git pull --rebase, dan git push.
     Secara default auto_confirm bernilai True agar proses berjalan langsung tanpa konfirmasi manual.
-    """
+    Jika mendeteksi git submodule yang mengalami perubahan internal, skrip akan otomatis
+    menyinkronkan submodule tersebut terlebih dahulu.
+
+[EN]: The main workflow for executing git add, git commit, git pull --rebase, and git push.
+    By default, auto_confirm is set to True to allow the process to run directly without manual confirmation.
+    If internal changes are detected in a git submodule, the script will automatically synchronize the submodule first.
+"""
     cek_prasyarat(target_dir)
+
+    # Otomatis sinkronkan submodule terlebih dahulu jika dijalankan dari root repositori
+    if not target_dir:
+        sub_berubah = periksa_submodules_berubah()
+        if sub_berubah:
+            for sub_path in sub_berubah:
+                print("\n" + "=" * 60)
+                print(f" [AUTO-SYNC SUBMODULE] Mendeteksi perubahan di '{sub_path}'")
+                print(f" Mem-push submodule '{sub_path}' terlebih dahulu...")
+                print("=" * 60)
+                sub_pesan = pesan_commit or f"Pembaruan modul {sub_path}: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                sukses_sub = proses_git_push(
+                    pesan_commit=sub_pesan,
+                    auto_confirm=auto_confirm,
+                    lakukan_pull=lakukan_pull,
+                    target_dir=sub_path
+                )
+                if not sukses_sub:
+                    print(f"[PERINGATAN] Sinkronisasi submodule '{sub_path}' tidak berhasil.")
+            # Pastikan kembali ke root proyek setelah memproses submodule
+            cek_prasyarat()
+
     branch = dapatkan_branch_aktif()
     remote_url = dapatkan_remote_info()
 
@@ -433,7 +537,10 @@ def proses_git_push(pesan_commit=None, auto_confirm=True, lakukan_pull=True, tar
 
 
 def main():
-    """Fungsi utama untuk menangani argumen baris perintah."""
+    """
+[ID]: Fungsi utama untuk menangani argumen baris perintah.
+[EN]: Main function to handle command line arguments.
+"""
     parser = argparse.ArgumentParser(
         description="Skrip Python otomatis untuk mem-push perubahan ke GitHub tanpa konfirmasi."
     )
@@ -493,6 +600,13 @@ def main():
         daftar_perubahan = dapatkan_daftar_perubahan()
         unpushed_commits = cek_unpushed_commits(branch)
         tampilkan_ringkasan(branch, remote_url, daftar_perubahan, unpushed_commits)
+        if not target_dir:
+            sub_berubah = periksa_submodules_berubah()
+            if sub_berubah:
+                print(f"Submodule Dengan Perubahan Internal ({len(sub_berubah)} submodule):")
+                for s in sub_berubah:
+                    print(f"  * {s} (akan otomatis di-push terlebih dahulu)")
+                cetak_garis("=")
         return
 
     # Secara default tanpa konfirmasi apapun (langsung push), kecuali diberikan flag --interactive

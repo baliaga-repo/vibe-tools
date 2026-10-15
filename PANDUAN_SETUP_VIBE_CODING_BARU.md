@@ -18,6 +18,8 @@
 
 Dengan memasang ekosistem ini, proyek baru Anda akan memiliki keunggulan:
 - 📉 **Hemat Kuota Token Drastis (Hingga 70%+)**: AI tidak perlu membaca seluruh isi file atau meraba-raba struktur folder. AI dipandu urutan eksplorasi: `.agents/MAP.md` → `grep_search` → sliced `view_file` (maks 100 baris).
+- 💰 **Predictive Token Budgeting & Zero Surprise Cost**: Estimasi token & biaya USD transparan sebelum eksekusi AI eksternal, dilengkapi dialog modal interaktif jika model belum ditentukan.
+- 🌐 **Bilingual Token Optimization (English Bridge)**: Penghematan kuota token OpenRouter 30%–50% via translasi BPE otomatis oleh model IDE gratis tanpa membebani biaya pengguna.
 - 🛡️ **Anti-Kode Spageti & Anti-Monolitik**: Mencegah AI menggabungkan fungsi-fungsi menjadi satu file raksasa ribuan baris (*Universal No Monolithizing*). Kode otomatis dipecah rapi (*Separation of Concerns* & *Facade Pattern*).
 - 🕸️ **Knowledge Graph Tanpa Kuota API**: Memanfaatkan Graphify lokal untuk memetakan dependensi kode dan wiki secara instan tanpa mengonsumsi token konteks LLM.
 - 💬 **Komunikasi & Dokumentasi Bahasa Indonesia**: Percakapan, komentar fungsi, dan docstring otomatis ditulis dalam Bahasa Indonesia yang jelas dan profesional.
@@ -76,6 +78,7 @@ Pastikan direktori dan berkas berikut tersedia lengkap di root proyek ini:
 - `vibe_tools/setup_vibe_ecosystem.py` (Generator ekosistem repo baru)
 - `vibe_tools/install_hermes_antigravity.py` (Installer Hermes Agent MCP)
 - `vibe_tools/install_openrouter_mcp.py` (Installer OpenRouter MCP)
+- `vibe_tools/cost_estimator.py` (Kalkulator estimasi token & biaya serta generator opsi dialog interaktif)
 
 ---
 
@@ -89,12 +92,25 @@ Isi dengan panduan guardrails agent (dalam Bahasa Inggris padat agar hemat token
 ## Communication & Language
 - **User Explanations**: ALWAYS communicate in **Indonesian** during chatting and vibe coding.
 - **Code Comments & Docstrings**: MUST be written in **Indonesian**.
+- **Model Transparency & Confirmation**: ALWAYS explicitly state the active model being used (e.g., Primary Model Gemini Flash, Claude Sonnet 4.5, DeepSeek-R1, or Hermes) to confirm with the user before writing or editing code.
 
 ## Execution & Code Changes
 - **Direct Code Changes**: Apply file edits directly without implementation_plan.md or walkthrough.md unless requested.
 - **No Autonomous Testing on Updates**: DO NOT run self-tests, syntax checks, or builds after edits. Let user test manually first.
 - **Autonomous Error Fixing**: Autonomously fix and verify runtime crashes/errors reported by user.
 - **Proactive Command Execution**: Execute routine terminal commands directly without asking confirmation.
+- **Dual-Agent Role Specialization**:
+  - **Primary Model (Gemini/IDE)**: Leverages its massive context window for heavy context lifting: broad file inspections, running CLI/tests, digesting extensive logs, distilling issues into dense snippets (50-200 lines), and executing precision code edits for FREE.
+  - **Deep Reasoning & Thinking Offload (Automated Selection)**:
+    - **Pure Reasoning & Architecture**: Autonomously route to `openrouter:tanya_openrouter` using `model="claude"` (Claude Sonnet 4.5) or `model="r1"` (DeepSeek-R1) for direct, zero-overhead algorithmic analysis, root-cause investigation, and architecture design.
+    - **Multi-Step Agentic Tasks**: Route to `hermes_agent:delegasikan_ke_hermes` when autonomous multi-step problem solving, iterative probing, or Hermes sub-tools are required.
+    - **Autonomous Routing & Interactive Model Selector**: When encountering complex architectural or reasoning tasks where the user DID NOT specify a model, trigger `ask_question` with cost & token estimation (DeepSeek-R1, Claude Sonnet, DeepSeek-V3, Gemini Flash IDE Free, Hermes) so user can choose before execution. If user explicitly mentions a model, route immediately.
+- **Context Distillation Before Reasoning**: Never pass raw file dumps or voluminous log dumps to OpenRouter or Hermes; always distill essential context first to preserve OpenRouter credits and maximize reasoning accuracy.
+- **Bilingual Token Optimization (English Bridge Pipeline)**:
+  - When dispatching prompts to OpenRouter models (Claude Sonnet, DeepSeek-R1), the primary model MUST translate and compress user context into dense technical **English** to maximize BPE tokenizer efficiency (saving 30-50% in token volume compared to Indonesian/non-English) and improve reasoning quality.
+  - Instruct external models to respond in concise technical English.
+  - The primary model then translates, synthesizes, and presents the findings back to the user in **Indonesian** at zero token cost.
+- **Reasoning Output Compression**: Always request concise, pre-aggregated reasoning summaries and logic diffs from external reasoning models for immediate implementation by the primary model.
 - **Minimal Context**: Focus strictly on target files; avoid broad scans/greps unless requested.
 - **Token Efficiency**: Never load whole large files; use sliced viewing (StartLine/EndLine, max 100 lines) focused on target functions.
 - **Exploration Order**: .agents/MAP.md -> grep_search -> sliced view_file. Use graphify-out/wiki only for cross-module relationships.

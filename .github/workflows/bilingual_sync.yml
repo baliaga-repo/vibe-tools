@@ -1,0 +1,49 @@
+name: Auto-Sync Bilingual Docstrings
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - '**/*.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-docstrings:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run Bilingual Docstring Translator
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python docstring_translator.py .
+
+      - name: Commit & Push Changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -u
+          if git diff-index --quiet HEAD; then
+            echo "No docstrings to update."
+          else
+            git commit -m "ci: auto-sync bilingual docstrings [skip ci]"
+            git push
+          fi

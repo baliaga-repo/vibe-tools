@@ -1,5 +1,5 @@
 """
-Installer Otomatis: OpenRouter MCP Server untuk Antigravity IDE.
+[ID]: Installer Otomatis: OpenRouter MCP Server untuk Antigravity IDE.
 Skrip ini mengotomatiskan seluruh proses instalasi di PC/laptop baru:
 1. Membuat folder ~/.gemini dan ~/.gemini/config/.
 2. Menginstal pustaka python yang dibutuhkan (mcp, requests).
@@ -7,6 +7,15 @@ Skrip ini mengotomatiskan seluruh proses instalasi di PC/laptop baru:
 4. Mengonfigurasi openrouter_key.txt untuk menyimpan API Key.
 5. Menambahkan konfigurasi server 'openrouter' ke ~/.gemini/config/mcp_config.json.
 6. Memverifikasi kelayakan sintaks server MCP.
+
+[EN]: Automatic Installer: OpenRouter MCP Server for Antigravity IDE.
+This script automates the entire installation process on a new PC/laptop:
+1. Creates the ~/.gemini and ~/.gemini/config/ directories.
+2. Installs required Python libraries (mcp, requests).
+3. Places the openrouter_mcp.py server file into ~/.gemini/.
+4. Configures openrouter_key.txt to store the API Key.
+5. Adds the 'openrouter' server configuration to ~/.gemini/config/mcp_config.json.
+6. Verifies the MCP server syntax validity.
 """
 
 import json

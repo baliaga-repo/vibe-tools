@@ -10,7 +10,9 @@ Dokumen ini berisi panduan komprehensif integrasi **OpenRouter MCP Server** di A
 3. [🔍 Cara Verifikasi & Uji Koneksi](#-cara-verifikasi--uji-koneksi)
 4. [🏆 Katalog Model Pilihan Berdasarkan Kategori](#-katalog-model-pilihan-berdasarkan-kategori)
 5. [💡 Contoh Cara Meminta di Chat Antigravity](#-contoh-cara-meminta-di-chat-antigravity)
-6. [⚙️ Lokasi Berkas & Troubleshooting](#️-lokasi-berkas--troubleshooting)
+6. [📊 Predictive Token Budgeting & Pemilih Model Cerdas (cost_estimator.py)](#-predictive-token-budgeting--pemilih-model-cerdas-cost_estimatorpy)
+7. [🌐 Bilingual Token Optimization (English Bridge Pipeline)](#-bilingual-token-optimization-english-bridge-pipeline)
+8. [⚙️ Lokasi Berkas & Troubleshooting](#️-lokasi-berkas--troubleshooting)
 
 ---
 
@@ -114,7 +116,7 @@ Server MCP OpenRouter telah dilengkapi dengan **Sistem Alias Cerdas**. Anda **ti
 | :--- | :---: | :--- | :---: | :--- |
 | 🧠 **Penalaran Super (Reasoning)** | **`r1`** | `deepseek/deepseek-r1` | $0.55 / $2.19 | Algoritma matematika, logika regex rumit, pelacakan bug misterius, pemikiran mendalam (CoT). |
 | 🧠 **Penalaran Cepat** | **`o3-mini`** | `openai/o3-mini` | $1.10 / $4.40 | Masalah sains/coding yang butuh penalaran logis ala OpenAI. |
-| 💻 **Standar Emas Coding** | **`claude`** atau **`sonnet`** | `anthropic/claude-3.5-sonnet` | $3.00 / $15.00 | Refactoring arsitektur besar, pembuatan kode modular bersih, zero halusinasi sintaks. |
+| 💻 **Standar Emas Coding** | **`claude`** atau **`sonnet`** | `anthropic/claude-sonnet-4.5` | $3.00 / $15.00 | Refactoring arsitektur besar, pembuatan kode modular bersih, zero halusinasi sintaks. |
 | 💻 **Spesialis Coding Super Cepat** | **`qwen`**, **`qwen-coder`**, **`qwen-2.5-coder`** | `qwen/qwen-2.5-coder-32b-instruct` | **$0.07 / $1.00** | Model spesialis coding terbaik di kelasnya: super murah, kilat, dan akurat untuk Python, JS, Regex. |
 | 💻 **Spesialis Autocomplete & Patching** | **`codestral`** | `mistralai/codestral-2501` | $0.30 / $0.90 | Fitur FIM (Fill-in-the-Middle) untuk melengkapi potongan fungsi kode dan modifikasi baris. |
 | ⚡ **Harian Gesit & Super Hemat** | **`deepseek`** atau **`v3`** | `deepseek/deepseek-chat` | **$0.14 / $0.28** | Pekerjaan harian serbaguna, pembuatan skrip cepat, penjelasan kode, penulisan docstring. |
@@ -130,7 +132,7 @@ Anda cukup berbicara seperti biasa dengan menyebutkan alias modelnya:
 1. **Meminta Bantuan DeepSeek R1 untuk Logika Berat:**
    > *"Antigravity, tolong buatkan algoritma filtering data ini. Gunakan model `r1` untuk merancang logikanya, lalu implementasikan ke kodenya."*
 
-2. **Meminta Refactoring Presisi ke Claude 3.5 Sonnet:**
+2. **Meminta Refactoring Presisi ke Claude Sonnet 4.5:**
    > *"Tolong tanyakan ke `claude` bagaimana cara memecah fungsi monolitik ini menjadi sub-fungsi yang rapi dan modular."*
 
 3. **Menggunakan Model Harian Termurah (DeepSeek V3):**
@@ -141,6 +143,35 @@ Anda cukup berbicara seperti biasa dengan menyebutkan alias modelnya:
 
 5. **Melihat Katalog Langsung dari Chat:**
    > *"Tolong panggil `daftar_model_rekomendasi` untuk melihat opsi model saat ini."*
+
+---
+
+## 📊 Predictive Token Budgeting & Pemilih Model Cerdas (`cost_estimator.py`)
+
+Untuk mencegah pembengkakan saldo OpenRouter tanpa sengaja, ekosistem menyertakan modul mandiri [cost_estimator.py](file:///d:/mobog/Videos/Youtube%20Download/vibe_tools/cost_estimator.py):
+
+### 1. Bagaimana Cara Kerjanya?
+- **Heuristic Token Estimator**: Menghitung estimasi token input (~3.5 karakter per token) dan output berdasarkan tingkat kerumitan tugas.
+- **Tabel Tarif Resmi**: Mengalikan token dengan harga resmi OpenRouter per 1M token untuk setiap model (`r1`, `claude`, `v3`, `free`).
+- **Interactive Modal Pop-up (`ask_question`)**:
+  Jika Anda meminta tugas arsitektur/penalaran rumit dan **lupa menyebutkan model**, Antigravity IDE otomatis menampilkan modal dialog radio button berisi daftar model, estimasi token in/out, serta estimasi biaya dalam USD (misal: `~$0.003` untuk R1 atau `~$0.020` untuk Claude Sonnet).
+
+---
+
+## 🌐 Bilingual Token Optimization (English Bridge Pipeline)
+
+### Mengapa Perlu Jembatan Bahasa?
+Tokenizer BPE (Byte-Pair Encoding) pada Claude dan model LLM frontier lainnya dilatih mayoritas dengan korpus Bahasa Inggris. 
+- **Bahasa Inggris**: Rata-rata **~1.3 token per kata**.
+- **Bahasa Indonesia**: Rata-rata **~2.2 s/d 2.8 token per kata** (akibat *subword fragmentation* suku kata).
+
+Untuk teks panjang, Bahasa Indonesia dapat memakan **40% – 50% lebih banyak token** dan biaya saldo OpenRouter.
+
+### Solusi Otomatis (Zero-Cost Translation Bridge):
+1. **Input**: Anda tetap bertanya santai dalam **Bahasa Indonesia**.
+2. **Translate & Compress**: Gemini IDE (Gratis, $0.00) merangkum konteks ke dalam Bahasa Inggris teknis padat di balik layar.
+3. **Reasoning**: OpenRouter (Claude Sonnet / DeepSeek-R1) mengeksekusi logika dalam Bahasa Inggris (menghemat saldo 30%–50%).
+4. **Output**: Gemini IDE menerjemahkan dan menyajikan solusinya kembali kepada Anda dalam Bahasa Indonesia yang rapi tanpa biaya token tambahan!
 
 ---
 

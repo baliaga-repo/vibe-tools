@@ -1,7 +1,11 @@
 """
-Server MCP OpenRouter untuk Antigravity IDE.
+[ID]: Server MCP OpenRouter untuk Antigravity IDE.
 Menyediakan integrasi langsung ke berbagai model AI unggulan melalui OpenRouter API
 dengan sistem alias cerdas (r1, claude, sonnet, deepseek, v3, gpt4o, qwen, free, dll).
+
+[EN]: MCP OpenRouter server for Antigravity IDE.
+Provides direct integration with leading AI models through OpenRouter API
+using a smart alias system (r1, claude, sonnet, deepseek, v3, gpt4o, qwen, free, etc.).
 """
 
 import os
@@ -35,12 +39,13 @@ MODEL_ALIASES = {
     "o3-mini": "openai/o3-mini",
     
     # Standar Emas Coding & Refactoring
-    "claude": "anthropic/claude-3.7-sonnet:thinking",
-    "claude-thinking": "anthropic/claude-3.7-sonnet:thinking",
-    "claude-3.7": "anthropic/claude-3.7-sonnet",
-    "claude-3.7-thinking": "anthropic/claude-3.7-sonnet:thinking",
-    "sonnet": "anthropic/claude-3.7-sonnet:thinking",
-    "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet",
+    "claude": "anthropic/claude-sonnet-4.5",
+    "claude-thinking": "anthropic/claude-sonnet-4.5",
+    "sonnet": "anthropic/claude-sonnet-4.5",
+    "claude-4": "anthropic/claude-sonnet-4",
+    "claude-4.5": "anthropic/claude-sonnet-4.5",
+    "claude-3.7": "anthropic/claude-sonnet-4.5",
+    "claude-3.5-sonnet": "anthropic/claude-sonnet-4.5",
     
     # Model Google Long-Context
     "gemini": "google/gemini-2.5-flash",
@@ -72,9 +77,12 @@ MODEL_ALIASES = {
 
 def get_api_key() -> str:
     """
-    Mengambil OpenRouter API Key dari variabel lingkungan atau berkas openrouter_key.txt.
+[ID]: Mengambil OpenRouter API Key dari variabel lingkungan atau berkas openrouter_key.txt.
     Mendukung fallback otomatis jika salah satu belum terisi.
-    """
+
+[EN]: Retrieves the OpenRouter API key from the environment variable or the openrouter_key.txt file.
+Supports automatic fallback if either is not set.
+"""
     # 1. Cek dari Environment Variable
     env_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if env_key and env_key != "TEMPEL_API_KEY_DISINI":
@@ -96,9 +104,12 @@ def get_api_key() -> str:
 
 def resolve_model_id(alias_or_id: str) -> str:
     """
-    Menerjemahkan alias pendek ke model ID lengkap OpenRouter.
+[ID]: Menerjemahkan alias pendek ke model ID lengkap OpenRouter.
     Jika bukan alias terdaftar, gunakan string model asli apa adanya.
-    """
+
+[EN]: Translates short aliases to full OpenRouter model IDs.
+If not a registered alias, uses the original model string as-is.
+"""
     if not alias_or_id:
         return "deepseek/deepseek-chat"
     alias_clean = alias_or_id.strip().lower()
@@ -111,9 +122,12 @@ DAILY_LIMIT_USD = float(os.environ.get("OPENROUTER_DAILY_LIMIT", "1.00"))
 
 def check_daily_limit_exceeded(api_key: str) -> tuple[bool, float]:
     """
-    Mengecek apakah penggunaan hari ini (usage_daily) telah melebihi batas limit harian.
+[ID]: Mengecek apakah penggunaan hari ini (usage_daily) telah melebihi batas limit harian.
     Mengembalikan (is_exceeded, current_daily_usage).
-    """
+
+[EN]: Checks if today's usage (usage_daily) has exceeded the daily limit.
+Returns (is_exceeded, current_daily_usage).
+"""
     try:
         headers = {"Authorization": f"Bearer {api_key}"}
         res = requests.get("https://openrouter.ai/api/v1/auth/key", headers=headers, timeout=5)
@@ -131,10 +145,14 @@ def check_daily_limit_exceeded(api_key: str) -> tuple[bool, float]:
 @mcp.tool()
 def tanya_openrouter(prompt: str, model: str = "deepseek", system_prompt: str = "") -> str:
     """
-    Mengirim pertanyaan atau tugas ke berbagai model AI melalui OpenRouter API.
+[ID]: Mengirim pertanyaan atau tugas ke berbagai model AI melalui OpenRouter API.
     Mendukung alias cerdas seperti 'r1', 'claude', 'sonnet', 'deepseek', 'v3', 'gpt4o', 'qwen', 'free', dsb.
     Dilengkapi pengaman batas pengeluaran harian $1/hari.
-    """
+
+[EN]: Sends queries or tasks to various AI models via the OpenRouter API.
+Supports smart aliases such as 'r1', 'claude', 'sonnet', 'deepseek', 'v3', 'gpt4o', 'qwen', 'free', etc.
+Includes a daily spending limit safeguard of $1/day.
+"""
     api_key = get_api_key()
     if not api_key:
         return (
@@ -208,8 +226,9 @@ def tanya_openrouter(prompt: str, model: str = "deepseek", system_prompt: str = 
 @mcp.tool()
 def daftar_model_rekomendasi() -> str:
     """
-    Menampilkan katalog model AI unggulan, alias pendek yang didukung, serta perkiraan biaya per 1 juta token.
-    """
+[ID]: Menampilkan katalog model AI unggulan, alias pendek yang didukung, serta perkiraan biaya per 1 juta token.
+[EN]: Displays a catalog of top AI models, supported shorthand aliases, and estimated costs per 1 million tokens.
+"""
     katalog = """### 🏆 Katalog Model AI Pilihan OpenRouter
 
 Anda dapat menggunakan Nama Panggilan (Alias) langsung pada parameter `model` di tool `tanya_openrouter`:
@@ -233,8 +252,9 @@ Anda dapat menggunakan Nama Panggilan (Alias) langsung pada parameter `model` di
 @mcp.tool()
 def cek_koneksi_openrouter() -> str:
     """
-    Mengecek validitas API Key OpenRouter serta status saldo, limit pemakaian, dan kuota rate limit akun.
-    """
+[ID]: Mengecek validitas API Key OpenRouter serta status saldo, limit pemakaian, dan kuota rate limit akun.
+[EN]: Validates the OpenRouter API Key and checks account balance, usage limit, and rate limit quota.
+"""
     api_key = get_api_key()
     if not api_key:
         return (

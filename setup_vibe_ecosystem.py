@@ -1,5 +1,5 @@
 """
-Skrip Otomasi Pemasangan Ekosistem Vibe Coding Cerdas, Ramping & Hemat Token.
+[ID]: Skrip Otomasi Pemasangan Ekosistem Vibe Coding Cerdas, Ramping & Hemat Token.
 Menghasilkan seluruh folder .agents, rules, skills, workflows, graphify_map.py,
 graphify_update.py, push_github.py, dan MAP.md secara instan dalam 1 detik.
 
@@ -8,6 +8,16 @@ Cara Penggunaan di Proyek Baru:
     2. Jalankan perintah terminal:
            python setup_vibe_ecosystem.py
     3. Ekosistem langsung siap dipakai tanpa perlu membuang kuota token AI!
+
+[EN]: Smart, Lean & Token-Efficient Vibe Coding Ecosystem Auto-Setup Script.
+Instantly generates all .agents, rules, skills, workflows folders along with graphify_map.py,
+graphify_update.py, push_github.py, and MAP.md files in just 1 second.
+
+Usage for New Projects:
+    1. Copy 'setup_vibe_ecosystem.py' to your new project folder.
+    2. Run terminal command:
+           python setup_vibe_ecosystem.py
+    3. The ecosystem is immediately ready without wasting AI token quota!
 """
 import os
 import subprocess
@@ -19,7 +29,10 @@ if os.path.basename(BASE_DIR) == "vibe_tools":
 
 
 def baca_skrip_lokal(nama_file: str) -> str:
-    """Membaca isi skrip dari folder lokal vibe_tools jika tersedia."""
+    """
+[ID]: Membaca isi skrip dari folder lokal vibe_tools jika tersedia.
+[EN]: Reads the script content from the local vibe_tools folder if available.
+"""
     lokal = os.path.join(os.path.dirname(os.path.abspath(__file__)), nama_file)
     if os.path.exists(lokal):
         try:
@@ -31,7 +44,10 @@ def baca_skrip_lokal(nama_file: str) -> str:
 
 
 def buat_berkas(rel_path: str, isi: str):
-    """Menulis berkas jika belum ada, mencegah penimpaan file atau setup spesialis yang sudah ada."""
+    """
+[ID]: Menulis berkas jika belum ada, mencegah penimpaan file atau setup spesialis yang sudah ada.
+[EN]: Writes the file if it does not exist, preventing overwriting or disrupting existing specialized setups.
+"""
     target = os.path.join(BASE_DIR, rel_path)
     os.makedirs(os.path.dirname(target), exist_ok=True)
     if not os.path.exists(target):
@@ -44,9 +60,12 @@ def buat_berkas(rel_path: str, isi: str):
 
 def pasang_agents_md():
     """
-    Memasang atau menggabungkan aturan .agents/AGENTS.md secara non-destruktif.
+[ID]: Memasang atau menggabungkan aturan .agents/AGENTS.md secara non-destruktif.
     Jika file sudah ada dengan aturan kustom/spesialis, aturan lama 100% dipertahankan!
-    """
+
+[EN]: Installs or merges the .agents/AGENTS.md rules non-destructively.
+    If the file already exists with custom/specialized rules, the old rules are 100% preserved!
+"""
     target = os.path.join(BASE_DIR, ".agents", "AGENTS.md")
     os.makedirs(os.path.dirname(target), exist_ok=True)
     if not os.path.exists(target):
@@ -86,6 +105,7 @@ KONTEN_AGENTS_MD = """# Custom Agent Rules
 ## Communication & Language
 - **User Explanations**: ALWAYS communicate in **Indonesian** during chatting and vibe coding.
 - **Code Comments & Docstrings**: MUST be written in **Indonesian**.
+- **Model Transparency & Confirmation**: ALWAYS explicitly state the active model being used (e.g., Primary Model Gemini Flash, Claude Sonnet 4.5, DeepSeek-R1, or Hermes) to confirm with the user before writing or editing code.
 
 ## Execution & Code Changes
 - **Direct Code Changes**: Apply file edits directly without implementation_plan.md or walkthrough.md unless requested.
@@ -93,12 +113,16 @@ KONTEN_AGENTS_MD = """# Custom Agent Rules
 - **Autonomous Error Fixing**: Autonomously fix and verify runtime crashes/errors reported by user.
 - **Proactive Command Execution**: Execute routine short terminal commands directly without asking confirmation.
 - **Dual-Agent Role Specialization**:
-  - **Primary Model (Gemini/IDE)**: Leverages its massive context window for heavy context lifting: broad file inspections, running CLI/tests, digesting extensive logs, distilling issues into dense snippets (50-200 lines), and executing precision code edits.
+  - **Primary Model (Gemini/IDE)**: Leverages its massive context window for heavy context lifting: broad file inspections, running CLI/tests, digesting extensive logs, distilling issues into dense snippets (50-200 lines), and executing precision code edits for FREE.
   - **Deep Reasoning & Thinking Offload (Automated Selection)**:
-    - **Pure Reasoning & Architecture**: Autonomously route to `openrouter:tanya_openrouter` using `model="claude"` (Claude 3.7 Sonnet Thinking) or `model="r1"` (DeepSeek-R1) for direct, zero-overhead algorithmic analysis, root-cause investigation, and architecture design.
+    - **Pure Reasoning & Architecture**: Autonomously route to `openrouter:tanya_openrouter` using `model="claude"` (Claude Sonnet 4.5) or `model="r1"` (DeepSeek-R1) for direct, zero-overhead algorithmic analysis, root-cause investigation, and architecture design.
     - **Multi-Step Agentic Tasks**: Route to `hermes_agent:delegasikan_ke_hermes` when autonomous multi-step problem solving, iterative probing, or Hermes sub-tools are required.
-    - **Autonomous Routing**: Trigger these offload tools automatically when encountering complex logic/bugs without requiring explicit user invocation, while honoring any manual model/tool preferences requested by the user.
+    - **Autonomous Routing & Interactive Model Selector**: When encountering complex architectural or reasoning tasks where the user DID NOT specify a model, trigger `ask_question` with cost & token estimation (DeepSeek-R1, Claude Sonnet, DeepSeek-V3, Gemini Flash IDE Free, Hermes) so user can choose before execution. If user explicitly mentions a model, route immediately.
 - **Context Distillation Before Reasoning**: Never pass raw file dumps or voluminous log dumps to OpenRouter or Hermes; always distill essential context first to preserve OpenRouter credits and maximize reasoning accuracy.
+- **Bilingual Token Optimization (English Bridge Pipeline)**:
+  - When dispatching prompts to OpenRouter models (Claude Sonnet, DeepSeek-R1), the primary model MUST translate and compress user context into dense technical **English** to maximize BPE tokenizer efficiency (saving 30-50% in token volume compared to Indonesian/non-English) and improve reasoning quality.
+  - Instruct external models to respond in concise technical English.
+  - The primary model then translates, synthesizes, and presents the findings back to the user in **Indonesian** at zero token cost.
 - **Reasoning Output Compression**: Always request concise, pre-aggregated reasoning summaries and logic diffs from external reasoning models for immediate implementation by the primary model.
 - **Minimal Context**: Focus strictly on target files; avoid broad scans/greps unless requested.
 - **Token Efficiency**: Never load whole large files; use sliced viewing (StartLine/EndLine, max 100 lines) focused on target functions.
@@ -722,12 +746,18 @@ KONTEN_SCHEMA_CEK_OR = r'''{
 
 def pasang_dependensi_python():
     """
-    Memeriksa dan menginstal secara otomatis seluruh pustaka Python yang dibutuhkan ekosistem:
+[ID]: Memeriksa dan menginstal secara otomatis seluruh pustaka Python yang dibutuhkan ekosistem:
     - mcp (untuk server FastMCP / MCPServer Antigravity)
     - requests (untuk klien OpenRouter)
     - graphifyy (untuk visualisasi dan ekstraksi knowledge graph)
     - Dependensi inti Hermes Agent (ruamel.yaml, psutil, rich, tomli-w, dll.)
-    """
+
+[EN]: Checks and automatically installs all required Python libraries for the ecosystem:
+    - mcp (for FastMCP / MCPServer Antigravity)
+    - requests (for OpenRouter client)
+    - graphifyy (for knowledge graph visualization and extraction)
+    - Core dependencies of Hermes Agent (ruamel.yaml, psutil, rich, tomli-w, etc.)
+"""
     print("\n[INFO] Memeriksa paket Python esensial...")
     paket_wajib = [
         ("mcp", "mcp"),
@@ -768,13 +798,20 @@ def pasang_dependensi_python():
 
 def sinkronkan_openrouter_api_key(gemini_dir, gemini_config_dir) -> str:
     """
-    Mendeteksi OpenRouter API Key dari berbagai sumber lokal.
+[ID]: Mendeteksi OpenRouter API Key dari berbagai sumber lokal.
     Jika ditemukan di salah satu sumber, otomatis menyinkronkannya ke semua sumber lain:
     1. Environment Variable: OPENROUTER_API_KEY
     2. ~/.gemini/openrouter_key.txt
     3. ~/.gemini/config/mcp_config.json
     4. %LOCALAPPDATA%/hermes/.env
-    """
+
+[EN]: Detects OpenRouter API Key from various local sources.
+If found in any source, automatically synchronizes it to all other sources:
+1. Environment Variable: OPENROUTER_API_KEY
+2. ~/.gemini/openrouter_key.txt
+3. ~/.gemini/config/mcp_config.json
+4. %LOCALAPPDATA%/hermes/.env
+"""
     from pathlib import Path
     key_ditemukan = ""
 
@@ -852,12 +889,18 @@ def sinkronkan_openrouter_api_key(gemini_dir, gemini_config_dir) -> str:
 
 def konfigurasi_root_gemini(api_key: str):
     """
-    Mengonfigurasi direktori root Antigravity IDE (~/.gemini) secara 100% dinamis dan portabel:
+[ID]: Mengonfigurasi direktori root Antigravity IDE (~/.gemini) secara 100% dinamis dan portabel:
     - Memasang script server openrouter_mcp.py & hermes_mcp.py
     - Memasang schema MCP Antigravity di ~/.gemini/antigravity-ide/mcp/
     - Memasang global skill graphify di ~/.gemini/config/skills/graphify/SKILL.md
     - Mendaftarkan mcpServers di ~/.gemini/config/mcp_config.json dengan path Python dinamis.
-    """
+
+[EN]: Configures the Antigravity IDE root directory (~/.gemini) to be 100% dynamic and portable:
+    - Installs server scripts openrouter_mcp.py & hermes_mcp.py
+    - Installs Antigravity MCP schema in ~/.gemini/antigravity-ide/mcp/
+    - Installs global skill graphify in ~/.gemini/config/skills/graphify/SKILL.md
+    - Registers mcpServers in ~/.gemini/config/mcp_config.json with dynamic Python paths.
+"""
     import json
     import shutil
     from pathlib import Path
@@ -947,10 +990,14 @@ def konfigurasi_root_gemini(api_key: str):
 
 def pasang_atau_sinkronkan_hermes(api_key: str):
     """
-    Memeriksa ketersediaan Hermes Agent CLI.
+[ID]: Memeriksa ketersediaan Hermes Agent CLI.
     Jika belum ada, otomatis clone repositori resmi dan pasang via pip install -e .
     Mengonfigurasi default model ke 'deepseek/deepseek-chat' dan kredensial API.
-    """
+
+[EN]: Checks the availability of the Hermes Agent CLI.
+If not present, automatically clones the official repository and installs via `pip install -e .`.
+Configures the default model to 'deepseek/deepseek-chat' and sets up API credentials.
+"""
     import shutil
     from pathlib import Path
 
@@ -1034,9 +1081,13 @@ def main():
     buat_berkas("vibe_tools/OPENROUTER_MCP_GUIDE.md", baca_skrip_lokal("OPENROUTER_MCP_GUIDE.md"))
     buat_berkas("vibe_tools/Prompt_AI.md", baca_skrip_lokal("Prompt_AI.md"))
     buat_berkas("vibe_tools/PANDUAN_SETUP_VIBE_CODING_BARU.md", baca_skrip_lokal("PANDUAN_SETUP_VIBE_CODING_BARU.md"))
+    buat_berkas("vibe_tools/TUTORIAL_TESTING_ASK_QUESTION.md", baca_skrip_lokal("TUTORIAL_TESTING_ASK_QUESTION.md"))
     buat_berkas("vibe_tools/graphify_SKILL.md", baca_skrip_lokal("graphify_SKILL.md"))
     buat_berkas("vibe_tools/openrouter_mcp.py", baca_skrip_lokal("openrouter_mcp.py"))
     buat_berkas("vibe_tools/hermes_mcp.py", baca_skrip_lokal("hermes_mcp.py"))
+    buat_berkas("vibe_tools/cost_estimator.py", baca_skrip_lokal("cost_estimator.py"))
+    buat_berkas("vibe_tools/docstring_translator.py", baca_skrip_lokal("docstring_translator.py"))
+    buat_berkas("vibe_tools/TUTORIAL_DOCSTRING_TRANSLATOR.md", baca_skrip_lokal("TUTORIAL_DOCSTRING_TRANSLATOR.md"))
 
     # 3. Auto-Install seluruh dependensi Python yang belum terpasang
     pasang_dependensi_python()

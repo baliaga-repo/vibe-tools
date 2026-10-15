@@ -46,31 +46,37 @@ When you run `setup_vibe_ecosystem.py`, it automatically performs the following:
 
 - [x] **Installs Required Dependencies**: Automatically checks and installs `mcp`, `requests`, `graphifyy`, and Hermes dependencies via `pip`.
 - [x] **Configures Antigravity IDE**: Dynamically maps paths in `~/.gemini/config/mcp_config.json` without hardcoded usernames.
-- [x] **Installs OpenRouter MCP**: Installs the `openrouter` MCP server (`tanya_openrouter`, `daftar_model_rekomendasi`, `cek_koneksi_openrouter`) supporting Claude 3.7 Thinking, DeepSeek-R1, and custom models.
+- [x] **Installs OpenRouter MCP**: Installs the `openrouter` MCP server (`tanya_openrouter`, `daftar_model_rekomendasi`, `cek_koneksi_openrouter`) supporting Claude Sonnet 4.5, DeepSeek-R1, and custom models.
 - [x] **Installs Hermes Agent MCP**: Configures autonomous multi-step subagent delegation (`delegasikan_ke_hermes`).
 - [x] **Deploys MCP Schemas**: Installs validated JSON schemas into `~/.gemini/antigravity-ide/mcp/`.
 - [x] **Deploys Global Skills**: Deploys the `/graphify` skill to `~/.gemini/config/skills/graphify/SKILL.md`.
 - [x] **Synchronizes API Keys**: Auto-detects and synchronizes your `OPENROUTER_API_KEY` across all IDE config files.
-- [x] **Scaffolds Guardrails & Architecture**: Generates token-efficient rules in `.agents/AGENTS.md`, modular skills, workflows, and AST file maps (`.agents/MAP.md`).
+- [x] **Predictive Budgeting & Interactive Model Selector**: Deploys `cost_estimator.py` with automatic `ask_question` popups and cost forecasting.
+- [x] **Bilingual Token Optimization (English Bridge)**: Translates contexts to dense technical English under the hood to save 30%–50% token cost on BPE tokenizers, presenting results in Indonesian for free.
+- [x] **Scaffolds Guardrails & Architecture**: Generates token-efficient rules in `.agents/AGENTS.md`, model confirmation guards, modular skills, workflows, and AST file maps (`.agents/MAP.md`).
 
 ---
 
-## 🧠 Dual-Agent Architecture
+## 🧠 Dual-Agent Architecture & Bilingual Optimization
 
 Vibe Tools establishes a collaborative dual-agent paradigm:
 
 ```mermaid
 graph TD
-    User([User / Developer]) --> IDE[Antigravity IDE / Gemini Primary Model]
+    User([User / Developer]) -->|Indonesian Chat| IDE[Antigravity IDE / Gemini Primary Model]
+    IDE -->|Local Heuristic Cost & Token Estimator| CE[cost_estimator.py / ask_question Modal]
     IDE -->|Context Heavy Lifting: Code Review, AST Maps, Precision Edits| Repo[Project Codebase]
-    IDE -->|Complex Reasoning & Root Cause Analysis| OR[OpenRouter MCP: Claude 3.7 / DeepSeek-R1]
+    IDE -->|Dense Technical English Bridge - 40% Token Savings| OR[OpenRouter MCP: Claude Sonnet 4.5 / DeepSeek-R1]
     IDE -->|Autonomous Multi-step Problem Solving| Hermes[Hermes Agent MCP]
-    OR -->|Concise Diff / Strategic Solution| IDE
+    OR -->|Concise English Diff / Solution| IDE
     Hermes -->|Subagent Execution Report| IDE
+    IDE -->|Free Indonesian Translation & Synthesis| User
 ```
 
-1. **Primary Model (Gemini / IDE Agent)**: Handles large context lifting, AST tree inspections, CLI executions, log digestion, and precision code editing.
-2. **Deep Reasoning Offload**: Autonomously offloads pure algorithmic problems, root-cause investigations, and architectural decisions to **OpenRouter** (Claude 3.7 Sonnet Thinking / DeepSeek-R1) or **Hermes Agent**.
+1. **Primary Model (Gemini / IDE Agent)**: Handles large context lifting, AST tree inspections, CLI executions, log digestion, and precision code editing for FREE.
+2. **Deep Reasoning Offload**: Autonomously offloads pure algorithmic problems, root-cause investigations, and architectural decisions to **OpenRouter** (Claude Sonnet 4.5 / DeepSeek-R1) or **Hermes Agent**.
+3. **Interactive Budget Guard**: Prompts an interactive modal selector (`ask_question`) with live token & USD cost estimates when no model is explicitly designated.
+4. **Bilingual Bridge**: Translates Indonesian prompts into concise technical English before dispatching to external reasoning models, saving 30%–50% in token volume on Byte-Pair Encoding tokenizers.
 
 ---
 
@@ -86,6 +92,8 @@ graph TD
 | **`push_to_github.py`** | Safe Git staging, commit, and push utility with file size detection (>50MB/100MB warning). |
 | **`install_openrouter_mcp.py`** | Standalone installer for the OpenRouter MCP server. |
 | **`install_hermes_antigravity.py`**| Standalone installer for Hermes Agent and bridge tools. |
+| **`cost_estimator.py`** | Heuristic token & cost calculator with interactive model selection for Antigravity IDE. |
+| **`docstring_translator.py`** | AST-based automated Python docstring translator to bilingual format `[ID]` & `[EN]` (GitHub Actions ready). |
 | **`mcp_schemas/`** | Pre-built offline schema files for Antigravity IDE MCP integration. |
 
 ### 📚 Documentation & Prompting Guides
@@ -95,6 +103,7 @@ graph TD
 | **`Prompt_AI.md`** | Curated catalog of token-saving prompting patterns (*Progressive Disclosure*, *Targeted Context Tagging*, *Facade Pattern*). |
 | **`OPENROUTER_MCP_GUIDE.md`** | Detailed setup guide for OpenRouter models, daily budget limits, and alias mapping. |
 | **`PANDUAN_HERMES_ANTIGRAVITY.md`** | Architectural deep-dive on Hermes Agent integration with Antigravity. |
+| **`TUTORIAL_TESTING_ASK_QUESTION.md`** | Practical hands-on tutorial and prompt examples for testing the `ask_question` interactive model picker. |
 
 ---
 

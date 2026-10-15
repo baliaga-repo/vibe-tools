@@ -58,6 +58,12 @@ Dokumen ini berisi rangkuman kata kunci teknis, konsep arsitektur, dan contoh pr
 * **Contoh Prompt ke AI**:
   > *"Jalankan perintah `npx repomix --compress --include 'cache_chat/davinci_core/**/*.py'` untuk mengemas modul core menjadi satu file skeleton ringkas sebelum kita review arsitekturnya."*
 
+#### E. `Bilingual Token Optimization` (English Bridge Pipeline)
+* **Deskripsi**: Memanfaatkan efisiensi tokenisasi BPE bahasa Inggris saat memanggil model berbayar eksternal (Claude Sonnet / DeepSeek-R1 di OpenRouter). Gemini IDE menerjemahkan konteks masalah ke Bahasa Inggris teknis padat di balik layar (hemat saldo 30% - 50%), lalu menyajikan hasil akhirnya kembali ke pengguna dalam Bahasa Indonesia secara gratis.
+* **Kapan Digunakan**: Setiap kali mengeksekusi penalaran arsitektur, kalkulasi algoritma, atau investigasi mendalam via OpenRouter.
+* **Contoh Prompt ke AI**:
+  > *"Analisis arsitektur locking protocol ini menggunakan Claude Sonnet dengan pipeline bilingual agar hemat token OpenRouter, lalu jelaskan hasilnya ke saya dalam Bahasa Indonesia."*
+
 ---
 
 ### 3. Kategori: Pengujian & Kualitas Kode

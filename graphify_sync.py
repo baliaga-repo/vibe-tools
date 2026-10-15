@@ -1,5 +1,5 @@
 """
-Skrip Terpadu Knowledge Graph & Peta Berkas Proyek (graphify_sync.py).
+[ID]: Skrip Terpadu Knowledge Graph & Peta Berkas Proyek (graphify_sync.py).
 Menggabungkan pembaruan Knowledge Graph (graphify) dan generator AST .agents/MAP.md menjadi 1 tool portabel.
 
 Penggunaan:
@@ -7,6 +7,15 @@ Penggunaan:
     python graphify_sync.py --map-only     # Hanya perbarui peta .agents/MAP.md (sangat cepat, tanpa graphify)
     python graphify_sync.py --graph-only   # Hanya perbarui graphify & ekspor wiki
     python graphify_sync.py --no-pause     # Tanpa jeda tekan Enter di akhir
+
+[EN]: Integrated Knowledge Graph & Project File Map Script (graphify_sync.py).
+Combines Knowledge Graph updates (graphify) and AST generator .agents/MAP.md into a single portable tool.
+
+Usage:
+    python graphify_sync.py                # Full pipeline (graph -> wiki -> MAP.md -> verify -> clean)
+    python graphify_sync.py --map-only     # Update only the .agents/MAP.md map (very fast, no graphify)
+    python graphify_sync.py --graph-only   # Update only graphify & export wiki
+    python graphify_sync.py --no-pause     # Skip Enter key pause at the end
 """
 import ast
 import json
@@ -49,7 +58,10 @@ MAKS_ARSIP = 2
 
 
 def deteksi_root_proyek(arg_root: str = None) -> str:
-    """Mendeteksi direktori root proyek secara otomatis dan portabel."""
+    """
+[ID]: Mendeteksi direktori root proyek secara otomatis dan portabel.
+[EN]: Automatically and portably detects the project root directory.
+"""
     if arg_root and os.path.isdir(arg_root):
         return os.path.abspath(arg_root)
     cwd = os.path.abspath(os.getcwd())
@@ -67,7 +79,10 @@ def deteksi_root_proyek(arg_root: str = None) -> str:
 # ==================== PEMETAAN BERKAS (.agents/MAP.md) ====================
 
 def _hitung_baris(path: str) -> int:
-    """Menghitung jumlah baris file teks (dibulatkan ke puluhan terdekat agar stabil)."""
+    """
+[ID]: Menghitung jumlah baris file teks (dibulatkan ke puluhan terdekat agar stabil).
+[EN]: Calculates the number of lines in a text file (rounded to the nearest ten for stability).
+"""
     try:
         with open(path, "rb") as f:
             n = f.read().count(b"\n") + 1
@@ -77,7 +92,10 @@ def _hitung_baris(path: str) -> int:
 
 
 def _docstring_baris_pertama(path: str, nama: str) -> str:
-    """Mengambil baris pertama docstring modul .py sebagai deskripsi awal."""
+    """
+[ID]: Mengambil baris pertama docstring modul .py sebagai deskripsi awal.
+[EN]: Retrieves the first line of the .py module's docstring as the initial description.
+"""
     if not path.endswith(".py"):
         return ""
     try:
@@ -94,7 +112,10 @@ def _docstring_baris_pertama(path: str, nama: str) -> str:
 
 
 def _baca_peta_lama(map_path: str) -> dict:
-    """Membaca MAP.md lama: mempertahankan deskripsi yang sudah ada."""
+    """
+[ID]: Membaca MAP.md lama: mempertahankan deskripsi yang sudah ada.
+[EN]: Reads the old MAP.md: preserves existing descriptions.
+"""
     deskripsi, judul, urutan = {}, {}, []
     if not os.path.exists(map_path):
         return {"desk": deskripsi, "judul": judul, "urutan": urutan}
@@ -126,7 +147,10 @@ def _baca_peta_lama(map_path: str) -> dict:
 
 
 def _pindai_kode(base_dir: str) -> dict:
-    """Memindai seluruh file kode proyek. Mengembalikan {seksi: [path relatif, ...]}."""
+    """
+[ID]: Memindai seluruh file kode proyek. Mengembalikan {seksi: [path relatif, ...]}.
+[EN]: Scans all project code files. Returns {section: [relative path, ...]}.
+"""
     hasil = {}
     for dirpath, dirnames, filenames in os.walk(base_dir):
         dirnames[:] = [d for d in dirnames if d not in FOLDER_ABAIKAN]
@@ -144,7 +168,10 @@ def _pindai_kode(base_dir: str) -> dict:
 
 
 def perbarui_peta(base_dir: str) -> dict:
-    """Menyusun dan menulis .agents/MAP.md secara non-destruktif."""
+    """
+[ID]: Menyusun dan menulis .agents/MAP.md secara non-destruktif.
+[EN]: Compiles and writes .agents/MAP.md non-destructively.
+"""
     map_path = os.path.join(base_dir, ".agents", "MAP.md")
     lama = _baca_peta_lama(map_path)
     pindai = _pindai_kode(base_dir)
@@ -196,7 +223,10 @@ def perbarui_peta(base_dir: str) -> dict:
 # ==================== PIPELINE GRAPHIFY & PEMELIHARAAN ====================
 
 def cari_perintah_graphify() -> list:
-    """Mencari executable graphify di PATH atau fallback ke modul python."""
+    """
+[ID]: Mencari executable graphify di PATH atau fallback ke modul python.
+[EN]: Searches for the graphify executable in PATH or falls back to the Python module.
+"""
     exe = shutil.which("graphify")
     if exe:
         return [exe]
@@ -204,7 +234,10 @@ def cari_perintah_graphify() -> list:
 
 
 def jalankan(langkah: str, args: list, base_dir: str) -> bool:
-    """Menjalankan satu perintah sub-proses dan mencetak hasil."""
+    """
+[ID]: Menjalankan satu perintah sub-proses dan mencetak hasil.
+[EN]: Executes a single subprocess command and prints the result.
+"""
     print(f"\n=== {langkah} ===")
     print("$ " + " ".join(args))
     try:
@@ -219,7 +252,10 @@ def jalankan(langkah: str, args: list, base_dir: str) -> bool:
 
 
 def rapikan_arsip(out_dir: str):
-    """Menghapus folder arsip bertanggal lawas, menyisakan MAKS_ARSIP terbaru."""
+    """
+[ID]: Menghapus folder arsip bertanggal lawas, menyisakan MAKS_ARSIP terbaru.
+[EN]: Deletes dated archive folders, retaining only the latest MAKS_ARSIP.
+"""
     if not os.path.isdir(out_dir):
         return
     pola = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -236,7 +272,10 @@ def rapikan_arsip(out_dir: str):
 
 
 def verifikasi_wiki(out_dir: str) -> bool:
-    """Memverifikasi sinkronisasi antara graph.json dan wiki/index.md."""
+    """
+[ID]: Memverifikasi sinkronisasi antara graph.json dan wiki/index.md.
+[EN]: Verifies synchronization between graph.json and wiki/index.md.
+"""
     graph_path = os.path.join(out_dir, "graph.json")
     index_path = os.path.join(out_dir, "wiki", "index.md")
     if not (os.path.exists(graph_path) and os.path.exists(index_path)):

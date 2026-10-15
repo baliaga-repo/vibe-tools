@@ -1,11 +1,19 @@
 """
-Installer Otomatis: Hermes Agent + Antigravity MCP Worker Bridge.
+[ID]: Installer Otomatis: Hermes Agent + Antigravity MCP Worker Bridge.
 Skrip ini mengotomatiskan seluruh proses instalasi di PC baru:
 1. Clone repositori resmi NousResearch/hermes-agent.
 2. Install dependensi & CLI hermes ke environment Python.
 3. Konfigurasi kredensial OpenRouter di Hermes (~/AppData/Local/hermes/.env).
 4. Buat script bridge hermes_mcp.py di folder global Antigravity (~/.gemini).
 5. Konfigurasi mcp_config.json Antigravity agar Hermes langsung aktif sebagai MCP tool.
+
+[EN]: Automatic Installer: Hermes Agent + Antigravity MCP Worker Bridge.
+This script automates the entire installation process on a new PC:
+1. Clone the official NousResearch/hermes-agent repository.
+2. Install Hermes dependencies & CLI into the Python environment.
+3. Configure OpenRouter credentials in Hermes (~/AppData/Local/hermes/.env).
+4. Create the hermes_mcp.py bridge script in the global Antigravity folder (~/.gemini).
+5. Configure Antigravity's mcp_config.json to activate Hermes as the MCP tool.
 """
 
 import os
