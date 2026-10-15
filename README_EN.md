@@ -26,7 +26,7 @@ Add Vibe Tools as a submodule in any project to keep it automatically synchroniz
 
 ```bash
 # 1. Add the submodule to your project
-git submodule add https://github.com/mobogemuichi-creator/vibe-tools.git vibe_tools
+git submodule add https://github.com/baliaga-repo/vibe-tools.git vibe_tools
 
 # 2. Run the 1-click ecosystem installer
 python vibe_tools/setup_vibe_ecosystem.py
@@ -148,7 +148,7 @@ python vibe_tools/setup_vibe_ecosystem.py
 
 Contributions are very welcome! Whether it's adding new MCP servers, improving prompt templates, optimizing token usage, or refining setup scripts:
 
-1. **Fork** the repository: [github.com/mobogemuichi-creator/vibe-tools](https://github.com/mobogemuichi-creator/vibe-tools)
+1. **Fork** the repository: [github.com/baliaga-repo/vibe-tools](https://github.com/baliaga-repo/vibe-tools)
 2. Create a feature branch: `git checkout -b feature/amazing-tool`
 3. Commit your changes: `git commit -m "feat: add amazing tool"`
 4. Push to your branch: `git push origin feature/amazing-tool`

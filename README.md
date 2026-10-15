@@ -17,7 +17,7 @@ Folder ini dirancang agar **100% portabel (Self-Contained)**: siap disalin ke pr
 Hubungkan repositori `vibe-tools` sebagai submodule agar selalu tersinkronisasi:
 ```bash
 # 1. Tambahkan submodule di root proyek Anda
-git submodule add https://github.com/mobogemuichi-creator/vibe-tools.git vibe_tools
+git submodule add https://github.com/baliaga-repo/vibe-tools.git vibe_tools
 
 # 2. Jalankan installer otomatis 1-klik
 python vibe_tools/setup_vibe_ecosystem.py
@@ -140,7 +140,7 @@ python vibe_tools/setup_vibe_ecosystem.py
 ## 🤝 Berkontribusi (Contributing)
 
 Kontribusi sangat terbuka untuk siapa saja! Baik berupa penambahan MCP server baru, perbaikan prompt template, optimasi token, maupun pengayaan skrip:
-1. **Fork** repositori ini: [github.com/mobogemuichi-creator/vibe-tools](https://github.com/mobogemuichi-creator/vibe-tools)
+1. **Fork** repositori ini: [github.com/baliaga-repo/vibe-tools](https://github.com/baliaga-repo/vibe-tools)
 2. Buat branch baru: `git checkout -b fitur/nama-fitur`
 3. Commit perubahan: `git commit -m "feat: deskripsi perubahan"`
 4. Push ke branch Anda: `git push origin fitur/nama-fitur`
