@@ -1,13 +1,29 @@
 # 🧰 Vibe Tools: Kotak Perkakas Portabel Vibe Coding
 
+<p align="center">
+  <a href="README.md">🇮🇩 Baca dalam Bahasa Indonesia</a> •
+  <a href="README_EN.md">🇬🇧 Read in English</a>
+</p>
+
 Folder ini berisi seluruh skrip otomasi, installer MCP, generator ekosistem, server MCP, schema, dan panduan dokumentasi *vibe coding* cerdas, hemat token, dan anti-regresi. 
 
 Folder ini dirancang agar **100% portabel (Self-Contained)**: siap disalin ke proyek baru atau PC baru mana pun.
 
 ---
 
-## ⚡ Cara Pakai di Proyek Baru / PC Baru (Cukup 1 Baris Perintah!)
+## ⚡ Cara Pakai di Proyek Baru / PC Baru
 
+### Metode 1: Sebagai Git Submodule (Paling Direkomendasikan)
+Hubungkan repositori `vibe-tools` sebagai submodule agar selalu tersinkronisasi:
+```bash
+# 1. Tambahkan submodule di root proyek Anda
+git submodule add https://github.com/mobogemuichi-creator/vibe-tools.git vibe_tools
+
+# 2. Jalankan installer otomatis 1-klik
+python vibe_tools/setup_vibe_ecosystem.py
+```
+
+### Metode 2: Salin Folder Langsung (Standalone)
 1. Salin folder `vibe_tools/` ini ke dalam folder proyek baru Anda.
 2. Buka terminal proyek tersebut, lalu jalankan:
    ```cmd
