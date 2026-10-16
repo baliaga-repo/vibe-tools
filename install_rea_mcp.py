@@ -130,7 +130,7 @@ def tambahkan_compact_profile() -> bool:
         cetak_error(f"File tidak ditemukan: {config_path}")
         return False
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, "r", encoding="utf-8-sig") as f:
         config = json.load(f)
 
     servers = config.get("mcpServers", {})
