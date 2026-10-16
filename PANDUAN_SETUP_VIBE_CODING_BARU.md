@@ -282,8 +282,11 @@ Gunakan *template prompt* ringkas ini untuk berinteraksi dengan AI di proyek bar
 ### 4. Membuat Unit Test Cepat
 > *"Gunakan skill `unit-test-generator` untuk membuatkan unit test modul `core/fitur.py`. Terapkan strict mocking pada semua I/O dan jaringan, simpan di `tests/test_fitur.py`."*
 
-### 5. Sinkronisasi Kode ke GitHub
-> *"Tolong jalankan `python push_github.py` untuk mengunggah perubahan terbaru ke GitHub secara aman."*
+### 5. Sinkronisasi Kode Proyek ke GitHub
+> *"Tolong jalankan `python vibe_tools/push_to_github.py` untuk mengunggah perubahan terbaru ke GitHub secara aman."*
+
+### 6. Sinkronisasi Pembaruan Kotak Perkakas `vibe_tools`
+> *"Tolong bantu sinkronkan submodule `vibe_tools` dengan commit terbaru dari GitHub (https://github.com/baliaga-repo/vibe-tools.git) sesuai panduan di `vibe_tools/TUTORIAL_SINKRONISASI_VIBE_TOOLS.md`."*
 
 ---
 

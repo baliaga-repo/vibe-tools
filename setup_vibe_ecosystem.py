@@ -1088,6 +1088,23 @@ def main():
     buat_berkas("vibe_tools/cost_estimator.py", baca_skrip_lokal("cost_estimator.py"))
     buat_berkas("vibe_tools/docstring_translator.py", baca_skrip_lokal("docstring_translator.py"))
     buat_berkas("vibe_tools/TUTORIAL_DOCSTRING_TRANSLATOR.md", baca_skrip_lokal("TUTORIAL_DOCSTRING_TRANSLATOR.md"))
+    buat_berkas("vibe_tools/install_rea_mcp.py", baca_skrip_lokal("install_rea_mcp.py"))
+    buat_berkas("vibe_tools/PANDUAN_REA_MCP.md", baca_skrip_lokal("PANDUAN_REA_MCP.md"))
+    buat_berkas("vibe_tools/README.md", baca_skrip_lokal("README.md"))
+    buat_berkas("vibe_tools/README_EN.md", baca_skrip_lokal("README_EN.md"))
+    buat_berkas("vibe_tools/TUTORIAL_SINKRONISASI_VIBE_TOOLS.md", baca_skrip_lokal("TUTORIAL_SINKRONISASI_VIBE_TOOLS.md"))
+
+    # 2b. Pasang REA MCP (opsional, jika Node.js tersedia)
+    import shutil as _shutil
+    if _shutil.which("npx") or _shutil.which("node"):
+        print("\n[INFO] Node.js terdeteksi - mencoba memasang REA MCP (Reverse Engineer Anything)...")
+        _rea_installer = os.path.join(BASE_DIR, "vibe_tools", "install_rea_mcp.py")
+        if os.path.exists(_rea_installer):
+            subprocess.run([sys.executable, _rea_installer], cwd=BASE_DIR)
+        else:
+            print("[SKIP] vibe_tools/install_rea_mcp.py belum ada di folder ini - skip REA MCP.")
+    else:
+        print("[SKIP] Node.js tidak ditemukan di PATH - skip pemasangan REA MCP.")
 
     # 3. Auto-Install seluruh dependensi Python yang belum terpasang
     pasang_dependensi_python()

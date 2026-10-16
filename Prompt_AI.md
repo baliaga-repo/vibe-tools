@@ -125,7 +125,7 @@ Fokus hanya pada fungsi [nama_fungsi] di file @[nama_file.py]:
 Tolong periksa dan perbarui remote Git di proyek ini karena saya telah mengganti username GitHub menjadi "baliaga-repo":
 1. Cek git remote origin saat ini, lalu ubah URL-nya agar mengarah ke username baru "baliaga-repo" (misal: https://github.com/baliaga-repo/<nama-repo-ini>.git).
 2. Jika proyek ini memiliki submodule (.gitmodules), perbarui juga URL submodule ke "baliaga-repo" dan jalankan `git submodule sync`.
-3. Cari apakah ada teks atau dokumentasi (seperti README.md, package.json, atau file markdown lainnya) yang masih mencantumkan username lama "mobogemuichi-creator", lalu ubah ke "baliaga-repo".
+3. Cari apakah ada teks atau dokumentasi (seperti README.md, package.json, atau file markdown lainnya) yang masih mencantumkan username lama, lalu ubah ke "baliaga-repo".
 4. Verifikasi hasilnya dengan `git remote -v` dan tampilkan status perubahannya.
 (Catatan: Jangan lakukan commit atau push otomatis sebelum meminta konfirmasi dari saya).
 ```
@@ -138,7 +138,41 @@ Tolong bantu saya melakukan dua hal pada proyek ini:
    `git submodule add https://github.com/baliaga-repo/vibe-tools.git vibe_tools`
 3. Jalankan skrip installer ekosistemnya:
    `python vibe_tools/setup_vibe_ecosystem.py`
-4. Cek dan pastikan tidak ada teks username lama "mobogemuichi-creator" di berkas proyek ini.
+4. Cek dan pastikan tidak ada teks username lama di berkas proyek ini.
 (Catatan: Jangan lakukan commit atau push otomatis sebelum meminta konfirmasi dari saya).
 ```
 
+### Template 6: Sinkronisasi Pembaruan Submodule `vibe_tools` dari GitHub (Pull / Update)
+```text
+Tolong bantu sinkronkan submodule vibe_tools di proyek ini dengan pembaruan terbaru dari GitHub (https://github.com/baliaga-repo/vibe-tools.git):
+1. Bersihkan berkas desktop.ini dari folder .git jika ada gangguan Google Drive.
+2. Amankan perubahan lokal jika ada (stash).
+3. Tarik commit terbaru dari origin/main untuk submodule vibe_tools.
+4. Tampilkan daftar commit baru atau berkas apa saja yang baru masuk.
+(Catatan: Jangan lakukan commit atau push otomatis di repositori utama sebelum konfirmasi dari saya).
+```
+
+### Template 7: Push Perubahan Lokal di Submodule `vibe_tools` ke GitHub
+```text
+Saya baru saja mengedit/menambahkan berkas di dalam folder vibe_tools/. Tolong bantu periksa dan dorong perubahannya ke GitHub (https://github.com/baliaga-repo/vibe-tools.git):
+1. Bersihkan berkas desktop.ini dan periksa status berkas dengan `git -C vibe_tools status -s`.
+2. Gunakan skrip `python vibe_tools/push_to_github.py` atau jalankan git commit & push di dalam folder vibe_tools/.
+3. Beritahukan jika berhasil dan tampilkan instruksi untuk update pointer di repositori utama.
+(Catatan: Jangan lakukan commit atau push otomatis di repositori utama sebelum konfirmasi dari saya).
+```
+
+### Template 8: Investigasi & Reverse Engineering dengan REA MCP
+```text
+Gunakan tool REA MCP untuk menyelidiki target berikut:
+- Jenis Target: [ASAR / APK / .exe / .dll / bundle JavaScript / web bundle]
+- Path Target: [path absolut ke file/folder, atau URL endpoint]
+- Pertanyaan: [Fitur apa yang ingin dipahami, atau aspek apa yang ingin diaudit/ditiru]
+
+Alur yang diharapkan:
+1. Tentukan jenis target dan pilih tool REA yang paling tepat.
+2. Jalankan analisis dan tampilkan temuan beserta bukti (Evidence).
+3. Pisahkan dengan jelas: Observasi Konkret | Inferensi | Hal yang Tidak Diketahui.
+4. Jika memungkinkan, implementasikan fitur serupa ke proyek ini berdasarkan temuan REA.
+
+(Catatan: Jangan commit atau push sebelum meminta konfirmasi saya).
+```

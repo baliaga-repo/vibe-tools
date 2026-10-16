@@ -81,6 +81,9 @@ python vibe_tools/setup_vibe_ecosystem.py
 10. **`docstring_translator.py`**  
     - *Fungsi*: Penerjemah docstring otomatis berbasis AST ke format dwibahasa `[ID]` & `[EN]` yang terintegrasi dengan GitHub Actions.
 
+11. **`install_rea_mcp.py`**  
+    - *Fungsi*: Installer otomatis REA MCP Server ([morluto/rea](https://github.com/morluto/rea)) ke Antigravity IDE. Mendaftarkan 207 tools reverse engineering (ASAR, Electron, APK Android, native binary) dengan profil compact hemat token.
+
 ---
 
 ### 📄 Dokumentasi & Cheat-Sheet Prompting
@@ -102,9 +105,17 @@ python vibe_tools/setup_vibe_ecosystem.py
 6. **`TUTORIAL_DOCSTRING_TRANSLATOR.md`**  
    - Panduan lengkap penerjemah docstring bilingual (`[ID]` & `[EN]`), konfigurasi multi-key, gonta-ganti engine (Gemini & OpenRouter), penanganan limit kuota, dan auto-save saat pembatalan.
 
+7. **`TUTORIAL_SINKRONISASI_VIBE_TOOLS.md`**  
+   - Panduan lengkap sinkronisasi Git Submodule `vibe_tools` (Pull update dari GitHub, Push update lokal, perbaikan isu `desktop.ini` Google Drive, dan penguncian pointer commit di proyek utama).
+
+8. **`PANDUAN_REA_MCP.md`**  
+   - Panduan lengkap penggunaan REA (*Reverse Engineer Anything*) MCP di Antigravity IDE: analisis ASAR/Electron, web bundle, APK Android, native binary, tabel kapabilitas 207 tools, dan template prompt siap pakai.
+
 ---
 
 ## 🔄 Alur Sinkronisasi & Pembaruan Lintas Proyek
+
+> 💡 **Panduan Lengkap & Troubleshooting**: Baca [TUTORIAL_SINKRONISASI_VIBE_TOOLS.md](TUTORIAL_SINKRONISASI_VIBE_TOOLS.md) untuk langkah-langkah detail, pembersihan cache Google Drive, dan template prompt AI siap pakai.
 
 Karena `vibe_tools` menggunakan **Git Submodule**, Anda dapat mengeditnya langsung dari proyek mana pun yang sedang Anda kerjakan:
 
