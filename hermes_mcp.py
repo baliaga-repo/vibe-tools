@@ -253,14 +253,14 @@ def delegasikan_duo_hermes(
     model_worker: str = ""
 ) -> str:
     """
-    Eksekusi pipeline Duo-Model di Hermes:
-    Langkah 1: Claude Haiku (atau model_thinker aktif) merancang technical plan padat.
-    Langkah 2: DeepSeek-Chat (atau model_worker aktif) mengeksekusi penulisan kode dan command secara nyata.
-    """
-    settings = muat_duo_settings()
-    active_thinker = model_thinker.strip() if model_thinker and model_thinker.strip() else settings.get("thinker", "anthropic/claude-3.5-haiku")
-    active_worker = model_worker.strip() if model_worker and model_worker.strip() else settings.get("worker", "deepseek/deepseek-chat")
+[ID]: Eksekusi pipeline Duo-Model di Hermes:
+    Langkah 1: Claude Haiku merancang technical plan padat.
+    Langkah 2: DeepSeek-Chat mengeksekusi penulisan kode dan command secara nyata.
 
+[EN]: Execute the Duo-Model pipeline in Hermes:
+    Step 1: Claude Haiku designs a concise technical plan.
+    Step 2: DeepSeek-Chat executes the actual code writing and commands.
+"""
     target_cwd = direktori_kerja if direktori_kerja and Path(direktori_kerja).exists() else os.getcwd()
     if not target_cwd or target_cwd.lower().endswith("system32"):
         target_cwd = HERMES_REPO if Path(HERMES_REPO).exists() else str(Path.home())
