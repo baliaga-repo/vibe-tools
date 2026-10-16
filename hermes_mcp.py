@@ -149,7 +149,10 @@ def atur_model_hermes(
     description="Lihat konfigurasi model aktif yang saat ini digunakan oleh Hermes Agent (Thinker, Worker, Solo)."
 )
 def lihat_model_hermes() -> str:
-    """Melihat model yang sedang aktif digunakan oleh Hermes."""
+    """
+[ID]: Melihat model yang sedang aktif digunakan oleh Hermes.
+[EN]: View the model currently in use by Hermes.
+"""
     settings = muat_duo_settings()
     return (
         f"📋 Konfigurasi Model Hermes Aktif:\n"
