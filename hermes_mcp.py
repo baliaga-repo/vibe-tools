@@ -261,6 +261,10 @@ def delegasikan_duo_hermes(
     Step 1: Claude Haiku designs a concise technical plan.
     Step 2: DeepSeek-Chat executes the actual code writing and commands.
 """
+    settings = muat_duo_settings()
+    active_thinker = model_thinker.strip() if model_thinker and model_thinker.strip() else settings.get("thinker", "anthropic/claude-3.5-haiku")
+    active_worker = model_worker.strip() if model_worker and model_worker.strip() else settings.get("worker", "deepseek/deepseek-chat")
+
     target_cwd = direktori_kerja if direktori_kerja and Path(direktori_kerja).exists() else os.getcwd()
     if not target_cwd or target_cwd.lower().endswith("system32"):
         target_cwd = HERMES_REPO if Path(HERMES_REPO).exists() else str(Path.home())
