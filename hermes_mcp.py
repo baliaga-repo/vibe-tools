@@ -119,9 +119,9 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DE
 
     cmd = [
         HERMES_EXE,
-        "-z",  # oneshot mode
-        "-m", active_model,
-        instruksi_tugas
+        "-z", instruksi_tugas,  # oneshot mode dengan task spesifik
+        "--yolo",               # eksekusi otonom tanpa prompt interaktif
+        "-m", active_model
     ]
 
     try:
@@ -150,6 +150,100 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DE
         return "Hermes Timeout: Tugas membutuhkan waktu lebih dari 5 menit."
     except Exception as e:
         return f"Gagal menjalankan Hermes Agent: {str(e)}"
+
+
+@mcp.tool(
+    name="delegasikan_duo_hermes",
+    description=(
+        "Pipeline Duo-Model di dalam Hermes: Mengombinasikan Claude 3.5 Haiku sebagai THINKER "
+        "(merancang arsitektur & langkah teknis) dan DeepSeek-Chat sebagai WORKER "
+        "(mengekskusi penulisan kode, file, dan terminal otonom). "
+        "Gemini/Antigravity hanya memicu tugas di awal, seluruh proses berpikir dan eksekusi berjalan di OpenRouter."
+    )
+)
+def delegasikan_duo_hermes(
+    tugas: str,
+    direktori_kerja: str = "",
+    model_thinker: str = "anthropic/claude-3.5-haiku",
+    model_worker: str = "deepseek/deepseek-chat"
+) -> str:
+    """
+    Eksekusi pipeline Duo-Model di Hermes:
+    Langkah 1: Claude Haiku merancang technical plan padat.
+    Langkah 2: DeepSeek-Chat mengeksekusi penulisan kode dan command secara nyata.
+    """
+    target_cwd = direktori_kerja if direktori_kerja and Path(direktori_kerja).exists() else os.getcwd()
+    if not target_cwd or target_cwd.lower().endswith("system32"):
+        target_cwd = HERMES_REPO if Path(HERMES_REPO).exists() else str(Path.home())
+
+    # Fase 1: Thinking oleh Claude Haiku
+    prompt_thinker = (
+        f"Anda adalah Arsitek Perangkat Lunak senior (Thinker). Analisis tugas berikut dan buatkan rencana aksi "
+        f"teknis yang sangat spesifik, terstruktur, dan siap dieksekusi tanpa basa-basi untuk agen koding (Worker):\n\n"
+        f"TUGAS: {tugas}\n\n"
+        f"Format output: Ringkas, cantumkan file target, algoritma/logika yang harus ditulis, dan perintah terminal yang diperlukan."
+    )
+
+    cmd_thinker = [
+        HERMES_EXE,
+        "-z", prompt_thinker,
+        "--yolo",
+        "-m", model_thinker.strip()
+    ]
+
+    try:
+        res_thinker = subprocess.run(
+            cmd_thinker,
+            cwd=target_cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=240
+        )
+        plan_output = res_thinker.stdout.strip()
+        if res_thinker.returncode != 0 or not plan_output:
+            err = res_thinker.stderr.strip()
+            return f"Duo-Hermes Gagal di Tahap Thinking (Claude): {err or plan_output}"
+    except Exception as e:
+        return f"Error eksekusi Thinker (Claude): {str(e)}"
+
+    # Fase 2: Eksekusi Nyata oleh DeepSeek-Chat (Worker)
+    prompt_worker = (
+        f"Anda adalah Agen Koding (Worker). Eksekusi rencana teknis berikut secara nyata ke dalam sistem file/terminal:\n\n"
+        f"RENCANA TEKNIS DARI ARSITEK:\n{plan_output}\n\n"
+        f"Lakukan pembuatan/pengeditan file yang dibutuhkan dan jalankan verifikasi. Laporkan ringkasan hasil eksekusi."
+    )
+
+    cmd_worker = [
+        HERMES_EXE,
+        "-z", prompt_worker,
+        "--yolo",
+        "-m", model_worker.strip()
+    ]
+
+    try:
+        res_worker = subprocess.run(
+            cmd_worker,
+            cwd=target_cwd,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=360
+        )
+        worker_output = res_worker.stdout.strip()
+        if res_worker.returncode != 0:
+            err = res_worker.stderr.strip()
+            return f"Duo-Hermes Berhasil Berpikir, tapi Gagal Eksekusi Worker: {err or worker_output}"
+
+        return (
+            f"=== HASIL DUO-HERMES (CLAUDE HAIKU + DEEPSEEK CHAT) ===\n\n"
+            f"[THINKER - Claude 3.5 Haiku Plan]:\n{plan_output}\n\n"
+            f"[WORKER - DeepSeek-Chat Execution]:\n{worker_output or 'Eksekusi selesai tanpa output.'}"
+        )
+    except Exception as e:
+        return f"Error eksekusi Worker (DeepSeek): {str(e)}"
 
 
 if __name__ == "__main__":
