@@ -168,10 +168,14 @@ def delegasikan_duo_hermes(
     model_worker: str = "deepseek/deepseek-chat"
 ) -> str:
     """
-    Eksekusi pipeline Duo-Model di Hermes:
+[ID]: Eksekusi pipeline Duo-Model di Hermes:
     Langkah 1: Claude Haiku merancang technical plan padat.
     Langkah 2: DeepSeek-Chat mengeksekusi penulisan kode dan command secara nyata.
-    """
+
+[EN]: Execute the Duo-Model pipeline in Hermes:
+    Step 1: Claude Haiku designs a concise technical plan.
+    Step 2: DeepSeek-Chat executes the actual code writing and commands.
+"""
     target_cwd = direktori_kerja if direktori_kerja and Path(direktori_kerja).exists() else os.getcwd()
     if not target_cwd or target_cwd.lower().endswith("system32"):
         target_cwd = HERMES_REPO if Path(HERMES_REPO).exists() else str(Path.home())
