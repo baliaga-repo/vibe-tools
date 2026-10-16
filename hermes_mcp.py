@@ -1,13 +1,8 @@
 r"""
-[ID]: Hermes Agent Worker MCP Server untuk Antigravity IDE.
+Hermes Agent Worker MCP Server untuk Antigravity IDE.
 Menghubungkan Antigravity dengan Hermes Agent lokal
 sebagai worker mandiri untuk eksekusi perintah, riset file, web search, dan scripting
 tanpa membebani token context model utama (Claude / GPT).
-
-[EN]: Hermes Agent Worker MCP Server for Antigravity IDE.
-Connects Antigravity with the local Hermes Agent
-as an independent worker for command execution, file research, web search, and scripting
-without burdening the main model context token (Claude / GPT).
 """
 import sys
 import os
@@ -66,7 +61,103 @@ HERMES_EXE = temukan_hermes_exe()
 HERMES_REPO = temukan_hermes_repo()
 
 
-DEFAULT_HERMES_MODEL = "deepseek/deepseek-r1"
+# Konfigurasi Persistent Model Duo-Hermes
+SETTINGS_FILE = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "hermes" / "duo_settings.json"
+
+def muat_duo_settings() -> dict:
+    default_settings = {
+        "thinker": "anthropic/claude-3.5-haiku",
+        "worker": "deepseek/deepseek-chat",
+        "solo": "deepseek/deepseek-chat"
+    }
+    if SETTINGS_FILE.exists():
+        try:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                default_settings.update(data)
+        except Exception:
+            pass
+    return default_settings
+
+def simpan_duo_settings(settings: dict) -> bool:
+    try:
+        SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+            json.dump(settings, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception:
+        return False
+
+DEFAULT_HERMES_MODEL = muat_duo_settings().get("solo", "deepseek/deepseek-chat")
+
+
+@mcp.tool(
+    name="atur_model_hermes",
+    description=(
+        "Ubah konfigurasi model Hermes secara langsung dari chat percakapan. "
+        "Dapat mengatur model Thinker (arsitek/penalaran), model Worker (eksekusi koding), "
+        "atau model Solo (worker tunggal). Perubahan tersimpan permanen."
+    )
+)
+def atur_model_hermes(
+    model_thinker: str = "",
+    model_worker: str = "",
+    model_solo: str = ""
+) -> str:
+    """
+    Atur model default untuk Hermes Agent.
+    
+    Args:
+        model_thinker: Model OpenRouter untuk fase perancangan/thinking (misal: 'anthropic/claude-3.5-haiku', 'anthropic/claude-3.5-sonnet', 'deepseek/deepseek-r1').
+        model_worker: Model OpenRouter untuk eksekusi kode/terminal (misal: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
+        model_solo: Model OpenRouter untuk tugas tunggal delegasikan_ke_hermes (misal: 'deepseek/deepseek-chat').
+    """
+    settings = muat_duo_settings()
+    diubah = []
+
+    if model_thinker and model_thinker.strip():
+        settings["thinker"] = model_thinker.strip()
+        diubah.append(f"Thinker -> `{settings['thinker']}`")
+    if model_worker and model_worker.strip():
+        settings["worker"] = model_worker.strip()
+        diubah.append(f"Worker  -> `{settings['worker']}`")
+    if model_solo and model_solo.strip():
+        settings["solo"] = model_solo.strip()
+        diubah.append(f"Solo    -> `{settings['solo']}`")
+
+    if not diubah:
+        return (
+            f"Tidak ada model yang diubah.\nKonfigurasi aktif saat ini:\n"
+            f"- Thinker : `{settings['thinker']}`\n"
+            f"- Worker  : `{settings['worker']}`\n"
+            f"- Solo    : `{settings['solo']}`"
+        )
+
+    simpan_duo_settings(settings)
+    return (
+        f"✅ Konfigurasi model Hermes berhasil diperbarui dan disimpan:\n" +
+        "\n".join([f"- {d}" for d in diubah]) +
+        f"\n\nStatus lengkap saat ini:\n"
+        f"- Thinker (Arsitek) : `{settings['thinker']}`\n"
+        f"- Worker (Koding)   : `{settings['worker']}`\n"
+        f"- Solo (Tunggal)    : `{settings['solo']}`"
+    )
+
+
+@mcp.tool(
+    name="lihat_model_hermes",
+    description="Lihat konfigurasi model aktif yang saat ini digunakan oleh Hermes Agent (Thinker, Worker, Solo)."
+)
+def lihat_model_hermes() -> str:
+    """Melihat model yang sedang aktif digunakan oleh Hermes."""
+    settings = muat_duo_settings()
+    return (
+        f"📋 Konfigurasi Model Hermes Aktif:\n"
+        f"- Thinker (Perancang/Arsitek) : `{settings['thinker']}`\n"
+        f"- Worker (Eksekutor Kode)     : `{settings['worker']}`\n"
+        f"- Solo (Worker Tunggal)       : `{settings['solo']}`\n"
+        f"File pengaturan: `{SETTINGS_FILE}`"
+    )
 
 @mcp.tool(
     name="delegasikan_ke_hermes",
@@ -80,20 +171,13 @@ DEFAULT_HERMES_MODEL = "deepseek/deepseek-r1"
 )
 def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DEFAULT_HERMES_MODEL) -> str:
     """
-[ID]: Kirim tugas ke Hermes Agent.
+    Kirim tugas ke Hermes Agent.
     
     Args:
         tugas: Deskripsi perintah atau tugas lengkap yang harus dilakukan Hermes.
         direktori_kerja: Folder tempat Hermes harus bekerja (opsional, otomatis menggunakan direktori kerja aktif saat ini).
         model: Model OpenRouter spesifik yang ingin dipakai (default: 'deepseek/deepseek-r1', atau alternatif: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
-
-[EN]: Submit a task to the Hermes Agent.
-
-    Args:
-        tugas: Full description of the command or task for Hermes to execute.
-        direktori_kerja: Folder where Hermes should operate (optional, defaults to the current working directory).
-        model: Specific OpenRouter model to use (default: 'deepseek/deepseek-r1', or alternatives: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
-"""
+    """
     # Tentukan direktori kerja aktif secara cerdas
     target_cwd = ""
     if direktori_kerja and Path(direktori_kerja).exists():
@@ -115,7 +199,8 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DE
         "Jangan dump output log mentah yang terlalu panjang agar menghemat token context.)"
     )
 
-    active_model = model.strip() if model and model.strip() else DEFAULT_HERMES_MODEL
+    settings = muat_duo_settings()
+    active_model = model.strip() if model and model.strip() else settings.get("solo", "deepseek/deepseek-chat")
 
     cmd = [
         HERMES_EXE,
@@ -164,14 +249,18 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DE
 def delegasikan_duo_hermes(
     tugas: str,
     direktori_kerja: str = "",
-    model_thinker: str = "anthropic/claude-3.5-haiku",
-    model_worker: str = "deepseek/deepseek-chat"
+    model_thinker: str = "",
+    model_worker: str = ""
 ) -> str:
     """
     Eksekusi pipeline Duo-Model di Hermes:
-    Langkah 1: Claude Haiku merancang technical plan padat.
-    Langkah 2: DeepSeek-Chat mengeksekusi penulisan kode dan command secara nyata.
+    Langkah 1: Claude Haiku (atau model_thinker aktif) merancang technical plan padat.
+    Langkah 2: DeepSeek-Chat (atau model_worker aktif) mengeksekusi penulisan kode dan command secara nyata.
     """
+    settings = muat_duo_settings()
+    active_thinker = model_thinker.strip() if model_thinker and model_thinker.strip() else settings.get("thinker", "anthropic/claude-3.5-haiku")
+    active_worker = model_worker.strip() if model_worker and model_worker.strip() else settings.get("worker", "deepseek/deepseek-chat")
+
     target_cwd = direktori_kerja if direktori_kerja and Path(direktori_kerja).exists() else os.getcwd()
     if not target_cwd or target_cwd.lower().endswith("system32"):
         target_cwd = HERMES_REPO if Path(HERMES_REPO).exists() else str(Path.home())
@@ -188,7 +277,7 @@ def delegasikan_duo_hermes(
         HERMES_EXE,
         "-z", prompt_thinker,
         "--yolo",
-        "-m", model_thinker.strip()
+        "-m", active_thinker
     ]
 
     try:
@@ -204,11 +293,11 @@ def delegasikan_duo_hermes(
         plan_output = res_thinker.stdout.strip()
         if res_thinker.returncode != 0 or not plan_output:
             err = res_thinker.stderr.strip()
-            return f"Duo-Hermes Gagal di Tahap Thinking (Claude): {err or plan_output}"
+            return f"Duo-Hermes Gagal di Tahap Thinking ({active_thinker}): {err or plan_output}"
     except Exception as e:
-        return f"Error eksekusi Thinker (Claude): {str(e)}"
+        return f"Error eksekusi Thinker ({active_thinker}): {str(e)}"
 
-    # Fase 2: Eksekusi Nyata oleh DeepSeek-Chat (Worker)
+    # Fase 2: Eksekusi Nyata oleh Worker
     prompt_worker = (
         f"Anda adalah Agen Koding (Worker). Eksekusi rencana teknis berikut secara nyata ke dalam sistem file/terminal:\n\n"
         f"RENCANA TEKNIS DARI ARSITEK:\n{plan_output}\n\n"
@@ -219,7 +308,7 @@ def delegasikan_duo_hermes(
         HERMES_EXE,
         "-z", prompt_worker,
         "--yolo",
-        "-m", model_worker.strip()
+        "-m", active_worker
     ]
 
     try:
@@ -238,12 +327,12 @@ def delegasikan_duo_hermes(
             return f"Duo-Hermes Berhasil Berpikir, tapi Gagal Eksekusi Worker: {err or worker_output}"
 
         return (
-            f"=== HASIL DUO-HERMES (CLAUDE HAIKU + DEEPSEEK CHAT) ===\n\n"
-            f"[THINKER - Claude 3.5 Haiku Plan]:\n{plan_output}\n\n"
-            f"[WORKER - DeepSeek-Chat Execution]:\n{worker_output or 'Eksekusi selesai tanpa output.'}"
+            f"=== HASIL DUO-HERMES ({active_thinker} + {active_worker}) ===\n\n"
+            f"[THINKER - {active_thinker} Plan]:\n{plan_output}\n\n"
+            f"[WORKER - {active_worker} Execution]:\n{worker_output or 'Eksekusi selesai tanpa output.'}"
         )
     except Exception as e:
-        return f"Error eksekusi Worker (DeepSeek): {str(e)}"
+        return f"Error eksekusi Worker ({active_worker}): {str(e)}"
 
 
 if __name__ == "__main__":

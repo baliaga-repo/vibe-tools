@@ -176,3 +176,14 @@ Alur yang diharapkan:
 
 (Catatan: Jangan commit atau push sebelum meminta konfirmasi saya).
 ```
+
+### Template 9: Mengganti & Memeriksa Konfigurasi Model Hermes Lewat Chat
+```text
+Tolong atur model Hermes untuk sesi kerja ini:
+- Model Thinker (Arsitek): [misal: anthropic/claude-3.5-haiku atau anthropic/claude-3.5-sonnet]
+- Model Worker (Koding): [misal: deepseek/deepseek-chat atau meta-llama/llama-3.3-70b-instruct:free]
+- Model Solo: [misal: deepseek/deepseek-chat]
+
+Gunakan tool `atur_model_hermes` untuk menyimpan pengaturan secara permanen, lalu tampilkan status model aktif dengan `lihat_model_hermes`.
+```
+

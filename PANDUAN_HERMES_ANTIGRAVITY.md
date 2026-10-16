@@ -198,12 +198,30 @@ Anda cukup berinteraksi santai dengan Gemini di IDE:
 
 ---
 
-## 🎛️ Cara Memilih Model Hermes Sesuka Hati
+## 🎛️ Cara Memilih dan Menggonta-Ganti Model Hermes
 
-Anda memiliki dua opsi fleksibel:
+Anda memiliki tiga cara fleksibel untuk mengatur model yang digunakan:
 
-### Opsi A: Ganti Default Model Secara Global (Terminal)
-Jika Anda ingin Hermes selalu memakai model tertentu setiap kali dipanggil tanpa perlu mengetik nama model di chat:
+### Opsi A: Ganti Langsung Lewat Percakapan Chat (Paling Praktis) ✨
+Cukup ketik instruksi ganti model di dalam chat percakapan Antigravity:
+* *"Tolong ganti model thinker hermes ke `anthropic/claude-3.5-sonnet`"*
+* *"Ganti model worker hermes ke `deepseek/deepseek-chat`"*
+* *"Atur model thinker ke `deepseek/deepseek-r1` dan worker ke `meta-llama/llama-3.3-70b-instruct:free`"*
+* *"Tampilkan model hermes yang sedang aktif"*
+
+Antigravity akan memanggil MCP tool `atur_model_hermes` atau `lihat_model_hermes`. Pengaturan ini **tersimpan permanen** di `%LOCALAPPDATA%\hermes\duo_settings.json` sehingga tetap berlaku di sesi chat berikutnya.
+
+---
+
+### Opsi B: On-Demand per Instruksi Chat (Tanpa Mengubah Default)
+Jika Anda hanya ingin satu tugas tertentu menggunakan model khusus tanpa mengubah default permanen:
+* *"Delegasikan refaktor ini ke duo hermes, tapi thinkernya khusus tugas ini pakai `anthropic/claude-3.5-sonnet`."*
+* *"Jalankan tes via Hermes pakai model worker `google/gemini-2.5-flash`..."*
+
+---
+
+### Opsi C: Ganti Default Model CLI Secara Global (Terminal)
+Jika Anda menggunakan Hermes langsung di terminal Windows PowerShell (`hermes ...`):
 ```cmd
 # 1. Pakai model gratis 100%:
 hermes config set model "meta-llama/llama-3.3-70b-instruct:free"
@@ -218,22 +236,27 @@ hermes config set model "google/gemini-2.5-flash"
 hermes model
 ```
 
-### Opsi B: On-Demand per Instruksi Chat (Tanpa Mengubah Default)
-Cukup sebutkan model yang diinginkan dalam prompt chat Antigravity:
-* *"Suruh Hermes pakai model `google/gemini-2.5-flash` untuk..."*
-* *"Delegasikan ke Hermes pakai model `deepseek/deepseek-chat` untuk..."*
-* *"Jalankan tes via Hermes pakai model free..."*
+---
 
-Antigravity akan otomatis mengoper parameter `model="..."` ke tool `delegasikan_ke_hermes`!
+## 👥 Rekomendasi Pasangan Duo-Model (Thinker + Worker)
+
+| Skenario | Thinker (Arsitek / Penalaran) | Worker (Eksekusi Koding / File) | Karakteristik Biaya & Performa |
+| :--- | :--- | :--- | :--- |
+| **Default (Sangat Hemat & Cerdas)** | `anthropic/claude-3.5-haiku` | `deepseek/deepseek-chat` | ~$0.80/M token Thinker + ~$0.14/M token Worker. Keseimbangan terbaik kecepatan dan akurasi. |
+| **Heavy Architecture / Refactor Rumit** | `anthropic/claude-3.5-sonnet` | `deepseek/deepseek-chat` | Analisis logika terdalam dengan Claude Sonnet, eksekusi kode panjang tetap murah via DeepSeek. |
+| **Pure Reasoning Murah** | `deepseek/deepseek-r1` | `deepseek/deepseek-chat` | Keduanya dari DeepSeek. Penalaran CoT (Chain-of-Thought) sangat kuat dengan biaya super minimal. |
+| **Eksperimen / Zero Cost** | `deepseek/deepseek-chat` | `meta-llama/llama-3.3-70b-instruct:free` | Eksekusi terminal dan pengujian berkas tanpa biaya token worker. |
 
 ---
 
-## 📋 Daftar Model Rekomendasi untuk Hermes Worker
+## 📋 Daftar Model Rekomendasi di OpenRouter
 
 | Model ID | Biaya | Keunggulan Utama |
 | :--- | :--- | :--- |
 | `meta-llama/llama-3.3-70b-instruct:free` | **Gratis** ($0) | Cocok untuk search file biasa dan ekstraksi log tanpa biaya sama sekali. |
 | `deepseek/deepseek-chat` (DeepSeek-V3) | Sangat Murah ($0.14 / 1M token) | Sangat cerdas dalam bash/python command, scripting, dan koding. |
+| `anthropic/claude-3.5-haiku` | Ekonomis (~$0.80 / 1M token) | Sangat cepat dan presisi untuk membuat technical execution plan. |
+| `anthropic/claude-3.5-sonnet` | Standar (~$3.00 / 1M token) | Kemampuan arsitektur dan debugging kode paling canggih di dunia. |
+| `deepseek/deepseek-r1` | Murah (~$0.55 / 1M token) | Penalaran mendalam (*Chain of Thought*) untuk masalah logika yang sangat rumit. |
 | `google/gemini-2.5-flash` | Sangat Murah | Kecepatan kilat, context window 1M token (bisa membaca file log raksasa). |
-| `qwen/qwen-2.5-coder-32b-instruct` | Murah | Spesialis pemahaman sintaks dan refactoring code. |
 
