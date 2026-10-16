@@ -66,7 +66,7 @@ SETTINGS_FILE = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "L
 
 def muat_duo_settings() -> dict:
     default_settings = {
-        "thinker": "anthropic/claude-3.5-haiku",
+        "thinker": "anthropic/claude-haiku-4.5",
         "worker": "deepseek/deepseek-chat",
         "solo": "deepseek/deepseek-chat"
     }
@@ -262,7 +262,7 @@ def delegasikan_duo_hermes(
     Step 2: DeepSeek-Chat executes the actual code writing and commands.
 """
     settings = muat_duo_settings()
-    active_thinker = model_thinker.strip() if model_thinker and model_thinker.strip() else settings.get("thinker", "anthropic/claude-3.5-haiku")
+    active_thinker = model_thinker.strip() if model_thinker and model_thinker.strip() else settings.get("thinker", "anthropic/claude-haiku-4.5")
     active_worker = model_worker.strip() if model_worker and model_worker.strip() else settings.get("worker", "deepseek/deepseek-chat")
 
     target_cwd = direktori_kerja if direktori_kerja and Path(direktori_kerja).exists() else os.getcwd()
