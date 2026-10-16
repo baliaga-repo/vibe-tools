@@ -1,8 +1,13 @@
 r"""
-Hermes Agent Worker MCP Server untuk Antigravity IDE.
+[ID]: Hermes Agent Worker MCP Server untuk Antigravity IDE.
 Menghubungkan Antigravity dengan Hermes Agent lokal
 sebagai worker mandiri untuk eksekusi perintah, riset file, web search, dan scripting
 tanpa membebani token context model utama (Claude / GPT).
+
+[EN]: Hermes Agent Worker MCP Server for Antigravity IDE.
+Connects Antigravity with a local Hermes Agent
+as a standalone worker for command execution, file research, web search, and scripting
+without burdening the primary model's (Claude / GPT) context tokens.
 """
 import sys
 import os
@@ -105,13 +110,20 @@ def atur_model_hermes(
     model_solo: str = ""
 ) -> str:
     """
-    Atur model default untuk Hermes Agent.
+[ID]: Atur model default untuk Hermes Agent.
     
     Args:
         model_thinker: Model OpenRouter untuk fase perancangan/thinking (misal: 'anthropic/claude-3.5-haiku', 'anthropic/claude-3.5-sonnet', 'deepseek/deepseek-r1').
         model_worker: Model OpenRouter untuk eksekusi kode/terminal (misal: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
         model_solo: Model OpenRouter untuk tugas tunggal delegasikan_ke_hermes (misal: 'deepseek/deepseek-chat').
-    """
+
+[EN]: Set the default models for Hermes Agent.
+    
+    Args:
+        model_thinker: OpenRouter model for the planning/thinking phase (e.g., 'anthropic/claude-3.5-haiku', 'anthropic/claude-3.5-sonnet', 'deepseek/deepseek-r1').
+        model_worker: OpenRouter model for code/terminal execution (e.g., 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
+        model_solo: OpenRouter model for single tasks in delegasikan_ke_hermes (e.g., 'deepseek/deepseek-chat').
+"""
     settings = muat_duo_settings()
     diubah = []
 
