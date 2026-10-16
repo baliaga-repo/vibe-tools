@@ -87,29 +87,24 @@ python vibe_tools/setup_vibe_ecosystem.py
 ---
 
 ### 📄 Dokumentasi & Cheat-Sheet Prompting
-1. **`PANDUAN_SETUP_VIBE_CODING_BARU.md`**  
+
+#### 🎯 Panduan Sentral Ekosistem (Utama)
+1. **[`PANDUAN_LENGKAP_EKOSISTEM.md`](PANDUAN_LENGKAP_EKOSISTEM.md)** ⭐
+   - **Panduan Konsolidasi Lengkap**: Menyatukan seluruh panduan ekosistem dalam satu dokumen terstruktur:
+     - 📖 **Bab 1**: Docstring Translator bilingual `[ID]` & `[EN]`
+     - 🧪 **Bab 2**: Testing modal interaktif `ask_question` & cost estimator
+     - 🔄 **Bab 3**: Sinkronisasi Git Submodule `vibe_tools`
+     - 🔍 **Bab 4**: REA MCP untuk reverse engineering (ASAR, APK, binary)
+     - ⚡ **Bab 5**: Hermes Agent x Antigravity IDE (arsitektur Duo-Model)
+     - 🌐 **Bab 6**: OpenRouter MCP, alias cerdas, dan katalog model
+     - ❓ **Bab 7**: FAQ & Troubleshooting
+
+#### 📚 Dokumen Pendukung
+2. **`PANDUAN_SETUP_VIBE_CODING_BARU.md`**  
    - Master panduan dan prompt siap tempel (*copy-paste*) ke AI pada proyek baru untuk memasang ekosistem secara non-destruktif.
 
-2. **`Prompt_AI.md`**  
+3. **`Prompt_AI.md`**  
    - Katalog kata kunci sakti (*Targeted Context Tagging*, *Progressive Disclosure*, *Facade Pattern*, *Repomix*, dll.) dan pola prompting hemat token.
-
-3. **`PANDUAN_HERMES_ANTIGRAVITY.md`**  
-   - Panduan lengkap arsitektur dan cara kerja integrasi Hermes Agent dengan Antigravity IDE.
-
-4. **`OPENROUTER_MCP_GUIDE.md`**  
-   - Panduan konfigurasi OpenRouter MCP, alias cerdas (`r1`, `claude`, `sonnet`, `deepseek`, `free`), dan pengaman limit harian.
-
-5. **`TUTORIAL_TESTING_ASK_QUESTION.md`**  
-   - Panduan praktis, diagram alur, dan contoh prompt siap pakai untuk menguji modal interaktif pemilih model (`ask_question`).
-
-6. **`TUTORIAL_DOCSTRING_TRANSLATOR.md`**  
-   - Panduan lengkap penerjemah docstring bilingual (`[ID]` & `[EN]`), konfigurasi multi-key, gonta-ganti engine (Gemini & OpenRouter), penanganan limit kuota, dan auto-save saat pembatalan.
-
-7. **`TUTORIAL_SINKRONISASI_VIBE_TOOLS.md`**  
-   - Panduan lengkap sinkronisasi Git Submodule `vibe_tools` (Pull update dari GitHub, Push update lokal, perbaikan isu `desktop.ini` Google Drive, dan penguncian pointer commit di proyek utama).
-
-8. **`PANDUAN_REA_MCP.md`**  
-   - Panduan lengkap penggunaan REA (*Reverse Engineer Anything*) MCP di Antigravity IDE: analisis ASAR/Electron, web bundle, APK Android, native binary, tabel kapabilitas 207 tools, dan template prompt siap pakai.
 
 ---
 
