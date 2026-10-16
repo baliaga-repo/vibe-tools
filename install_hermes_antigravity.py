@@ -160,17 +160,23 @@ def main():
     gemini_config_dir.mkdir(parents=True, exist_ok=True)
 
     hermes_mcp_file = gemini_dir / "hermes_mcp.py"
-    hermes_exe_escaped = hermes_exe.replace("\\", "\\\\")
-    repo_dir_escaped = str(target_repo_dir).replace("\\", "\\\\")
+    local_hermes_mcp = Path(__file__).parent / "hermes_mcp.py"
 
-    bridge_code = f'''r"""
-Hermes Agent Worker MCP Server untuk Antigravity IDE.
-Menghubungkan Antigravity dengan Hermes Agent lokal
+    if local_hermes_mcp.exists():
+        bridge_code = local_hermes_mcp.read_text(encoding="utf-8")
+    else:
+        hermes_exe_escaped = hermes_exe.replace("\\", "\\\\")
+        repo_dir_escaped = str(target_repo_dir).replace("\\", "\\\\")
+        bridge_code = f'''r"""
+Hermes Agent Worker MCP Server untuk Antigravity IDE & Continue.
+Menghubungkan Antigravity & Continue dengan Hermes Agent lokal
 sebagai worker mandiri untuk eksekusi perintah, riset file, web search, dan scripting
 tanpa membebani token context model utama (Claude / GPT).
 """
 import sys
 import os
+import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -197,29 +203,109 @@ except ImportError:
 
 mcp = MCPServer("Hermes-Worker")
 
-HERMES_EXE = r"{hermes_exe}"
-HERMES_REPO = r"{target_repo_dir}"
+
+def temukan_hermes_exe() -> str:
+    exe = shutil.which("hermes") or shutil.which("hermes.exe")
+    if exe:
+        return exe
+    script_candidate = Path(sys.executable).parent / "Scripts" / "hermes.exe"
+    if script_candidate.exists():
+        return str(script_candidate)
+    local_app_data = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+    for candidate in local_app_data.glob("Programs/Python/*/Scripts/hermes.exe"):
+        return str(candidate)
+    return r"{hermes_exe_escaped}"
+
+
+def temukan_hermes_repo() -> str:
+    candidates = [
+        Path(r"{repo_dir_escaped}"),
+        Path("C:/hermes_env/hermes-agent"),
+        Path("D:/hermes_env/hermes-agent"),
+        Path("E:/hermes_env/hermes-agent"),
+        Path.home() / "hermes_env" / "hermes-agent",
+        Path.home() / ".hermes" / "hermes-agent",
+    ]
+    for c in candidates:
+        if c.exists():
+            return str(c)
+    return str(Path.home())
+
+HERMES_EXE = temukan_hermes_exe()
+HERMES_REPO = temukan_hermes_repo()
+
+# Konfigurasi Persistent Model Duo-Hermes
+SETTINGS_FILE = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "hermes" / "duo_settings.json"
+
+def muat_duo_settings() -> dict:
+    default_settings = {{
+        "thinker": "anthropic/claude-3.5-haiku",
+        "worker": "deepseek/deepseek-chat",
+        "solo": "deepseek/deepseek-chat"
+    }}
+    if SETTINGS_FILE.exists():
+        try:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                default_settings.update(data)
+        except Exception:
+            pass
+    return default_settings
+
+def simpan_duo_settings(settings: dict) -> bool:
+    try:
+        SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+            json.dump(settings, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception:
+        return False
+
+DEFAULT_HERMES_MODEL = muat_duo_settings().get("solo", "deepseek/deepseek-chat")
+
+
+@mcp.tool(
+    name="atur_model_hermes",
+    description="Ubah konfigurasi model Hermes secara langsung dari chat percakapan."
+)
+def atur_model_hermes(model_thinker: str = "", model_worker: str = "", model_solo: str = "") -> str:
+    settings = muat_duo_settings()
+    diubah = []
+    if model_thinker and model_thinker.strip():
+        settings["thinker"] = model_thinker.strip()
+        diubah.append(f"Thinker -> `{{settings['thinker']}}`")
+    if model_worker and model_worker.strip():
+        settings["worker"] = model_worker.strip()
+        diubah.append(f"Worker  -> `{{settings['worker']}}`")
+    if model_solo and model_solo.strip():
+        settings["solo"] = model_solo.strip()
+        diubah.append(f"Solo    -> `{{settings['solo']}}`")
+    if not diubah:
+        return f"Tidak ada model yang diubah.\\nThinker: `{{settings['thinker']}}`\\nWorker: `{{settings['worker']}}`\\nSolo: `{{settings['solo']}}`"
+    simpan_duo_settings(settings)
+    return "✅ Konfigurasi model Hermes berhasil disimpan:\\n" + "\\n".join(f"- {{d}}" for d in diubah)
+
+
+@mcp.tool(
+    name="lihat_model_hermes",
+    description="Tampilkan model Hermes yang aktif saat ini."
+)
+def lihat_model_hermes() -> str:
+    settings = muat_duo_settings()
+    return (
+        f"📋 Konfigurasi Model Hermes Aktif:\\n"
+        f"- Thinker (Perancang/Arsitek) : `{{settings['thinker']}}`\\n"
+        f"- Worker (Eksekutor Kode)     : `{{settings['worker']}}`\\n"
+        f"- Solo (Worker Tunggal)       : `{{settings['solo']}}`\\n"
+        f"File pengaturan: `{{SETTINGS_FILE}}`"
+    )
 
 
 @mcp.tool(
     name="delegasikan_ke_hermes",
-    description=(
-        "Kirim tugas ke Hermes Agent lokal (background worker mandiri). "
-        "Hermes dapat mengeksekusi terminal command/test, membaca & menyisir file luas, "
-        "mencari regex di direktori kerja, scraping web, atau eksplorasi kode "
-        "secara otonom dengan model gratis/eksternal tanpa membuang token Claude/GPT. "
-        "Hasil akan otomatis diringkas padat agar efisien di context window."
-    )
+    description="Kirim tugas ke Hermes Agent lokal (background worker mandiri)."
 )
 def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = "") -> str:
-    \"\"\"
-    Kirim tugas ke Hermes Agent.
-    
-    Args:
-        tugas: Deskripsi perintah atau tugas lengkap yang harus dilakukan Hermes.
-        direktori_kerja: Folder tempat Hermes harus bekerja (opsional, otomatis menggunakan direktori kerja aktif jika kosong).
-        model: Model OpenRouter spesifik yang ingin dipakai (opsional, contoh: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free', 'google/gemini-2.5-flash'). Jika kosong, memakai model default Hermes.
-    \"\"\"
     target_cwd = ""
     if direktori_kerja and Path(direktori_kerja).exists():
         target_cwd = direktori_kerja
@@ -232,51 +318,76 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = ""
         else:
             target_cwd = str(Path.home())
 
-    instruksi_tugas = (
-        f"{{tugas}}\\n\\n"
-        "(Catatan: Berikan ringkasan padat, langsung ke temuan/akar masalah/nomor baris atau poin hasil eksekusi. "
-        "Jangan dump output log mentah yang terlalu panjang agar menghemat token context.)"
-    )
+    model_aktif = model.strip() if model and model.strip() else muat_duo_settings().get("solo", "deepseek/deepseek-chat")
+    instruksi_tugas = f"{{tugas}}\\n\\n(Berikan ringkasan padat langsung ke temuan/eksekusi agar hemat token.)"
 
-    cmd = [
-        HERMES_EXE,
-        "-z",  # oneshot mode
-    ]
-    if model:
-        cmd.extend(["-m", model.strip()])
+    cmd = [HERMES_EXE, "-z"]
+    if model_aktif:
+        cmd.extend(["-m", model_aktif])
     cmd.append(instruksi_tugas)
 
     try:
-        result = subprocess.run(
-            cmd,
-            cwd=target_cwd,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=300  # 5 menit timeout
-        )
-
-        output = result.stdout.strip()
-        errors = result.stderr.strip()
-
-        if result.returncode != 0:
-            return f"Hermes Error (code {{result.returncode}}):\\n{{errors or output}}"
-
-        if not output and errors:
-            return f"Hermes Output (stderr):\\n{{errors}}"
-
-        return output or "Tugas selesai dijalankan oleh Hermes Agent (tanpa output teks)."
-
+        res = subprocess.run(cmd, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
+        out = res.stdout.strip()
+        err = res.stderr.strip()
+        if res.returncode != 0:
+            return f"Hermes Error (code {{res.returncode}}):\\n{{err or out}}"
+        return out or err or "Tugas selesai dijalankan oleh Hermes Agent."
     except subprocess.TimeoutExpired:
         return "Hermes Timeout: Tugas membutuhkan waktu lebih dari 5 menit."
     except Exception as e:
         return f"Gagal menjalankan Hermes Agent: {{str(e)}}"
 
 
+@mcp.tool(
+    name="delegasikan_duo_hermes",
+    description="Pipeline kolaborasi dua model AI otonom (Thinker + Worker) di background."
+)
+def delegasikan_duo_hermes(tugas: str, direktori_kerja: str = "", model_thinker: str = "", model_worker: str = "") -> str:
+    settings = muat_duo_settings()
+    active_thinker = model_thinker.strip() if model_thinker else settings.get("thinker", "anthropic/claude-3.5-haiku")
+    active_worker = model_worker.strip() if model_worker else settings.get("worker", "deepseek/deepseek-chat")
+
+    target_cwd = ""
+    if direktori_kerja and Path(direktori_kerja).exists():
+        target_cwd = direktori_kerja
+    else:
+        current_dir = os.getcwd()
+        if current_dir and not current_dir.lower().endswith("system32") and Path(current_dir).exists():
+            target_cwd = current_dir
+        elif Path(HERMES_REPO).exists():
+            target_cwd = HERMES_REPO
+        else:
+            target_cwd = str(Path.home())
+
+    # Fase 1: Thinking
+    prompt_thinker = f"{{tugas}}\\n\\nBuat rencana teknis presisi untuk dieksekusi koding."
+    cmd_thinker = [HERMES_EXE, "-z", prompt_thinker, "-m", active_thinker]
+    try:
+        res_t = subprocess.run(cmd_thinker, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
+        plan = res_t.stdout.strip()
+        if res_t.returncode != 0 or not plan:
+            return f"Duo-Hermes Gagal di Tahap Thinking ({{active_thinker}}): {{res_t.stderr.strip() or plan}}"
+    except Exception as e:
+        return f"Error eksekusi Thinker ({{active_thinker}}): {{str(e)}}"
+
+    # Fase 2: Eksekusi Worker
+    prompt_worker = f"Eksekusi rencana berikut:\\n{{plan}}\\nLaporkan ringkasan hasil."
+    cmd_worker = [HERMES_EXE, "-z", prompt_worker, "--yolo", "-m", active_worker]
+    try:
+        res_w = subprocess.run(cmd_worker, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=360)
+        out_w = res_w.stdout.strip()
+        if res_w.returncode != 0:
+            return f"Duo-Hermes Berhasil Berpikir, tapi Gagal Eksekusi Worker: {{res_w.stderr.strip() or out_w}}"
+        return f"=== HASIL DUO-HERMES ({{active_thinker}} + {{active_worker}}) ===\\n\\n[THINKER Plan]:\\n{{plan}}\\n\\n[WORKER Execution]:\\n{{out_w or 'Selesai.'}}"
+    except Exception as e:
+        return f"Error eksekusi Worker ({{active_worker}}): {{str(e)}}"
+
+
 if __name__ == "__main__":
     mcp.run()
 '''
+
     with open(hermes_mcp_file, "w", encoding="utf-8") as f:
         f.write(bridge_code)
     print_ok(f"Bridge script tersimpan di: {hermes_mcp_file}")

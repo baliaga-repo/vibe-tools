@@ -11,6 +11,8 @@ without burdening the primary model's (Claude / GPT) context tokens.
 """
 import sys
 import os
+import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -37,7 +39,6 @@ except ImportError:
 
 mcp = MCPServer("Hermes-Worker")
 
-import shutil
 
 def temukan_hermes_exe() -> str:
     exe = shutil.which("hermes") or shutil.which("hermes.exe")
@@ -51,9 +52,12 @@ def temukan_hermes_exe() -> str:
         return str(candidate)
     return "hermes"
 
+
 def temukan_hermes_repo() -> str:
     candidates = [
         Path("C:/hermes_env/hermes-agent"),
+        Path("D:/hermes_env/hermes-agent"),
+        Path("E:/hermes_env/hermes-agent"),
         Path.home() / "hermes_env" / "hermes-agent",
         Path.home() / ".hermes" / "hermes-agent",
     ]

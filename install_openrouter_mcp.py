@@ -19,7 +19,6 @@ This script automates the entire installation process on a new PC/laptop:
 """
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -59,7 +58,6 @@ dengan sistem alias cerdas (r1, claude, sonnet, deepseek, v3, gpt4o, qwen, free,
 import os
 import sys
 from pathlib import Path
-from typing import Optional
 import requests
 
 # Konfigurasi encoding UTF-8 agar kompatibel dengan terminal Windows
@@ -87,9 +85,20 @@ MODEL_ALIASES = {
     "o3-mini": "openai/o3-mini",
     
     # Standar Emas Coding & Refactoring
-    "claude": "anthropic/claude-3.5-sonnet",
-    "sonnet": "anthropic/claude-3.5-sonnet",
+    "claude": "anthropic/claude-3.7-sonnet:thinking",
+    "claude-thinking": "anthropic/claude-3.7-sonnet:thinking",
+    "claude-3.7": "anthropic/claude-3.7-sonnet",
+    "claude-3.7-thinking": "anthropic/claude-3.7-sonnet:thinking",
+    "claude-4.5": "anthropic/claude-sonnet-4.5",
+    "sonnet": "anthropic/claude-3.7-sonnet:thinking",
     "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet",
+    "claude-haiku": "anthropic/claude-3.5-haiku",
+    "haiku": "anthropic/claude-3.5-haiku",
+    
+    # Model Google Long-Context
+    "gemini": "google/gemini-2.5-flash",
+    "gemini-flash": "google/gemini-2.5-flash",
+    "gemini-pro": "google/gemini-2.5-pro",
     
     # Spesialis Coding Cepat & Hemat
     "qwen": "qwen/qwen-2.5-coder-32b-instruct",
@@ -107,10 +116,11 @@ MODEL_ALIASES = {
     "gpt4o-mini": "openai/gpt-4o-mini",
     "4o-mini": "openai/gpt-4o-mini",
     
-    # Model 100% Gratis (Free Tier)
-    "free": "meta-llama/llama-3.3-70b-instruct:free",
-    "llama-free": "meta-llama/llama-3.3-70b-instruct:free",
-    "deepseek-free": "deepseek/deepseek-r1:free",
+    # Model 100% Gratis (Free Tier Aktif)
+    "free": "google/gemma-4-31b-it:free",
+    "gemma-free": "google/gemma-4-31b-it:free",
+    "code-free": "cohere/north-mini-code:free",
+    "deepseek-free": "deepseek/deepseek-chat",
 }
 
 

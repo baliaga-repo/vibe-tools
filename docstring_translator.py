@@ -11,7 +11,7 @@ import sys
 import time
 import argparse
 from pathlib import Path
-from typing import Optional, List, Tuple, Dict, Any, Union
+from typing import Optional, Tuple, Dict, Any, Union
 
 # Konfigurasi encoding UTF-8 untuk terminal Windows
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):

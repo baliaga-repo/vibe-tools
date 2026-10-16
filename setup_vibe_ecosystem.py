@@ -241,7 +241,7 @@ NON_CODE = (
     "`*.db`, `*.sqlite`, `*.log`, `graphify-out/graph.*`, `node_modules/`, `venv/`, `.venv/`\\n"
 )
 
-POLA_ITEM = re.compile(r"^- `([^`]+)`(?: \(~?\\d+(?: lines)?\\))?(?: - (.*))?$")
+POLA_ITEM = re.compile(r"^- `([^`]+)`(?: \\(~?\\d+(?: lines)?\\))?(?: - (.*))?$")
 
 
 def _hitung_baris(path: str) -> int:
@@ -1093,6 +1093,7 @@ def main():
     buat_berkas("vibe_tools/README.md", baca_skrip_lokal("README.md"))
     buat_berkas("vibe_tools/README_EN.md", baca_skrip_lokal("README_EN.md"))
     buat_berkas("vibe_tools/TUTORIAL_SINKRONISASI_VIBE_TOOLS.md", baca_skrip_lokal("TUTORIAL_SINKRONISASI_VIBE_TOOLS.md"))
+    buat_berkas("vibe_tools/patch_continue_autonomous.py", baca_skrip_lokal("patch_continue_autonomous.py"))
 
     # 2b. Pasang REA MCP (opsional, jika Node.js tersedia)
     import shutil as _shutil
