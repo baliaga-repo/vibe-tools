@@ -1,0 +1,68 @@
+{
+  "name": "inspect_wasm_artifact",
+  "description": "Validate an explicit local WASM artifact with caller-supplied WABT 1.0.42. Omitted or complete detail returns exact byte SHA-256, sections, upstream import/export WAT forms and decoded WAT inline as Evidence. For counts, validation and WAT identity without WAT text, pass detail: \"summary\" on this first call; it retains the complete original Evidence and returns the same typed summary as inspect_analysis_view, avoiding oversized complete delivery. Read exact imports/exports or WAT pages with inspect_analysis_view using normalized_result.parent_evidence_id. Delivery selection does not change analysis, provider inputs or source identity. Optionally associate selected JavaScript glue literals with explicit local candidates while preserving ambiguous URL/basename matches. Configure absolute REA_WABT_BIN_DIRECTORY. No installation, implicit fetch, WASM execution or original-source claim.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute selected local WASM artifact path"
+      },
+      "glue_paths": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "candidate_paths": {
+        "$ref": "#/$defs/__schema3"
+      },
+      "detail": {
+        "$ref": "#/$defs/__schema4"
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "Absolute selected local WASM artifact path",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema2": {
+        "default": [],
+        "maxItems": 16,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema1"
+        }
+      },
+      "__schema3": {
+        "default": [],
+        "maxItems": 16,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema1"
+        }
+      },
+      "__schema4": {
+        "type": "string",
+        "enum": [
+          "complete",
+          "summary"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "path": "/artifacts/module.wasm",
+        "glue_paths": [],
+        "candidate_paths": []
+      }
+    ]
+  }
+}

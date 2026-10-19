@@ -1,0 +1,31 @@
+{
+  "name": "open_jeb_project",
+  "description": "Open or create a JEB project from an artifact file or existing .jdb2 database on the engine host. Returns the project's input-file digests and top-level units. The engine analyzes the target itself; REA does not read the file or execute it. Fails when a project is already open.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Artifact file or existing .jdb2 project database, resolved by the running JEB client"
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Artifact file or existing .jdb2 project database, resolved by the running JEB client"
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/Example.apk"
+      }
+    ]
+  }
+}

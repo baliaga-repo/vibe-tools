@@ -1,0 +1,47 @@
+{
+  "name": "inspect_pcap_capture",
+  "description": "Request detail summary for capture identity/counts, then page retained facts with inspect_analysis_view kind pcap. Default detail complete preserves inline delivery. Inspect one saved pcap or pcapng capture through an owned snapshot: metadata, exact packet count, SHA-256, IPv4/IPv6 address counts, DNS questions and address values from the same single-question response, TLS SNI, protocol distribution and HTTP URIs. All derived inventories are retained within declared resource budgets; unknown DNS attribution and excluded credentials remain explicit. Linux requires util-linux prlimit; Windows uses owned Job Objects. Requires caller-supplied capinfos and tshark; REA never captures traffic.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local pcap or pcapng capture file to inspect"
+      },
+      "detail": {
+        "$ref": "#/$defs/__schema1",
+        "description": "complete returns the complete analysis Evidence inline. summary retains that complete Evidence in this session and returns its inspect_analysis_view summary; inspect pages, items or facets through normalized_result.parent_evidence_id."
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Local pcap or pcapng capture file to inspect"
+      },
+      "__schema1": {
+        "default": "complete",
+        "description": "complete returns the complete analysis Evidence inline. summary retains that complete Evidence in this session and returns its inspect_analysis_view summary; inspect pages, items or facets through normalized_result.parent_evidence_id.",
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema2": {
+        "type": "string",
+        "enum": [
+          "complete",
+          "summary"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "path": "/captures/session.pcap"
+      }
+    ]
+  }
+}

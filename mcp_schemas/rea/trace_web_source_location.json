@@ -1,0 +1,101 @@
+{
+  "name": "trace_web_source_location",
+  "description": "Trace one generated position in an exported website script through an explicitly paired local source map. Verifies manifest, selected script and map SHA-256/byte identities; returns every equal-position mapping, reported source/root, resolved source URL, embedded sourcesContent and original position inline. One-based lines and zero-based UTF-16 columns; greatest generated position <= requested across lines. Duplicate sources and generated-only mappings remain distinct. Caller-selected pairing does not establish deployment authenticity or execution. Regular maps and inline indexed sections only; external section URLs are unsupported. No network access or application execution; uses the pinned upstream codec in an owned Node process with private temporary files, independent 192 MiB old-generation heap and 20-second deadline. 4 MiB map, 32 MiB reply; complete evidence or actionable resource failure. Cleanup may extend the deadline.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "manifest_path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute export_web_scripts manifest path"
+      },
+      "script_index": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Zero-based index in manifest.scripts"
+      },
+      "source_map": {
+        "$ref": "#/$defs/__schema3"
+      },
+      "generated_position": {
+        "$ref": "#/$defs/__schema4"
+      }
+    },
+    "required": [
+      "manifest_path",
+      "script_index",
+      "source_map",
+      "generated_position"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "Absolute export_web_scripts manifest path",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema2": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991,
+        "description": "Zero-based index in manifest.scripts"
+      },
+      "__schema3": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "description": "Absolute local source-map path; no fetch",
+            "$ref": "#/$defs/__schema1"
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Explicit source-map URL context used to resolve original source names"
+          }
+        },
+        "required": [
+          "path",
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "__schema4": {
+        "type": "object",
+        "properties": {
+          "line": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "column": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "line",
+          "column"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "examples": [
+      {
+        "manifest_path": "/analysis/scripts/manifest.json",
+        "script_index": 0,
+        "source_map": {
+          "path": "/analysis/app.js.map",
+          "url": "https://example.test/app.js.map"
+        },
+        "generated_position": {
+          "line": 1,
+          "column": 25
+        }
+      }
+    ]
+  }
+}

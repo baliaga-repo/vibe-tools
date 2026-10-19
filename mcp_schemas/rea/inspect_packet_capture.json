@@ -1,0 +1,162 @@
+{
+  "name": "inspect_packet_capture",
+  "description": "Inspect caller-selected fields in an existing local packet capture with TShark 4.x. Return 50 matching frames by default, with match_offset/match_limit paging and coverage counts; match_limit:null requests all remaining matches. Preserve repeated values, frame numbers, display filter, decode-as rules and pass mode in inline Evidence with source/tool identity and diagnostics. Optional packet_limit counts input packets before filtering; output paging does not shorten dissection or two-pass reassembly. Requires Linux, util-linux prlimit, and absolute REA_TSHARK_COMMAND. File-only analysis; no live capture or device communication. Missing fields or no matches do not establish absence of device traffic.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute local capture path"
+      },
+      "fields": {
+        "$ref": "#/$defs/__schema1",
+        "description": "TShark field names to return, e.g. ip.addr, usb.endpoint_address, btatt.opcode; frame.number is always included"
+      },
+      "display_filter": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Optional Wireshark display filter (-Y), applied within the read limit"
+      },
+      "decode_as": {
+        "$ref": "#/$defs/__schema5",
+        "description": "Explicit TShark decode-as selections, e.g. tcp.port==8888,http"
+      },
+      "packet_limit": {
+        "$ref": "#/$defs/__schema7",
+        "description": "Maximum input packets to read before filtering; omitted scans to EOF within resource limits"
+      },
+      "two_pass": {
+        "$ref": "#/$defs/__schema9",
+        "description": "Use two-pass analysis for fields requiring later packets; false requests a single pass"
+      },
+      "match_offset": {
+        "$ref": "#/$defs/__schema11",
+        "description": "Skip this many matching packets after filtering; default 0"
+      },
+      "match_limit": {
+        "$ref": "#/$defs/__schema13",
+        "description": "Return at most this many matching packets after filtering; default 50. Null explicitly returns all remaining matches within producer resource limits."
+      }
+    },
+    "required": [
+      "path",
+      "fields"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute local capture path"
+      },
+      "__schema1": {
+        "minItems": 1,
+        "maxItems": 1024,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema2"
+        },
+        "description": "TShark field names to return, e.g. ip.addr, usb.endpoint_address, btatt.opcode; frame.number is always included"
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192
+      },
+      "__schema3": {
+        "default": null,
+        "description": "Optional Wireshark display filter (-Y), applied within the read limit",
+        "$ref": "#/$defs/__schema4"
+      },
+      "__schema4": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/__schema2"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema5": {
+        "default": [],
+        "description": "Explicit TShark decode-as selections, e.g. tcp.port==8888,http",
+        "$ref": "#/$defs/__schema6"
+      },
+      "__schema6": {
+        "maxItems": 1024,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema2"
+        }
+      },
+      "__schema7": {
+        "default": null,
+        "description": "Maximum input packets to read before filtering; omitted scans to EOF within resource limits",
+        "$ref": "#/$defs/__schema8"
+      },
+      "__schema8": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 2147483647
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema9": {
+        "default": true,
+        "description": "Use two-pass analysis for fields requiring later packets; false requests a single pass",
+        "$ref": "#/$defs/__schema10"
+      },
+      "__schema10": {
+        "type": "boolean"
+      },
+      "__schema11": {
+        "default": 0,
+        "description": "Skip this many matching packets after filtering; default 0",
+        "$ref": "#/$defs/__schema12"
+      },
+      "__schema12": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema13": {
+        "default": 50,
+        "description": "Return at most this many matching packets after filtering; default 50. Null explicitly returns all remaining matches within producer resource limits.",
+        "$ref": "#/$defs/__schema14"
+      },
+      "__schema14": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "path": "/artifacts/device.pcapng",
+        "fields": [
+          "ip.addr",
+          "udp.port",
+          "data.data"
+        ],
+        "display_filter": "udp",
+        "decode_as": [],
+        "packet_limit": null,
+        "two_pass": true
+      }
+    ]
+  }
+}

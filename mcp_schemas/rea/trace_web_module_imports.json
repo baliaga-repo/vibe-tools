@@ -1,0 +1,84 @@
+{
+  "name": "trace_web_module_imports",
+  "description": "Trace one exported website script's outgoing native ES imports/re-exports, using exact URL and optional selected import-map context. Reads a local export_web_scripts manifest and verifies the selected source's SHA-256/size; returns source positions, native resolved URLs or exact errors, every matching captured candidate and explicit unknown execution. Query/fragment identities are preserved. Computed imports and bundler IDs remain unknown. Select importer_url for unknown inline/document-base context. Caller-supplied Chromium executes only a trusted REA resolver stub in an owned context with page requests locally fulfilled/blocked; no captured application execution or asset refetch. Requires absolute REA_BROWSER_EXECUTABLE for literal imports. 32 MiB manifest, 16 MiB source, 4 MiB map and 20-second native deadline; cleanup may extend the deadline.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "manifest_path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute path to an export_web_scripts manifest"
+      },
+      "script_index": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Zero-based index in manifest.scripts"
+      },
+      "importer_url": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Explicit HTTP(S) module URL; useful when captured inline/base context is unknown"
+      },
+      "import_map": {
+        "$ref": "#/$defs/__schema5"
+      }
+    },
+    "required": [
+      "manifest_path",
+      "script_index"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "Absolute path to an export_web_scripts manifest",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema2": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991,
+        "description": "Zero-based index in manifest.scripts"
+      },
+      "__schema3": {
+        "description": "Explicit HTTP(S) module URL; useful when captured inline/base context is unknown",
+        "$ref": "#/$defs/__schema4"
+      },
+      "__schema4": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema5": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "description": "Absolute local import-map JSON path; no fetch",
+            "$ref": "#/$defs/__schema1"
+          },
+          "base_url": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Explicit HTTP(S) base for the selected map"
+          }
+        },
+        "required": [
+          "path",
+          "base_url"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "examples": [
+      {
+        "manifest_path": "/analysis/exported-scripts/manifest.json",
+        "script_index": 0,
+        "import_map": {
+          "path": "/analysis/import-map.json",
+          "base_url": "https://example.test/app/"
+        }
+      }
+    ]
+  }
+}

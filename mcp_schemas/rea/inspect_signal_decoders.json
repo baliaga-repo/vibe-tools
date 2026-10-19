@@ -1,0 +1,91 @@
+{
+  "name": "inspect_signal_decoders",
+  "description": "Discover installed sigrok protocol decoders or inspect one decoder's channel/option help on Linux. Omit decoder to list ID/name pairs; supply its exact ID for literal help lines with source line numbers. query is a case-insensitive literal substring. Page matches with offset/limit (default 50; null returns all remaining). Reports tool identity, version, diagnostics and examined/matching coverage. Uses configured REA_SIGROK_COMMAND and prlimit; no recording, binary target, hardware scan or acquisition. Each call probes again; decoder modules are trusted, not fully fingerprinted. Use returned IDs/options with decode_signal_recording.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "decoder": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Exact installed decoder ID for help; null searches the decoder catalog"
+      },
+      "query": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Case-insensitive literal substring in decoder ID/name or help lines; empty selects all"
+      },
+      "offset": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Number of matching decoders or help lines to skip; defaults to 0"
+      },
+      "limit": {
+        "$ref": "#/$defs/__schema6",
+        "description": "Maximum matching decoders or help lines returned; null requests all remaining"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "default": null,
+        "description": "Exact installed decoder ID for help; null searches the decoder catalog",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 256,
+            "pattern": "^[a-zA-Z0-9_+\\x2d]+$"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema2": {
+        "default": "",
+        "description": "Case-insensitive literal substring in decoder ID/name or help lines; empty selects all",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string",
+        "maxLength": 8192
+      },
+      "__schema4": {
+        "default": 0,
+        "description": "Number of matching decoders or help lines to skip; defaults to 0",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema6": {
+        "default": 50,
+        "description": "Maximum matching decoders or help lines returned; null requests all remaining",
+        "$ref": "#/$defs/__schema7"
+      },
+      "__schema7": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "query": "uart"
+      },
+      {
+        "decoder": "uart",
+        "query": "baud"
+      }
+    ]
+  }
+}

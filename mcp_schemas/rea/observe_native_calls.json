@@ -1,0 +1,231 @@
+{
+  "name": "observe_native_calls",
+  "description": "Launch the active Mach-O as an owned process under LLDB and record each entry into caller-selected functions or Objective-C methods: thread, module, symbol, load and file address, raw argument registers, selector, receiver class and optional caller frames. Every hit auto-continues. No expression is evaluated and no other process is attached. The process is killed when max_events or duration_ms is reached; exit status, captured stdout/stderr, unresolved breakpoints and limitations are returned inline. The process runs with the current user's permissions and may change files, show UI or use the network. A hardened-runtime target needs the get-task-allow entitlement.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "breakpoints": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "arguments": {
+        "$ref": "#/$defs/__schema5"
+      },
+      "environment": {
+        "$ref": "#/$defs/__schema6",
+        "description": "Overrides on top of the environment REA runs with."
+      },
+      "working_directory": {
+        "$ref": "#/$defs/__schema8"
+      },
+      "duration_ms": {
+        "$ref": "#/$defs/__schema9",
+        "description": "Observation window; the process is killed if it is still running."
+      },
+      "max_events": {
+        "$ref": "#/$defs/__schema11",
+        "description": "Stop observing and kill the process after this many recorded entries."
+      },
+      "argument_registers": {
+        "$ref": "#/$defs/__schema13",
+        "description": "Integer argument registers to record per entry (arm64 has 8, x86_64 has 6)."
+      },
+      "backtrace_frames": {
+        "$ref": "#/$defs/__schema15",
+        "description": "Caller frames to record per entry."
+      }
+    },
+    "required": [
+      "breakpoints"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema1"
+        }
+      },
+      "__schema1": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "function"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[^\\x00]*$",
+                "description": "Exact symbol name, such as `open`, a C++ or mangled Swift symbol, or `-[NSString length]`.",
+                "$ref": "#/$defs/__schema2"
+              },
+              "module": {
+                "description": "Image file name that defines the symbol, such as `libsystem_kernel.dylib`; omit to match every image.",
+                "$ref": "#/$defs/__schema3"
+              }
+            },
+            "required": [
+              "kind",
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "objc-method"
+              },
+              "selector": {
+                "allOf": [
+                  {
+                    "pattern": "^[^\\x00]*$"
+                  },
+                  {
+                    "pattern": "^[^\\s\\x5b\\x5d]+$"
+                  }
+                ],
+                "description": "Selector such as `dataTaskWithRequest:completionHandler:`.",
+                "$ref": "#/$defs/__schema4"
+              },
+              "class_name": {
+                "description": "Implementing class; omit to match every class.",
+                "$ref": "#/$defs/__schema4"
+              },
+              "method_type": {
+                "default": "any",
+                "type": "string",
+                "enum": [
+                  "instance",
+                  "class",
+                  "any"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "selector"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "__schema2": {
+        "type": "string",
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema3": {
+        "minLength": 1,
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema4": {
+        "type": "string",
+        "minLength": 1,
+        "allOf": [
+          {
+            "pattern": "^[^\\x00]*$"
+          },
+          {
+            "pattern": "^[^\\s\\x5b\\x5d]+$"
+          }
+        ],
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema5": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema2"
+        }
+      },
+      "__schema6": {
+        "default": {},
+        "description": "Overrides on top of the environment REA runs with.",
+        "$ref": "#/$defs/__schema7"
+      },
+      "__schema7": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^=\\x00]+$"
+        },
+        "additionalProperties": {
+          "type": "string",
+          "pattern": "^[^\\x00]*$"
+        }
+      },
+      "__schema8": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema9": {
+        "default": 10000,
+        "description": "Observation window; the process is killed if it is still running.",
+        "$ref": "#/$defs/__schema10"
+      },
+      "__schema10": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 600000
+      },
+      "__schema11": {
+        "default": 1000,
+        "description": "Stop observing and kill the process after this many recorded entries.",
+        "$ref": "#/$defs/__schema12"
+      },
+      "__schema12": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000
+      },
+      "__schema13": {
+        "default": 4,
+        "description": "Integer argument registers to record per entry (arm64 has 8, x86_64 has 6).",
+        "$ref": "#/$defs/__schema14"
+      },
+      "__schema14": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8
+      },
+      "__schema15": {
+        "default": 0,
+        "description": "Caller frames to record per entry.",
+        "$ref": "#/$defs/__schema16"
+      },
+      "__schema16": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      }
+    },
+    "examples": [
+      {
+        "breakpoints": [
+          {
+            "kind": "objc-method",
+            "class_name": "NSURLSession",
+            "selector": "dataTaskWithRequest:completionHandler:"
+          },
+          {
+            "kind": "function",
+            "name": "open",
+            "module": "libsystem_kernel.dylib"
+          }
+        ],
+        "arguments": [
+          "--help"
+        ],
+        "duration_ms": 5000,
+        "backtrace_frames": 4
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "inspect_address_context",
+  "description": "Inspect one explicit reproducible address for its analyzed name, containing procedure, regular and inline comments, and matching bookmarks. Each unsupported facet returns a typed unavailable outcome; use xrefs, assembly, or pseudocode for those deeper views.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "address": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "document": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact provider document or program identity."
+      }
+    },
+    "required": [
+      "address"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "examples": [
+      {
+        "address": "0x1000"
+      }
+    ]
+  }
+}

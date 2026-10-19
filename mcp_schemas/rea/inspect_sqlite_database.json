@@ -1,0 +1,118 @@
+{
+  "name": "inspect_sqlite_database",
+  "description": "Inspect an explicit local SQLite database snapshot and its existing sibling WAL without modifying source files or opening a native analysis provider. Requires Node.js 24.x >=24.15 or 26+ with native DatabaseSync.limits support, checked by the worker. Returns observed Evidence with database/WAL SHA-256 and a compact schema inventory. Selecting an exact ordinary table expands only its schema and samples rows (default 20, subject to byte and worker resource limits). Select exact columns in the requested order to avoid unrelated or large values; schema_scope=database explicitly expands the whole schema; returned rows retain 64-bit integers, text bytes and blobs with explicit truncation. No arbitrary SQL, view or virtual-table execution, extension loading, database repair, encryption support or live-snapshot atomicity claim. At most two inspections per provider are admitted; occupied capacity is retryable. An isolated temporary copy and owned worker enforce input, value/record, SQL-statement, JSON-reply, JavaScript-heap and deadline limits; overall native heap is not capped. Supply a quiescent snapshot for coherent database/WAL evidence.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute path to an offline SQLite database snapshot"
+      },
+      "table": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact ordinary table name; views and virtual/shadow tables are not executed"
+      },
+      "columns": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Exact row columns in caller-selected order; requires table. Omit to sample all visible columns."
+      },
+      "schema_scope": {
+        "$ref": "#/$defs/__schema6",
+        "description": "Default: compact inventory without a table, or detailed selected-table schema with a table. Database explicitly expands all stored declarations and supported columns."
+      },
+      "row_limit": {
+        "$ref": "#/$defs/__schema8",
+        "description": "Selected-table sample size, default 20; subject to byte and worker resource limits"
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "if": {
+      "properties": {
+        "schema_scope": {
+          "const": "selected_table"
+        }
+      },
+      "required": [
+        "schema_scope"
+      ]
+    },
+    "then": {
+      "required": [
+        "table"
+      ]
+    },
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute path to an offline SQLite database snapshot"
+      },
+      "__schema1": {
+        "description": "Exact ordinary table name; views and virtual/shadow tables are not executed",
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema2": {
+        "type": "string"
+      },
+      "__schema3": {
+        "description": "Exact row columns in caller-selected order; requires table. Omit to sample all visible columns.",
+        "$ref": "#/$defs/__schema4"
+      },
+      "__schema4": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema5"
+        }
+      },
+      "__schema5": {
+        "type": "string"
+      },
+      "__schema6": {
+        "description": "Default: compact inventory without a table, or detailed selected-table schema with a table. Database explicitly expands all stored declarations and supported columns.",
+        "$ref": "#/$defs/__schema7"
+      },
+      "__schema7": {
+        "type": "string",
+        "enum": [
+          "inventory",
+          "selected_table",
+          "database"
+        ]
+      },
+      "__schema8": {
+        "description": "Selected-table sample size, default 20; subject to byte and worker resource limits",
+        "$ref": "#/$defs/__schema9"
+      },
+      "__schema9": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      }
+    },
+    "description": "When row_limit is provided, also provide table. When columns is provided, also provide table.",
+    "examples": [
+      {
+        "path": "/artifacts/application.sqlite"
+      },
+      {
+        "path": "/artifacts/application.sqlite",
+        "table": "settings",
+        "columns": [
+          "key",
+          "value"
+        ],
+        "row_limit": 20
+      },
+      {
+        "path": "/artifacts/application.sqlite",
+        "schema_scope": "database"
+      }
+    ]
+  }
+}

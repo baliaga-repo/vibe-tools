@@ -1,0 +1,32 @@
+{
+  "name": "inspect_adb_device",
+  "description": "Inspect one device's build identity through a fixed `getprop` whitelist: Android and SDK versions, security patch, fingerprint, product identity, CPU ABIs, and debuggable flag, plus the observed emulator indicator ro.kernel.qemu. Read-only with respect to the device.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "serial": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Device serial exactly as `adb devices` reports it"
+      }
+    },
+    "required": [
+      "serial"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[^\\x00\\s\"']+$",
+        "description": "Device serial exactly as `adb devices` reports it"
+      }
+    },
+    "examples": [
+      {
+        "serial": "emulator-5554"
+      }
+    ]
+  }
+}

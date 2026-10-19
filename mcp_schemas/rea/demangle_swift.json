@@ -1,0 +1,42 @@
+{
+  "name": "demangle_swift",
+  "description": "Demangle an ordered list of single-line Swift symbols without requiring Hopper. Each input returns demangled, unchanged, or invalid status.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "symbols": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Ordered Swift symbols to demangle."
+      }
+    },
+    "required": [
+      "symbols"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "allOf": [
+            {
+              "pattern": "^[^\\n]*$"
+            },
+            {
+              "pattern": "^[^\\x00]*$"
+            }
+          ]
+        }
+      }
+    },
+    "examples": [
+      {
+        "symbols": [
+          "$s4Test3fooyyF"
+        ]
+      }
+    ]
+  }
+}

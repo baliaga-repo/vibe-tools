@@ -1,0 +1,26 @@
+{
+  "name": "get_objc_classes",
+  "description": "Discover and deduplicate Objective-C class labels, optionally filtering by literal substring.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "pattern": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Literal text or regular expression used to filter matching results."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "default": "",
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "pattern": ""
+      }
+    ]
+  }
+}

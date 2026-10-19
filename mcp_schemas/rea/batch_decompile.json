@@ -1,0 +1,30 @@
+{
+  "name": "batch_decompile",
+  "description": "Decompile each explicit procedure symbol or address concurrently. Preserves each input selector in address and reports the observed canonical entry and entry label in procedure; identity or label failures remain explicit without discarding usable pseudocode. Returns ordered per-item success or error results and aggregate counts.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "addresses": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Ordered provider-normalized procedure addresses to analyze."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string",
+          "description": "A provider-normalized procedure address"
+        }
+      }
+    },
+    "examples": [
+      {
+        "addresses": []
+      }
+    ]
+  }
+}

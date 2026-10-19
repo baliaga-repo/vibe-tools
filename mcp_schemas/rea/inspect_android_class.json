@@ -1,0 +1,42 @@
+{
+  "name": "inspect_android_class",
+  "description": "Inspect one exact Android class's parsed methods, fields and inner classes, including synthetic members. Returns display signatures and exact DEX prototypes without generating source. A prototype is not a complete raw method ID; overload indices remain consistent within the artifact and engine session.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local APK path; the target is never executed"
+      },
+      "class_name": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact fully qualified class name"
+      }
+    },
+    "required": [
+      "path",
+      "class_name"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Local APK path; the target is never executed"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Exact fully qualified class name"
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/Example.apk",
+        "class_name": "example.MainActivity"
+      }
+    ]
+  }
+}

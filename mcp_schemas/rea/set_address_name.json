@@ -1,0 +1,49 @@
+{
+  "name": "set_address_name",
+  "description": "Assign an analyst name to one mapped hexadecimal address and report whether the native edit succeeded and exact readback matched. Hopper rejects symbol names exceeding 1024 UTF-16 code units before mutation, and rejects names owned by another address; use set_addresses_names to explicitly move or swap labels among selected addresses. This mutates analysis metadata.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "address": {
+        "$ref": "#/$defs/__schema0",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      },
+      "name": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact name used by this operation."
+      },
+      "document": {
+        "$ref": "#/$defs/__schema2",
+        "description": "The active target's provider document name; use open_binary to switch targets"
+      }
+    },
+    "required": [
+      "address",
+      "name"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      },
+      "__schema1": {
+        "type": "string"
+      },
+      "__schema2": {
+        "description": "The active target's provider document name; use open_binary to switch targets",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "address": "0x1000",
+        "name": "entry"
+      }
+    ]
+  }
+}

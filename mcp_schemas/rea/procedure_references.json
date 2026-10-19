@@ -1,0 +1,53 @@
+{
+  "name": "procedure_references",
+  "description": "Return every raw incoming or outgoing reference edge for one procedure. Endpoint procedures are resolved only from provider containment. Ghidra preserves detailed reference flags. Hopper preserves native CallReference classifications and exact endpoints while leaving unavailable detailed flags explicit.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "procedure": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The procedure name or address"
+      },
+      "direction": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Direction in which to traverse or compare relationships."
+      },
+      "document": {
+        "$ref": "#/$defs/__schema2",
+        "description": "The active target's provider document name; use open_binary to switch targets"
+      }
+    },
+    "required": [
+      "procedure"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "description": "The procedure name or address"
+      },
+      "__schema1": {
+        "default": "outgoing",
+        "type": "string",
+        "enum": [
+          "incoming",
+          "outgoing"
+        ]
+      },
+      "__schema2": {
+        "description": "The active target's provider document name; use open_binary to switch targets",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "procedure": "main",
+        "direction": "outgoing"
+      }
+    ]
+  }
+}

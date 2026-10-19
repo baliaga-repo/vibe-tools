@@ -1,0 +1,35 @@
+{
+  "name": "resolve_native_call_targets",
+  "description": "Resolve one explicit static call site using typed provider call references. Preserves ambiguous targets as candidates and unresolved computed calls as unknown; does not execute code or traverse a call graph.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "address": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "document": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact provider document or program identity."
+      }
+    },
+    "required": [
+      "address"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema1": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "address": "0x1000"
+      }
+    ]
+  }
+}

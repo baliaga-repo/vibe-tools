@@ -1,0 +1,100 @@
+{
+  "name": "inspect_with_objdump",
+  "description": "Run caller-selected GNU objdump inspection against a local artifact, or request operation=architectures without a path to list BFD targets advertised by the installed binary. Preserves decoded stdout and stderr inline with SHA-256 Evidence for artifact inspections, up to a shared 16 MiB combined limit; invalid UTF-8 bytes are represented by replacement characters and flagged in Evidence limitations. output_truncated reports output beyond that limit and completion_status is unknown if buffer enforcement terminated the process. The raw output is authoritative and REA does not claim a stable normalized format. DWARF does not follow local debug links by default. Set follow_debug_links to true to follow them; identities of external debug files are not bound to Evidence. REA clears DEBUGINFOD_URLS for objdump so DWARF processing does not make debuginfod network requests. Architecture output is subjectless and does not establish support for any artifact.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "__schema0": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Local filesystem path used by this operation."
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "file_headers",
+              "section_headers",
+              "symbols",
+              "relocations",
+              "dwarf",
+              "disassemble",
+              "disassemble_all"
+            ]
+          },
+          "follow_debug_links": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "operation"
+        ],
+        "additionalProperties": false
+      },
+      "__schema1": {
+        "type": "object",
+        "properties": {
+          "operation": {
+            "type": "string",
+            "const": "architectures"
+          }
+        },
+        "required": [
+          "operation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "description": "Provide a complete input group: path + operation + [follow_debug_links]; operation.",
+    "properties": {
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Local filesystem path used by this operation."
+      },
+      "operation": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "file_headers",
+              "section_headers",
+              "symbols",
+              "relocations",
+              "dwarf",
+              "disassemble",
+              "disassemble_all"
+            ]
+          },
+          {
+            "type": "string",
+            "const": "architectures"
+          }
+        ]
+      },
+      "follow_debug_links": {
+        "default": false,
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "operation"
+    ],
+    "minProperties": 1,
+    "additionalProperties": false,
+    "examples": [
+      {
+        "path": "/tmp/program",
+        "operation": "disassemble"
+      },
+      {
+        "operation": "architectures"
+      }
+    ]
+  }
+}

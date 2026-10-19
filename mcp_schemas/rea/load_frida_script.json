@@ -1,0 +1,56 @@
+{
+  "name": "load_frida_script",
+  "description": "Load caller-supplied JavaScript into a Frida session. Scripts can read or change target memory and behavior and can access the target process's capabilities. Messages and script errors are returned inline as Evidence; source content is not persisted.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "session_id": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "source_kind": {
+        "$ref": "#/$defs/__schema1"
+      },
+      "source": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "path": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Local filesystem path used by this operation."
+      }
+    },
+    "required": [
+      "session_id",
+      "source_kind"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      },
+      "__schema1": {
+        "type": "string",
+        "enum": [
+          "inline",
+          "file"
+        ]
+      },
+      "__schema2": {
+        "type": "string"
+      },
+      "__schema3": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "examples": [
+      {
+        "session_id": "00000000-0000-4000-8000-000000000001",
+        "source_kind": "inline",
+        "source": "send(Process.id);"
+      }
+    ]
+  }
+}

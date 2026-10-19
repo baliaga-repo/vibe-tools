@@ -1,0 +1,29 @@
+{
+  "name": "analyze_function",
+  "description": "Build a dossier for one native function identified by symbol or provider-returned address. Returns identity with complete inclusive analyzed body ranges or explicit unknown, provider-specific pseudocode and assembly, comments, calls, references, referenced strings/names, local CFG blocks, and available native API boundary observations. Ghidra terminal-call assumptions that may cut the analyzed body are reported in limitations with available callee identities.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "procedure": {
+        "$ref": "#/$defs/__schema0",
+        "description": "A procedure name or address"
+      }
+    },
+    "required": [
+      "procedure"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "description": "A procedure name or address"
+      }
+    },
+    "examples": [
+      {
+        "procedure": "main"
+      }
+    ]
+  }
+}

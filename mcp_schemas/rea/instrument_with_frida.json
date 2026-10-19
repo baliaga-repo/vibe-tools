@@ -1,0 +1,137 @@
+{
+  "name": "instrument_with_frida",
+  "description": "Run one caller-authored Frida script against an explicitly selected process and detach when the observation window ends. The CLI and MCP share this ephemeral workflow; use MCP session operations for persistent sessions. Remote authentication is used only for this call and excluded from Evidence.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "mode": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Operation mode that selects the requested behavior."
+      },
+      "device_id": {
+        "$ref": "#/$defs/__schema1"
+      },
+      "remote": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "pid": {
+        "$ref": "#/$defs/__schema3"
+      },
+      "program": {
+        "$ref": "#/$defs/__schema4"
+      },
+      "argv": {
+        "$ref": "#/$defs/__schema5"
+      },
+      "source_kind": {
+        "$ref": "#/$defs/__schema6"
+      },
+      "source": {
+        "$ref": "#/$defs/__schema7"
+      },
+      "path": {
+        "$ref": "#/$defs/__schema8",
+        "description": "Local filesystem path used by this operation."
+      },
+      "duration_ms": {
+        "$ref": "#/$defs/__schema9"
+      }
+    },
+    "required": [
+      "mode",
+      "source_kind"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "enum": [
+          "attach",
+          "spawn"
+        ]
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema2": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certificate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "origin": {
+            "type": "string",
+            "minLength": 1
+          },
+          "keepalive_interval": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Remote keepalive interval in seconds"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "additionalProperties": false
+      },
+      "__schema3": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema4": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema5": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "__schema6": {
+        "type": "string",
+        "enum": [
+          "inline",
+          "file"
+        ]
+      },
+      "__schema7": {
+        "type": "string"
+      },
+      "__schema8": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema9": {
+        "default": 1000,
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 60000
+      }
+    },
+    "examples": [
+      {
+        "mode": "attach",
+        "device_id": "local",
+        "pid": 1234,
+        "source_kind": "inline",
+        "source": "send(Process.id);",
+        "duration_ms": 1000
+      }
+    ]
+  }
+}

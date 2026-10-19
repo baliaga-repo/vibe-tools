@@ -1,0 +1,998 @@
+{
+  "name": "trace_javascript_semantics",
+  "description": "Trace static JavaScript data-flow, direct call/return, and closure relations from inline application Evidence or an exact same-session retained reference. Dynamic or unsupported semantics remain explicit unknowns; static reachability never claims runtime execution.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "application": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "evidence_id": {
+                "type": "string",
+                "pattern": "^ev_[a-f0-9]{64}$",
+                "description": "Stable identifier of the recorded Evidence observation."
+              },
+              "subject": {
+                "anyOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Exact name used by this operation."
+                          },
+                          "digest": {
+                            "type": "object",
+                            "properties": {
+                              "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                              }
+                            },
+                            "required": [
+                              "sha256"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "local_path": {
+                            "type": "string",
+                            "pattern": "^[^\\x00]*$",
+                            "description": "Local filesystem path for local."
+                          },
+                          "format": {
+                            "type": "string",
+                            "enum": [
+                              "hopper",
+                              "analysis-database",
+                              "mach-o",
+                              "elf",
+                              "pe",
+                              "dos-mz",
+                              "dos-com",
+                              "zip",
+                              "ipa",
+                              "apk",
+                              "msix",
+                              "appx",
+                              "hap",
+                              "hsp",
+                              "app-pack",
+                              "asar",
+                              "dmg",
+                              "pkg",
+                              "plist",
+                              "javascript",
+                              "source-map",
+                              "directory",
+                              "file",
+                              "unknown",
+                              "mach-o-universal",
+                              "javascript-bundle",
+                              "entitlements"
+                            ],
+                            "description": "Declared input artifact format."
+                          },
+                          "architecture": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "x86",
+                                  "x86_64",
+                                  "arm",
+                                  "arm64",
+                                  "mips",
+                                  "riscv",
+                                  "powerpc"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "digest",
+                          "local_path",
+                          "format",
+                          "architecture"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Exact name used by this operation."
+                          },
+                          "digest": {
+                            "type": "object",
+                            "properties": {
+                              "sha256": {
+                                "type": "string",
+                                "pattern": "^[a-f0-9]{64}$"
+                              }
+                            },
+                            "required": [
+                              "sha256"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "local_path": {
+                            "type": "string",
+                            "pattern": "^[^\\x00]*$",
+                            "description": "Local filesystem path for local."
+                          },
+                          "format": {
+                            "type": "string",
+                            "const": "raw-binary",
+                            "description": "Declared input artifact format."
+                          },
+                          "architecture": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "6502",
+                                  "x86",
+                                  "x86_64",
+                                  "arm",
+                                  "arm64",
+                                  "mips",
+                                  "riscv",
+                                  "powerpc"
+                                ]
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "digest",
+                          "local_path",
+                          "format",
+                          "architecture"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "provider": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Exact name used by this operation."
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              "analysis_profile": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "provider": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Exact name used by this operation."
+                          },
+                          "version": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "version"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "additionalProperties": {}
+                      },
+                      "digest": {
+                        "type": "string",
+                        "pattern": "^[a-f0-9]{64}$"
+                      }
+                    },
+                    "required": [
+                      "provider",
+                      "parameters",
+                      "digest"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "predicate_type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "operation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "parameters": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "raw_result": {
+                "anyOf": [
+                  {},
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "normalized_result": {},
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "observed",
+                  "derived",
+                  "inferred"
+                ]
+              },
+              "authority": {
+                "type": "string",
+                "enum": [
+                  "shipped-artifact",
+                  "controlled-replay",
+                  "historical-reference",
+                  "external-service",
+                  "analyst-inference"
+                ]
+              },
+              "environment": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "platform": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "architecture": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "isolation": {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "process",
+                          "container",
+                          "virtual-machine"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "platform",
+                      "architecture",
+                      "isolation"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "relationship_coverage": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "complete",
+                            "description": "Current lifecycle or verification status."
+                          },
+                          "diagnostics": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "required": [
+                          "status"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "partial",
+                            "description": "Current lifecycle or verification status."
+                          },
+                          "limitations": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "limited_directions": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "string",
+                                    "const": "callers"
+                                  }
+                                ],
+                                "minItems": 1,
+                                "maxItems": 1
+                              },
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "string",
+                                    "const": "callees"
+                                  }
+                                ],
+                                "minItems": 1,
+                                "maxItems": 1
+                              },
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "string",
+                                    "const": "callers"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "callees"
+                                  }
+                                ],
+                                "minItems": 2,
+                                "maxItems": 2
+                              }
+                            ]
+                          },
+                          "diagnostics": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "limitations"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "unknown",
+                            "description": "Current lifecycle or verification status."
+                          },
+                          "reason": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "limited_directions": {
+                            "anyOf": [
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "string",
+                                    "const": "callers"
+                                  }
+                                ],
+                                "minItems": 1,
+                                "maxItems": 1
+                              },
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "string",
+                                    "const": "callees"
+                                  }
+                                ],
+                                "minItems": 1,
+                                "maxItems": 1
+                              },
+                              {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "string",
+                                    "const": "callers"
+                                  },
+                                  {
+                                    "type": "string",
+                                    "const": "callees"
+                                  }
+                                ],
+                                "minItems": 2,
+                                "maxItems": 2
+                              }
+                            ]
+                          },
+                          "diagnostics": {
+                            "minItems": 1,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "reason"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "locations": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "address"
+                        },
+                        "address": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "address"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "address-range"
+                        },
+                        "start": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "end": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "artifact-path"
+                        },
+                        "path": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Local filesystem path used by this operation."
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "path"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "file-offset"
+                        },
+                        "offset": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "offset"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "const": "file-offset-range"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                }
+              },
+              "evidence_links": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^ev_[a-f0-9]{64}$"
+                }
+              }
+            },
+            "required": [
+              "evidence_id",
+              "subject",
+              "provider",
+              "analysis_profile",
+              "predicate_type",
+              "operation",
+              "parameters",
+              "raw_result",
+              "normalized_result",
+              "confidence",
+              "authority",
+              "environment",
+              "limitations",
+              "locations",
+              "evidence_links"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "retained-evidence"
+              },
+              "evidence_id": {
+                "type": "string",
+                "pattern": "^ev_[a-f0-9]{64}$",
+                "description": "Stable identifier of the recorded Evidence observation."
+              }
+            },
+            "required": [
+              "kind",
+              "evidence_id"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "query": {
+        "type": "object",
+        "properties": {
+          "seed": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "semantic-node"
+                  },
+                  "node_id": {
+                    "type": "string",
+                    "pattern": "^jsrg_node_[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "node_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "application-node"
+                  },
+                  "node_id": {
+                    "type": "string",
+                    "pattern": "^jag_node_[a-f0-9]{64}$"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "node_id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "literal"
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "function"
+                  },
+                  "fingerprint_sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$",
+                    "description": "Exact SHA-256 digest of fingerprint."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "fingerprint_sha256"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "property"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Exact name used by this operation."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "endpoint"
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "event"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Exact name used by this operation."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "name"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "boundary-field"
+                  },
+                  "field": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "field"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "backward-provenance",
+              "forward-influence",
+              "callers",
+              "ownership"
+            ],
+            "description": "Direction in which to traverse or compare relationships."
+          },
+          "allowed_relations": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "acquires",
+                "aggregates",
+                "aliases",
+                "argument-to-parameter",
+                "awaits",
+                "calls",
+                "cancels-timer",
+                "captures",
+                "chains",
+                "coerces",
+                "connects-stdio",
+                "consumed-by",
+                "constructs-request",
+                "creates-promise",
+                "defaults",
+                "defines",
+                "destructures",
+                "detaches-task",
+                "dispatches-candidate",
+                "forwards-signal",
+                "listens-error",
+                "listens-exit",
+                "owns",
+                "overrides",
+                "parses",
+                "reads",
+                "reads-argv",
+                "reads-config",
+                "reads-environment",
+                "reads-property",
+                "registers-listener",
+                "releases",
+                "removes-listener",
+                "returns-task",
+                "returns-to-call",
+                "schedules-timer",
+                "spawns",
+                "spreads",
+                "supplies-argv",
+                "supplies-env",
+                "supplies-request-field",
+                "validates",
+                "writes",
+                "writes-property"
+              ]
+            }
+          },
+          "include_ambiguous_dynamic_edges": {
+            "default": false,
+            "type": "boolean",
+            "description": "Whether to include ambiguous dynamic edges in the result."
+          },
+          "expected": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "source",
+                      "sink"
+                    ]
+                  },
+                  "classes": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "module",
+                        "function",
+                        "parameter",
+                        "binding",
+                        "expression",
+                        "literal",
+                        "property-slot",
+                        "call-site",
+                        "return-site",
+                        "closure-capture",
+                        "promise",
+                        "task",
+                        "event",
+                        "listener",
+                        "timer",
+                        "child-process",
+                        "stdio",
+                        "signal",
+                        "config-source",
+                        "request",
+                        "response",
+                        "boundary",
+                        "resource",
+                        "unknown-frontier"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "role",
+                  "classes"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "seed",
+          "direction"
+        ],
+        "additionalProperties": false,
+        "description": "Non-empty feature or text query to investigate."
+      }
+    },
+    "required": [
+      "application",
+      "query"
+    ],
+    "additionalProperties": false,
+    "examples": [
+      {
+        "application": {
+          "kind": "retained-evidence",
+          "evidence_id": "ev_2a6371cd2a7665bdad6d37d9b3a69da558e9882a0696d195f1f1a7707f14b5e5"
+        },
+        "query": {
+          "seed": {
+            "kind": "semantic-node",
+            "node_id": "jsrg_node_0000000000000000000000000000000000000000000000000000000000000000"
+          },
+          "direction": "backward-provenance"
+        }
+      }
+    ]
+  }
+}

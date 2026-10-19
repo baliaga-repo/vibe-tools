@@ -1,0 +1,153 @@
+{
+  "name": "analyze_javascript_application",
+  "description": "Reconstruct one local ASAR or extracted JavaScript application as an inline application graph without executing it. Returns recovered graph nodes, edges, semantic relations, integrity contradictions, limitations, and coverage. Select source_paths to acquire and analyze only exact inventoried file paths; the complete artifact inventory and identity remain intact, and unselected sources remain explicit unknowns. Dependencies are not implicitly analyzed. Select detail summary to retain the complete analysis Evidence in this session and receive only its summary view, then inspect selected modules or pages with inspect_analysis_view. Summary detail reduces delivery, whereas source_paths bounds source analysis. Integrity mismatches fail by default; record-and-continue retains observed bytes as untrusted and marks graph coverage partial.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "input_path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local filesystem path for input."
+      },
+      "format": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Declared input artifact format."
+      },
+      "integrity_policy": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "source_paths": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Exact relevant file paths from the artifact inventory, relative to the application root, analyzed in first-request order before unselected scopes; no globs or implicit dependencies. Omit to analyze all sources."
+      },
+      "max_semantic_nodes": {
+        "$ref": "#/$defs/__schema5",
+        "description": "Maximum retained semantic nodes across the application; defaults to 100000. Worker heap and parent result admission remain enforced."
+      },
+      "max_semantic_nodes_per_file": {
+        "$ref": "#/$defs/__schema7",
+        "description": "Maximum retained semantic nodes per source file; defaults to 20000, additionally bounded by max_semantic_nodes and memory/transfer limits."
+      },
+      "max_heap_mb": {
+        "$ref": "#/$defs/__schema9",
+        "description": "Maximum V8 old-space heap in MiB for the isolated JavaScript source analyzer; defaults to 1024. This does not change the CLI/MCP process heap. When REA runs on Bun, which ignores V8 heap flags, Windows instead limits the analyzer's committed memory to this budget plus a 512 MiB runtime reserve; other Bun hosts enforce no limit."
+      },
+      "analysis_timeout_ms": {
+        "$ref": "#/$defs/__schema11",
+        "description": "Maximum startup, analysis and transfer time per JavaScript source, in milliseconds; defaults to 300000. On timeout, return collected partial Evidence and stop the analysis."
+      },
+      "detail": {
+        "$ref": "#/$defs/__schema13",
+        "description": "complete returns the complete analysis Evidence inline. summary retains that complete Evidence in this session and returns its inspect_analysis_view summary; inspect pages, items or facets through normalized_result.parent_evidence_id."
+      }
+    },
+    "required": [
+      "input_path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema1": {
+        "default": "auto",
+        "type": "string",
+        "enum": [
+          "auto",
+          "asar",
+          "directory"
+        ]
+      },
+      "__schema2": {
+        "default": "fail",
+        "type": "string",
+        "enum": [
+          "fail",
+          "record-and-continue"
+        ]
+      },
+      "__schema3": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema4"
+        },
+        "description": "Exact relevant file paths from the artifact inventory, relative to the application root, analyzed in first-request order before unselected scopes; no globs or implicit dependencies. Omit to analyze all sources."
+      },
+      "__schema4": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema5": {
+        "description": "Maximum retained semantic nodes across the application; defaults to 100000. Worker heap and parent result admission remain enforced.",
+        "$ref": "#/$defs/__schema6"
+      },
+      "__schema6": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1000000
+      },
+      "__schema7": {
+        "description": "Maximum retained semantic nodes per source file; defaults to 20000, additionally bounded by max_semantic_nodes and memory/transfer limits.",
+        "$ref": "#/$defs/__schema8"
+      },
+      "__schema8": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1000000
+      },
+      "__schema9": {
+        "description": "Maximum V8 old-space heap in MiB for the isolated JavaScript source analyzer; defaults to 1024. This does not change the CLI/MCP process heap. When REA runs on Bun, which ignores V8 heap flags, Windows instead limits the analyzer's committed memory to this budget plus a 512 MiB runtime reserve; other Bun hosts enforce no limit.",
+        "$ref": "#/$defs/__schema10"
+      },
+      "__schema10": {
+        "type": "integer",
+        "minimum": 128,
+        "maximum": 16384
+      },
+      "__schema11": {
+        "description": "Maximum startup, analysis and transfer time per JavaScript source, in milliseconds; defaults to 300000. On timeout, return collected partial Evidence and stop the analysis.",
+        "$ref": "#/$defs/__schema12"
+      },
+      "__schema12": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2147483647
+      },
+      "__schema13": {
+        "default": "complete",
+        "description": "complete returns the complete analysis Evidence inline. summary retains that complete Evidence in this session and returns its inspect_analysis_view summary; inspect pages, items or facets through normalized_result.parent_evidence_id.",
+        "$ref": "#/$defs/__schema14"
+      },
+      "__schema14": {
+        "type": "string",
+        "enum": [
+          "complete",
+          "summary"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "input_path": "/Applications/Example.app/Contents/Resources/app.asar",
+        "format": "auto",
+        "integrity_policy": "fail"
+      },
+      {
+        "input_path": "/Applications/Example.app/Contents/Resources/app.asar",
+        "source_paths": [
+          "package.json",
+          "main.js",
+          "preload.js"
+        ],
+        "detail": "summary"
+      },
+      {
+        "input_path": "/Applications/Example.app/Contents/Resources/app.asar",
+        "detail": "summary"
+      }
+    ]
+  }
+}

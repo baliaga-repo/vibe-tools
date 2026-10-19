@@ -1,0 +1,57 @@
+{
+  "name": "cutter_command",
+  "description": "Run one arbitrary Rizin command in a selected live Cutter session. Commands may edit and persist analysis state or execute plugin-provided effects; completion uncertainty is returned as Evidence and must not be retried automatically. In a shared MCP server, this admitted command closes any active binary-analysis session; after its effects have settled, call open_binary before further analysis. Close an active Ghidra session explicitly first.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "session_id": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "expected_generation": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Expected generation used to reject stale or mismatched input."
+      },
+      "command": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "json": {
+        "$ref": "#/$defs/__schema3"
+      }
+    },
+    "required": [
+      "session_id",
+      "expected_generation",
+      "command"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+      },
+      "__schema1": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema3": {
+        "default": false,
+        "type": "boolean"
+      }
+    },
+    "examples": [
+      {
+        "session_id": "00000000-0000-4000-8000-000000000001",
+        "expected_generation": 0,
+        "command": "ij",
+        "json": true
+      }
+    ]
+  }
+}

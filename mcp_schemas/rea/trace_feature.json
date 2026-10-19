@@ -1,0 +1,38 @@
+{
+  "name": "trace_feature",
+  "description": "Trace the complete literal query, preserving spaces, through every matching string and procedure, their xrefs, and truthful containing-procedure resolution. Returns observations, operation count, and residual unknowns without inferring reference kinds.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "query": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Non-empty feature or text query to investigate."
+      },
+      "case_sensitive": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Whether text matching distinguishes uppercase and lowercase."
+      }
+    },
+    "required": [
+      "query"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema1": {
+        "default": false,
+        "type": "boolean"
+      }
+    },
+    "examples": [
+      {
+        "query": "license",
+        "case_sensitive": false
+      }
+    ]
+  }
+}

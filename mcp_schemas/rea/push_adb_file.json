@@ -1,0 +1,68 @@
+{
+  "name": "push_adb_file",
+  "description": "Push one local file to an absolute device path. A device-mutating tool: checks for an existing device file before transfer and refuses it unless overwrite is explicitly requested; this check is not an atomic create and another process can create the path before adb writes. When the device provides sha256sum, the transfer is verified by comparing it with the local digest.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "serial": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "local_path": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Existing local regular file to push"
+      },
+      "device_path": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Absolute destination path on the device"
+      },
+      "overwrite": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Allow replacing an existing device file; refused by default"
+      }
+    },
+    "required": [
+      "serial",
+      "local_path",
+      "device_path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[^\\x00\\s\"']+$",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Existing local regular file to push"
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^\\/[^\\x00]*$",
+        "description": "Absolute destination path on the device"
+      },
+      "__schema3": {
+        "default": false,
+        "description": "Allow replacing an existing device file; refused by default",
+        "$ref": "#/$defs/__schema4"
+      },
+      "__schema4": {
+        "type": "boolean"
+      }
+    },
+    "examples": [
+      {
+        "serial": "emulator-5554",
+        "local_path": "/tmp/frida-server",
+        "device_path": "/data/local/tmp/frida-server"
+      }
+    ]
+  }
+}

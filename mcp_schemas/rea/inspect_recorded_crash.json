@@ -1,0 +1,47 @@
+{
+  "name": "inspect_recorded_crash",
+  "description": "Inspect a supplied Linux ELF64 amd64 or AArch64 little-endian core without launching its target or attaching to any live PID. Returns all recorded segments, raw note owners/descriptors and source ranges, every Linux CORE PRSTATUS thread/register and SIGINFO fields inline with SHA-256 Evidence. Historical PID is recorded metadata; current process/file identity, note coverage and signal-thread associations stay unknown. Optionally add derived core-only GDB/pwndbg mapping candidates through explicit BYO configuration; zero map flags mean unknown permissions. Uses the same stable snapshot for both stages, bounded complete output and owned cleanup. Linux x64 host profile: unchanged pwntools 4.15.0/pyelftools 0.33/Unicorn 2.1.2; optional unchanged pwndbg 2026.09.15. No implicit executable/library pairing, GDB command language, host configuration changes or dependency installation.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute filesystem path to a supplied Linux ELF core"
+      },
+      "include_debugger_context": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Add core-only mapping candidates through caller-supplied GDB/pwndbg"
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute filesystem path to a supplied Linux ELF core"
+      },
+      "__schema1": {
+        "default": false,
+        "description": "Add core-only mapping candidates through caller-supplied GDB/pwndbg",
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema2": {
+        "type": "boolean"
+      }
+    },
+    "examples": [
+      {
+        "path": "/artifacts/crash.core"
+      },
+      {
+        "path": "/artifacts/crash.core",
+        "include_debugger_context": true
+      }
+    ]
+  }
+}

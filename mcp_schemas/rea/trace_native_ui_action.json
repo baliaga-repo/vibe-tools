@@ -1,0 +1,63 @@
+{
+  "name": "trace_native_ui_action",
+  "description": "Trace one unique compiled UI action, object ID, native symbol or exact function address through authored connections, encoded or symbolized Objective-C handlers, and bounded static call references. Typed direct and resolved indirect calls, ambiguous candidates, inferred untyped provider callees, and targetless sites remain distinct. Runtime reachability is unknown; use trace_native_values for recovered value dependencies.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "action": {
+        "$ref": "#/$defs/__schema0",
+        "description": "A unique compiled UI action selector, interface object ID, native symbol or exact function address"
+      },
+      "max_depth": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Maximum permitted depth for this operation."
+      },
+      "max_nodes": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Maximum permitted nodes for this operation."
+      },
+      "max_edges": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Maximum permitted edges for this operation."
+      }
+    },
+    "required": [
+      "action"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "description": "A unique compiled UI action selector, interface object ID, native symbol or exact function address"
+      },
+      "__schema1": {
+        "default": 8,
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 32
+      },
+      "__schema2": {
+        "default": 250,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2000
+      },
+      "__schema3": {
+        "default": 500,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5000
+      }
+    },
+    "examples": [
+      {
+        "action": "buildTapped:",
+        "max_depth": 8,
+        "max_nodes": 250,
+        "max_edges": 500
+      }
+    ]
+  }
+}

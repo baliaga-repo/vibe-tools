@@ -1,0 +1,36 @@
+{
+  "name": "close_binary",
+  "description": "Drain earlier provider requests, optionally write a provider-neutral analysis snapshot atomically to the caller-supplied path, then close the active target and every provider resource started for it. Later provider requests wait until this lifecycle operation finishes. Existing files require explicit overwrite; a failed save leaves the session open so cached analysis is not lost. Metadata edits prevent immutable snapshot saves until the session is recreated; export_evidence_bundle preserves mutable observations before closing without a snapshot.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "snapshot_path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute local filesystem path for the analysis snapshot; relative paths are rejected."
+      },
+      "overwrite": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Whether an existing destination may be replaced."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute local filesystem path for the analysis snapshot; relative paths are rejected."
+      },
+      "__schema1": {
+        "default": false,
+        "type": "boolean"
+      }
+    },
+    "examples": [
+      {
+        "overwrite": false
+      }
+    ]
+  }
+}

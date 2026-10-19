@@ -1,0 +1,27 @@
+{
+  "name": "list_segments",
+  "description": "List segments or memory blocks using exclusive end addresses. Ghidra reports block permissions, address space, image base, initialization, and overlay facts; Hopper marks unavailable permissions explicitly.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "document": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The active target's provider document name; use open_binary to switch targets"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "The active target's provider document name; use open_binary to switch targets",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {}
+    ]
+  }
+}

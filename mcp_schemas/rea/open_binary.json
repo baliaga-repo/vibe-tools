@@ -1,0 +1,110 @@
+{
+  "name": "open_binary",
+  "description": "Open a local executable, application bundle, archive, JavaScript, source map, plist, or analysis database after validation. format=dos-com explicitly interprets 1..65280 headerless bytes as a DOS COM analysis image. format=raw-binary interprets headerless bytes with a required architecture and entry_point; file offset 0 maps at that address. Omission preserves header-based detection. provider_id selects one deep provider or deterministic auto selection; the binding remains stable until close or an explicit switch, with no failure fallback. Reopening the same target and profile retains its active database and metadata edits. An optional analysis snapshot is imported atomically and must match the binary identity, concrete provider, and canonical analysis profile exactly; importing into a session with metadata mutations requires closing and reopening it first.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute local filesystem path for the analysis target; relative paths are rejected."
+      },
+      "format": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Explicit headerless interpretation: dos-com or raw-binary. Omission preserves header-based detection."
+      },
+      "architecture": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Caller-supplied CPU family. Required with format=raw-binary; rejected otherwise."
+      },
+      "entry_point": {
+        "$ref": "#/$defs/__schema6",
+        "description": "Caller-supplied load and entry address (0xhex). File offset 0 is mapped here. Required with format=raw-binary; rejected otherwise."
+      },
+      "provider_id": {
+        "$ref": "#/$defs/__schema8",
+        "description": "Exact deep-analysis provider ID, or automatic selection when omitted."
+      },
+      "snapshot_path": {
+        "$ref": "#/$defs/__schema9",
+        "description": "Absolute local filesystem path for the analysis snapshot; relative paths are rejected."
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute local filesystem path for the analysis target; relative paths are rejected.",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema2": {
+        "description": "Explicit headerless interpretation: dos-com or raw-binary. Omission preserves header-based detection.",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string",
+        "enum": [
+          "dos-com",
+          "raw-binary"
+        ]
+      },
+      "__schema4": {
+        "description": "Caller-supplied CPU family. Required with format=raw-binary; rejected otherwise.",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "string",
+        "enum": [
+          "6502",
+          "x86",
+          "x86_64",
+          "arm",
+          "arm64"
+        ]
+      },
+      "__schema6": {
+        "description": "Caller-supplied load and entry address (0xhex). File offset 0 is mapped here. Required with format=raw-binary; rejected otherwise.",
+        "$ref": "#/$defs/__schema7"
+      },
+      "__schema7": {
+        "type": "string",
+        "pattern": "^0x[0-9A-Fa-f]{1,16}$"
+      },
+      "__schema8": {
+        "anyOf": [
+          {
+            "type": "string",
+            "const": "auto"
+          },
+          {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9\\x2d]*$"
+          }
+        ]
+      },
+      "__schema9": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute local filesystem path for the analysis snapshot; relative paths are rejected.",
+        "$ref": "#/$defs/__schema1"
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/fixture"
+      }
+    ]
+  }
+}

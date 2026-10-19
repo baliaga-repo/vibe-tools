@@ -1,0 +1,216 @@
+{
+  "name": "capture_electron_scenario",
+  "description": "Use this for a provider-owned Electron run when passive CDP or Inspector observation cannot exercise application behavior. REA owns startup and teardown, accepts caller-defined click/wait actions plus window-targeted renderer reload/crash and synthetic open-url/second-instance delivery, and returns correlated window/WebContents/process/preload/session/navigation/shell/IPC evidence without retaining payload values. Actions wait for completion or request cancellation; a missing click target can keep the request pending. Results identify observed and unavailable event families, coverage status, action targets, and truncation. Cleanup failures retain collected observations with explicit cleanup uncertainty. External shell, navigation, permission, download, popup, updater, and OS-integration effects are blocked and recorded. Use passive Electron tools for observation-only work.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "executable_path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute local filesystem path for the Electron executable; relative paths are rejected."
+      },
+      "application_path": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Absolute local filesystem path for the Electron application; relative paths are rejected."
+      },
+      "application_root": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Absolute local filesystem root for application-relative paths; omit to derive it from the application path. Relative paths are rejected."
+      },
+      "args": {
+        "$ref": "#/$defs/__schema4"
+      },
+      "actions": {
+        "$ref": "#/$defs/__schema5"
+      }
+    },
+    "required": [
+      "executable_path",
+      "application_path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "Absolute local filesystem path for the Electron executable; relative paths are rejected.",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema2": {
+        "description": "Absolute local filesystem path for the Electron application; relative paths are rejected.",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema3": {
+        "description": "Absolute local filesystem root for application-relative paths; omit to derive it from the application path. Relative paths are rejected.",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema4": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[^\\x00]*$"
+        }
+      },
+      "__schema5": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "click"
+                },
+                "selector": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "window_index": {
+                  "default": 0,
+                  "$ref": "#/$defs/__schema6"
+                }
+              },
+              "required": [
+                "step_id",
+                "kind",
+                "selector"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "wait"
+                },
+                "duration_ms": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "window_index": {
+                  "$ref": "#/$defs/__schema6"
+                }
+              },
+              "required": [
+                "step_id",
+                "kind",
+                "duration_ms"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "renderer-reload"
+                },
+                "window_index": {
+                  "default": 0,
+                  "$ref": "#/$defs/__schema6"
+                }
+              },
+              "required": [
+                "step_id",
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "renderer-crash"
+                },
+                "window_index": {
+                  "default": 0,
+                  "$ref": "#/$defs/__schema6"
+                }
+              },
+              "required": [
+                "step_id",
+                "kind"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "kind": {
+                  "type": "string",
+                  "const": "deep-link"
+                },
+                "delivery": {
+                  "type": "string",
+                  "enum": [
+                    "open-url",
+                    "second-instance"
+                  ]
+                },
+                "url": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "step_id",
+                "kind",
+                "delivery",
+                "url"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "__schema6": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      }
+    },
+    "examples": [
+      {
+        "executable_path": "/Applications/Electron.app/Contents/MacOS/Electron",
+        "application_path": "/Applications/Example.app/Contents/Resources/main.js",
+        "args": [],
+        "actions": [
+          {
+            "step_id": "exercise-ipc",
+            "kind": "click",
+            "selector": "#run"
+          }
+        ]
+      }
+    ]
+  }
+}

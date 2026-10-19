@@ -1,0 +1,137 @@
+{
+  "name": "start_adb_activity",
+  "description": "Start an intent with `am start -W`: one action, optional data URI, optional explicit component, and up to 16 typed extras (string, boolean, int, long, float). A device-mutating tool; the full wait report determines success, with failed-attempt facts and raw output retained.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "serial": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "action": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Intent action to start"
+      },
+      "data_uri": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Intent data URI (-d)"
+      },
+      "component": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Explicit component to start (-n)"
+      },
+      "extras": {
+        "$ref": "#/$defs/__schema6",
+        "description": "Typed intent extras (--es/--ez/--ei/--el/--ef)"
+      }
+    },
+    "required": [
+      "serial",
+      "action"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[^\\x00\\s\"']+$",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[A-Za-z][A-Za-z0-9._\\x2d]*$",
+        "description": "Intent action to start"
+      },
+      "__schema2": {
+        "description": "Intent data URI (-d)",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2048,
+        "pattern": "^[^\\x00\\s]+$"
+      },
+      "__schema4": {
+        "description": "Explicit component to start (-n)",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "pattern": "^[A-Za-z0-9._\\x2d]+(\\/[A-Za-z0-9._\\x2d]*)?$"
+      },
+      "__schema6": {
+        "default": [],
+        "description": "Typed intent extras (--es/--ez/--ei/--el/--ef)",
+        "$ref": "#/$defs/__schema7"
+      },
+      "__schema7": {
+        "maxItems": 16,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema8"
+        }
+      },
+      "__schema8": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[A-Za-z0-9._\\x2d]+$",
+            "description": "Extra key"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "string",
+              "boolean",
+              "int",
+              "long",
+              "float"
+            ],
+            "description": "Extra value type"
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "pattern": "^[^\\x00]*$",
+            "description": "Extra value as text, parsed per type"
+          }
+        },
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "examples": [
+      {
+        "serial": "emulator-5554",
+        "action": "android.intent.action.VIEW",
+        "data_uri": "https://example.com/path"
+      },
+      {
+        "serial": "emulator-5554",
+        "action": "com.example.APP_ACTION",
+        "extras": [
+          {
+            "key": "level",
+            "type": "int",
+            "value": "3"
+          }
+        ]
+      }
+    ]
+  }
+}

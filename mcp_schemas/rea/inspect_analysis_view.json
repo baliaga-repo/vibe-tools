@@ -1,0 +1,1874 @@
+{
+  "name": "inspect_analysis_view",
+  "description": "Inspect selected views of completed binary-layout, JavaScript application, native analyze_function, inspect_artifact, inventory_artifact, inspect_wasm_artifact, inspect_macho, decode_interface_builder, inspect_evm_interface, inspect_managed_artifact, inspect_managed_members, inspect_android_package, inspect_dart_aot or inspect_web_network_capture Evidence without repeating analysis. Historical capture summaries return identity and counts without bodies or archive inventories. Capture views page retained records: view {kind: \"capture\", detail: \"preview\" | \"complete\", offset: 0, limit: 20}; preview selects recorded headline fields and binary descriptors, complete returns exact records with all sidecars. Offsets follow the selected parent record order, preserving original producer ordinals. Paging never reopens the source or reruns the decoder. For inspect_pcap_capture parents, kind pcap pages endpoints, dns-queries, tls-sni, protocols, http-uris or unattributed-addresses. Select an exact query for dns-addresses, or a tshark/capinfos stream for UTF-16 diagnostics text. Page totals count retained facts; source coverage remains explicit. Qlog summaries keep profile/scope and counts; kind qlog pages traces, streams, loss-declarations, incomplete-records, contributions, ranges or final-sizes. Except traces, select trace_index; stream-specific facets also require exact stream_id and direction. Facts retain all-recorded-events-before-selection scope, and interval overlap or endpoint loss declarations do not prove retransmission or network loss. The api-surface view groups retained HAR requests by method, origin and format-rule path template; templated segments are inferences. It reads no headers or bodies and reports no query values. For a retained record use source: {kind: \"retained-evidence\", evidence_id: \"<parent_evidence_id>\"}. Use normalized_result.parent_evidence_id from a summary receipt. Source kind is required. Portable source uses {kind: \"inline\", evidence: <complete Evidence>}. For layout, JavaScript, inventory, WASM, Mach-O, Interface Builder, EVM, managed artifact, Android package and Dart AOT sources, request a summary with view: {kind: \"summary\"}; summary is a view kind and has no facet. The WASM summary gives validation, counts, WAT digest/length, tool profile and execution/network states without reading WAT text. Select a layout mitigations/linkage facet, one section/symbol/module, or a stable page. Module pages include assets, bundled and source modules; use node_id for ambiguous or unavailable paths. Inventory uses view: {kind: \"inventory\", collection: \"occurrences\", logical_paths: [\"package.json\"], offset: 0, limit: 64}. Inventory views page nodes, occurrences, edges or integrity contradictions; occurrence logical_paths matches exact recorded strings (omitted means all available, [] means none). source_complete distinguishes complete inventories from partial source records; page exhaustion does not prove absence in a partial source. WASM views use kind wasm and facet sections/imports/exports/candidates/glue/wat/headers/details/tool_profile; text facets use UTF-16 code units and source forms remain exact. Mach-O views use kind macho and facet entrypoints/architectures/build_metadata/load_commands/dependencies/imports/exports/segments/provenance; source_exhaustive false means unreturned rows may exist. Interface Builder views use kind interface-builder and collection documents/nodes/edges/coverage; nodes and edges accept an exact document relative_path. EVM summary returns all inferred interface candidates, carrier/decoded identities and explicit unknowns without hex or duplicate stdout. EVM views use kind evm and facet functions/bytecode_hex/stdout/stderr; function pages preserve the original candidate rows, and text offsets/limits count UTF-16 code units (hex has two characters per decoded byte). Exhausting candidate pages does not establish global interface completeness. Managed artifact summaries preserve complete identity/classification, metadata status, module/MVID, frameworks, coverage and limitations without unrelated inventories. Managed pages use kind managed and collection references/resources/attributes, retaining source coverage and build-local token scope; page exhaustion does not establish complete metadata. Managed member summaries keep identity, selection with unmatched names, coverage and per-collection counts; managed-members pages use collection types/exported_types/fields/methods/member_refs/call_edges/field_accesses/user_strings and carry the source selection and coverage. Android package summaries retain all declarations, engine identity and counts without decoded manifest text. Android manifest pages use kind android, facet manifest, offset and limit in UTF-16 code units; source_status preserves partial decoded coverage even when the retained text page is exhausted. Dart AOT summary preserves target/ABI/library identity, snapshot headers and pool lower bounds. String pages use kind dart-aot, collection package_uris/dart_uris/class_like_tokens; source coverage remains partial when the producer says partial. Native function Evidence requires kind native: view: {kind: \"native\", facet: \"procedure\"}. Facets select procedure, pseudocode, assembly, basic blocks, comments, callers/callees, references, unresolved calls, referenced strings/names, native API and high-pcode. Use nonnegative offset and a positive caller-selected limit (defaults 0 and 64); pseudocode uses UTF-16 code units, other native pages use rows. Returns artifact identity, parent Evidence ID, a distinct view digest, coverage, limitations and unknowns. Actual serialized size determines MCP transport admission; choose a smaller page or export the complete retained Evidence if needed.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "source": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "retained-evidence"
+              },
+              "evidence_id": {
+                "type": "string",
+                "pattern": "^ev_[a-f0-9]{64}$",
+                "description": "Stable identifier of the recorded Evidence observation."
+              }
+            },
+            "required": [
+              "kind",
+              "evidence_id"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "inline"
+              },
+              "evidence": {
+                "type": "object",
+                "properties": {
+                  "evidence_id": {
+                    "type": "string",
+                    "pattern": "^ev_[a-f0-9]{64}$",
+                    "description": "Stable identifier of the recorded Evidence observation."
+                  },
+                  "subject": {
+                    "anyOf": [
+                      {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Exact name used by this operation."
+                              },
+                              "digest": {
+                                "type": "object",
+                                "properties": {
+                                  "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                  }
+                                },
+                                "required": [
+                                  "sha256"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "local_path": {
+                                "type": "string",
+                                "pattern": "^[^\\x00]*$",
+                                "description": "Local filesystem path for local."
+                              },
+                              "format": {
+                                "type": "string",
+                                "enum": [
+                                  "hopper",
+                                  "analysis-database",
+                                  "mach-o",
+                                  "elf",
+                                  "pe",
+                                  "dos-mz",
+                                  "dos-com",
+                                  "zip",
+                                  "ipa",
+                                  "apk",
+                                  "msix",
+                                  "appx",
+                                  "hap",
+                                  "hsp",
+                                  "app-pack",
+                                  "asar",
+                                  "dmg",
+                                  "pkg",
+                                  "plist",
+                                  "javascript",
+                                  "source-map",
+                                  "directory",
+                                  "file",
+                                  "unknown",
+                                  "mach-o-universal",
+                                  "javascript-bundle",
+                                  "entitlements"
+                                ],
+                                "description": "Declared input artifact format."
+                              },
+                              "architecture": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "x86",
+                                      "x86_64",
+                                      "arm",
+                                      "arm64",
+                                      "mips",
+                                      "riscv",
+                                      "powerpc"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "digest",
+                              "local_path",
+                              "format",
+                              "architecture"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Exact name used by this operation."
+                              },
+                              "digest": {
+                                "type": "object",
+                                "properties": {
+                                  "sha256": {
+                                    "type": "string",
+                                    "pattern": "^[a-f0-9]{64}$"
+                                  }
+                                },
+                                "required": [
+                                  "sha256"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "local_path": {
+                                "type": "string",
+                                "pattern": "^[^\\x00]*$",
+                                "description": "Local filesystem path for local."
+                              },
+                              "format": {
+                                "type": "string",
+                                "const": "raw-binary",
+                                "description": "Declared input artifact format."
+                              },
+                              "architecture": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "enum": [
+                                      "6502",
+                                      "x86",
+                                      "x86_64",
+                                      "arm",
+                                      "arm64",
+                                      "mips",
+                                      "riscv",
+                                      "powerpc"
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "digest",
+                              "local_path",
+                              "format",
+                              "architecture"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "provider": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Exact name used by this operation."
+                      },
+                      "version": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "analysis_profile": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "provider": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "description": "Exact name used by this operation."
+                              },
+                              "version": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "version"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "parameters": {
+                            "type": "object",
+                            "additionalProperties": {}
+                          },
+                          "digest": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "provider",
+                          "parameters",
+                          "digest"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "predicate_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "operation": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "parameters": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  },
+                  "raw_result": {
+                    "anyOf": [
+                      {},
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "normalized_result": {},
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "derived",
+                      "inferred"
+                    ]
+                  },
+                  "authority": {
+                    "type": "string",
+                    "enum": [
+                      "shipped-artifact",
+                      "controlled-replay",
+                      "historical-reference",
+                      "external-service",
+                      "analyst-inference"
+                    ]
+                  },
+                  "environment": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "platform": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "architecture": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "isolation": {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "process",
+                              "container",
+                              "virtual-machine"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "platform",
+                          "architecture",
+                          "isolation"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "limitations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "relationship_coverage": {
+                    "default": null,
+                    "anyOf": [
+                      {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "const": "complete",
+                                "description": "Current lifecycle or verification status."
+                              },
+                              "diagnostics": {
+                                "minItems": 1,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            },
+                            "required": [
+                              "status"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "const": "partial",
+                                "description": "Current lifecycle or verification status."
+                              },
+                              "limitations": {
+                                "minItems": 1,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "limited_directions": {
+                                "anyOf": [
+                                  {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "string",
+                                        "const": "callers"
+                                      }
+                                    ],
+                                    "minItems": 1,
+                                    "maxItems": 1
+                                  },
+                                  {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "string",
+                                        "const": "callees"
+                                      }
+                                    ],
+                                    "minItems": 1,
+                                    "maxItems": 1
+                                  },
+                                  {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "string",
+                                        "const": "callers"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "callees"
+                                      }
+                                    ],
+                                    "minItems": 2,
+                                    "maxItems": 2
+                                  }
+                                ]
+                              },
+                              "diagnostics": {
+                                "minItems": 1,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            },
+                            "required": [
+                              "status",
+                              "limitations"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "const": "unknown",
+                                "description": "Current lifecycle or verification status."
+                              },
+                              "reason": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "limited_directions": {
+                                "anyOf": [
+                                  {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "string",
+                                        "const": "callers"
+                                      }
+                                    ],
+                                    "minItems": 1,
+                                    "maxItems": 1
+                                  },
+                                  {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "string",
+                                        "const": "callees"
+                                      }
+                                    ],
+                                    "minItems": 1,
+                                    "maxItems": 1
+                                  },
+                                  {
+                                    "type": "array",
+                                    "prefixItems": [
+                                      {
+                                        "type": "string",
+                                        "const": "callers"
+                                      },
+                                      {
+                                        "type": "string",
+                                        "const": "callees"
+                                      }
+                                    ],
+                                    "minItems": 2,
+                                    "maxItems": 2
+                                  }
+                                ]
+                              },
+                              "diagnostics": {
+                                "minItems": 1,
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              }
+                            },
+                            "required": [
+                              "status",
+                              "reason"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "locations": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "address"
+                            },
+                            "address": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "address"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "address-range"
+                            },
+                            "start": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "end": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "start",
+                            "end"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "artifact-path"
+                            },
+                            "path": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Local filesystem path used by this operation."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "path"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "file-offset"
+                            },
+                            "offset": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "offset"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "file-offset-range"
+                            },
+                            "start": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "end": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "start",
+                            "end"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  },
+                  "evidence_links": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^ev_[a-f0-9]{64}$"
+                    }
+                  }
+                },
+                "required": [
+                  "evidence_id",
+                  "subject",
+                  "provider",
+                  "analysis_profile",
+                  "predicate_type",
+                  "operation",
+                  "parameters",
+                  "raw_result",
+                  "normalized_result",
+                  "confidence",
+                  "authority",
+                  "environment",
+                  "limitations",
+                  "locations",
+                  "evidence_links"
+                ],
+                "additionalProperties": false,
+                "description": "Evidence record produced by this operation."
+              }
+            },
+            "required": [
+              "kind",
+              "evidence"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "view": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "summary"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "facet"
+              },
+              "facet": {
+                "type": "string",
+                "enum": [
+                  "mitigations",
+                  "linkage"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "facet"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "item"
+                  },
+                  "collection": {
+                    "type": "string",
+                    "const": "modules"
+                  },
+                  "selector": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "description": "Exact observed module path or original source-map reference from a module page; an empty reference is valid."
+                          }
+                        },
+                        "required": [
+                          "path"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "node_id": {
+                            "type": "string",
+                            "pattern": "^jag_node_[a-f0-9]{64}$"
+                          }
+                        },
+                        "required": [
+                          "node_id"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "collection",
+                  "selector"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "item"
+                  },
+                  "collection": {
+                    "type": "string",
+                    "enum": [
+                      "sections",
+                      "symbols"
+                    ]
+                  },
+                  "selector": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "index": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "index"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Exact name used by this operation."
+                          }
+                        },
+                        "required": [
+                          "name"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "collection",
+                  "selector"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "page"
+              },
+              "collection": {
+                "type": "string",
+                "enum": [
+                  "sections",
+                  "symbols",
+                  "modules"
+                ]
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "collection",
+              "offset",
+              "limit"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "native"
+              },
+              "facet": {
+                "type": "string",
+                "enum": [
+                  "procedure",
+                  "pseudocode",
+                  "assembly",
+                  "basic_blocks",
+                  "comments",
+                  "callers",
+                  "callees",
+                  "incoming_references",
+                  "outgoing_references",
+                  "unresolved_calls",
+                  "referenced_strings",
+                  "referenced_names",
+                  "swift_string_literals",
+                  "swift_string_literal_omissions",
+                  "native_api",
+                  "value_flow_summary",
+                  "value_flow_operations",
+                  "value_flow_def_use",
+                  "value_flow_effects",
+                  "value_flow_parameters",
+                  "value_flow_parameter_uses"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "facet"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "inventory"
+                  },
+                  "collection": {
+                    "type": "string",
+                    "const": "occurrences"
+                  },
+                  "logical_paths": {
+                    "description": "Exact recorded logical paths. Omitted selects all available occurrences; an empty array selects none. This does not resolve filesystem paths.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "kind",
+                  "collection"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "inventory"
+                  },
+                  "collection": {
+                    "type": "string",
+                    "enum": [
+                      "nodes",
+                      "edges",
+                      "integrity_contradictions"
+                    ]
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "kind",
+                  "collection"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "wasm"
+              },
+              "facet": {
+                "type": "string",
+                "enum": [
+                  "sections",
+                  "imports",
+                  "exports",
+                  "candidates",
+                  "glue",
+                  "wat",
+                  "headers",
+                  "details",
+                  "tool_profile"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "facet"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "macho"
+              },
+              "facet": {
+                "type": "string",
+                "enum": [
+                  "entrypoints",
+                  "architectures",
+                  "build_metadata",
+                  "load_commands",
+                  "dependencies",
+                  "imports",
+                  "exports",
+                  "segments",
+                  "provenance"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "facet"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "interface-builder"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "collection": {
+                    "type": "string",
+                    "enum": [
+                      "nodes",
+                      "edges"
+                    ]
+                  },
+                  "document": {
+                    "description": "Exact documents[].relative_path; selects rows whose evidence names that archive.",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "collection"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "interface-builder"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "collection": {
+                    "type": "string",
+                    "enum": [
+                      "documents",
+                      "coverage"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "collection"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "evm"
+              },
+              "facet": {
+                "type": "string",
+                "enum": [
+                  "functions",
+                  "bytecode_hex",
+                  "stdout",
+                  "stderr"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "facet"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "managed"
+              },
+              "collection": {
+                "type": "string",
+                "enum": [
+                  "references",
+                  "resources",
+                  "attributes"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "collection"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "managed-members"
+              },
+              "collection": {
+                "type": "string",
+                "enum": [
+                  "types",
+                  "exported_types",
+                  "fields",
+                  "methods",
+                  "member_refs",
+                  "call_edges",
+                  "field_accesses",
+                  "user_strings"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "collection"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "android"
+              },
+              "facet": {
+                "type": "string",
+                "const": "manifest"
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "facet",
+              "limit"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "api-surface"
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 50,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "include_query_parameter_names": {
+                "description": "Include distinct observed query parameter names and their original record ordinals; names do not establish required parameters or a complete API schema.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "capture"
+              },
+              "detail": {
+                "default": "preview",
+                "type": "string",
+                "enum": [
+                  "preview",
+                  "complete"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "qlog"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "traces"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "facet"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "qlog"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "trace_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "streams"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "trace_index",
+                  "facet"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "qlog"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "trace_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "loss-declarations"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "trace_index",
+                  "facet"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "qlog"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "trace_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "incomplete-records"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "trace_index",
+                  "facet"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "qlog"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "trace_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "stream_id": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)$"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "sent",
+                      "received"
+                    ],
+                    "description": "Direction in which to traverse or compare relationships."
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "contributions"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "trace_index",
+                  "stream_id",
+                  "direction",
+                  "facet"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "qlog"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "trace_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "stream_id": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)$"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "sent",
+                      "received"
+                    ],
+                    "description": "Direction in which to traverse or compare relationships."
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "ranges"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "trace_index",
+                  "stream_id",
+                  "direction",
+                  "facet"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "qlog"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "trace_index": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "stream_id": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9][0-9]*)$"
+                  },
+                  "direction": {
+                    "type": "string",
+                    "enum": [
+                      "sent",
+                      "received"
+                    ],
+                    "description": "Direction in which to traverse or compare relationships."
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "final-sizes"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "trace_index",
+                  "stream_id",
+                  "direction",
+                  "facet"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "pcap"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "facet": {
+                    "type": "string",
+                    "enum": [
+                      "endpoints",
+                      "dns-queries",
+                      "tls-sni",
+                      "protocols",
+                      "http-uris",
+                      "unattributed-addresses"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "facet"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "pcap"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "dns-addresses"
+                  },
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Non-empty feature or text query to investigate."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "facet",
+                  "query"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "pcap"
+                  },
+                  "offset": {
+                    "default": 0,
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "limit": {
+                    "default": 64,
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "facet": {
+                    "type": "string",
+                    "const": "diagnostics"
+                  },
+                  "stream": {
+                    "type": "string",
+                    "enum": [
+                      "tshark",
+                      "capinfos"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "facet",
+                  "stream"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "dart-aot"
+              },
+              "collection": {
+                "type": "string",
+                "enum": [
+                  "package_uris",
+                  "dart_uris",
+                  "class_like_tokens"
+                ]
+              },
+              "offset": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "limit": {
+                "default": 64,
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "kind",
+              "collection"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "required": [
+      "source",
+      "view"
+    ],
+    "additionalProperties": false,
+    "examples": [
+      {
+        "source": {
+          "kind": "retained-evidence",
+          "evidence_id": "ev_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "view": {
+          "kind": "inventory",
+          "collection": "occurrences",
+          "logical_paths": [
+            "package.json",
+            "main.js"
+          ],
+          "offset": 0,
+          "limit": 32
+        }
+      },
+      {
+        "source": {
+          "kind": "retained-evidence",
+          "evidence_id": "ev_9e218c18bc6159ec9c8492a9130c286496fb1b6d9f03ec2f4ea3321ce2b15097"
+        },
+        "view": {
+          "kind": "api-surface",
+          "offset": 0,
+          "limit": 50
+        }
+      },
+      {
+        "source": {
+          "kind": "retained-evidence",
+          "evidence_id": "ev_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "view": {
+          "kind": "summary"
+        }
+      },
+      {
+        "source": {
+          "kind": "retained-evidence",
+          "evidence_id": "ev_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "view": {
+          "kind": "item",
+          "collection": "sections",
+          "selector": {
+            "name": ".text"
+          }
+        }
+      },
+      {
+        "source": {
+          "kind": "retained-evidence",
+          "evidence_id": "ev_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "view": {
+          "kind": "native",
+          "facet": "value_flow_operations",
+          "offset": 0,
+          "limit": 32
+        }
+      },
+      {
+        "source": {
+          "kind": "retained-evidence",
+          "evidence_id": "ev_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "view": {
+          "kind": "page",
+          "collection": "modules",
+          "offset": 0,
+          "limit": 32
+        }
+      }
+    ]
+  }
+}

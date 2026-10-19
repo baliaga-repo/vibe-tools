@@ -1,0 +1,13 @@
+{
+  "name": "get_objc_protocols",
+  "description": "Discover and deduplicate Objective-C and Swift protocol labels.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {},
+    "additionalProperties": false,
+    "examples": [
+      {}
+    ]
+  }
+}

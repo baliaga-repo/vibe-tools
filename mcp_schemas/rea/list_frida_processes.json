@@ -1,0 +1,60 @@
+{
+  "name": "list_frida_processes",
+  "description": "List processes observed on a selected Frida device or caller-supplied remote endpoint. A remote connection is closed after discovery; authentication values are never returned or recorded.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "device_id": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "remote": {
+        "$ref": "#/$defs/__schema1"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema1": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certificate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "origin": {
+            "type": "string",
+            "minLength": 1
+          },
+          "keepalive_interval": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Remote keepalive interval in seconds"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "examples": [
+      {
+        "device_id": "local"
+      }
+    ]
+  }
+}

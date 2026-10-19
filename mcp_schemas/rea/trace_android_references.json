@@ -1,0 +1,67 @@
+{
+  "name": "trace_android_references",
+  "description": "Trace incoming static using nodes to an exact Android class or selected method overload. The total counts containing nodes, not individual invoke instructions. Use inspect_android_class to choose an overload_index when names collide. Source lines and the containing node dex_offset remain unknown. direct_invokes carries exact DEX code-unit instruction offsets when available; direct_invokes_exhaustive false marks byte-bounded partial instruction evidence, and null means coverage is unknown. Using-node coverage remains separate; no runtime calls are inferred.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local APK path; the target is never executed"
+      },
+      "class_name": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact fully qualified class name"
+      },
+      "method_name": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Omit for class references; select ambiguous methods with overload_index"
+      },
+      "overload_index": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Index among same-name methods from inspect_android_class; requires method_name"
+      }
+    },
+    "required": [
+      "path",
+      "class_name"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Local APK path; the target is never executed"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Exact fully qualified class name"
+      },
+      "__schema2": {
+        "description": "Omit for class references; select ambiguous methods with overload_index",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema4": {
+        "description": "Index among same-name methods from inspect_android_class; requires method_name",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/Example.apk",
+        "class_name": "example.MainActivity"
+      }
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "name": "recover_javascript_sources",
+  "description": "Recover readable modules from local UTF-8 JavaScript scripts/bundles into an absent directory, using caller-supplied Wakaru ^1.13.0 (verified with 1.14.0) on Linux x64. Use additional_paths for related chunks; each input retains its own snapshot and provenance. Returns original/derived digests, extraction byte ranges, emitted source maps, warnings and analysis_input inline. Structural splitting may fall back to one module; original names and runtime equivalence remain unknown. No application code execution. Requires util-linux prlimit; one worker, 1 GiB address-space ceiling, 120-second deadline, 64 MiB total input, 128 MiB output, 10000 entries and 8 MiB per diagnostic/report stream.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute path to a UTF-8 JavaScript file; never executed"
+      },
+      "additional_paths": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Additional absolute UTF-8 JavaScript files recovered together with path; each is snapshotted separately so imports can resolve across related chunks. All inputs share a 64 MiB total budget"
+      },
+      "output_directory": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Absolute absent output directory; parent must exist"
+      },
+      "extraction_mode": {
+        "$ref": "#/$defs/__schema5",
+        "description": "Structural module boundaries, heuristic fallback, or finer inspection-only regions"
+      },
+      "rewrite_level": {
+        "$ref": "#/$defs/__schema7",
+        "description": "Upstream syntax recovery level; runtime equivalence remains unverified"
+      }
+    },
+    "required": [
+      "path",
+      "output_directory"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "Absolute path to a UTF-8 JavaScript file; never executed",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      },
+      "__schema2": {
+        "description": "Additional absolute UTF-8 JavaScript files recovered together with path; each is snapshotted separately so imports can resolve across related chunks. All inputs share a 64 MiB total budget",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "maxItems": 16,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema1"
+        }
+      },
+      "__schema4": {
+        "description": "Absolute absent output directory; parent must exist",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema5": {
+        "default": "structural",
+        "description": "Structural module boundaries, heuristic fallback, or finer inspection-only regions",
+        "$ref": "#/$defs/__schema6"
+      },
+      "__schema6": {
+        "type": "string",
+        "enum": [
+          "structural",
+          "heuristic",
+          "inspection"
+        ]
+      },
+      "__schema7": {
+        "default": "standard",
+        "description": "Upstream syntax recovery level; runtime equivalence remains unverified",
+        "$ref": "#/$defs/__schema8"
+      },
+      "__schema8": {
+        "type": "string",
+        "enum": [
+          "minimal",
+          "standard",
+          "aggressive"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/web-scripts/app.js",
+        "output_directory": "/tmp/recovered-app"
+      },
+      {
+        "path": "/tmp/web-scripts/main.js",
+        "additional_paths": [
+          "/tmp/web-scripts/runtime.js",
+          "/tmp/web-scripts/shared.js",
+          "/tmp/web-scripts/checkout.chunk.js"
+        ],
+        "output_directory": "/tmp/recovered-chunks"
+      }
+    ]
+  }
+}

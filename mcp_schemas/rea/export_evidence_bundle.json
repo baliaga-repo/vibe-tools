@@ -1,0 +1,40 @@
+{
+  "name": "export_evidence_bundle",
+  "description": "Atomically write the session's deterministic Evidence bundle to the requested local path. Existing files require overwrite: true; records and manifests use canonical byte-stable ordering.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute local filesystem path for the exported evidence bundle; relative paths are rejected."
+      },
+      "overwrite": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Whether an existing destination may be replaced."
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute local filesystem path for the exported evidence bundle; relative paths are rejected."
+      },
+      "__schema1": {
+        "default": false,
+        "type": "boolean"
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/evidence.json",
+        "overwrite": false
+      }
+    ]
+  }
+}

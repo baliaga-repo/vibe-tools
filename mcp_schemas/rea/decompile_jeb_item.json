@@ -1,0 +1,56 @@
+{
+  "name": "decompile_jeb_item",
+  "description": "Decompile one type or method to engine pseudo-code using its decompiler (Dalvik, Java, or native). item_address comes from the engine's code item listing; unit_path defaults to the engine's first code unit and stays unknown when omitted. Read-only with respect to the target file.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "unit_path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Target code unit; the engine's first code unit in the project when omitted"
+      },
+      "item_address": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Type or method address within the unit, as listed by the engine"
+      },
+      "item_kind": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Kind of item to decompile"
+      }
+    },
+    "required": [
+      "item_address",
+      "item_kind"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "Target code unit; the engine's first code unit in the project when omitted",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Type or method address within the unit, as listed by the engine"
+      },
+      "__schema3": {
+        "type": "string",
+        "enum": [
+          "type",
+          "method"
+        ],
+        "description": "Kind of item to decompile"
+      }
+    },
+    "examples": [
+      {
+        "item_address": "Lcom/example/Main;->onCreate()V",
+        "item_kind": "method"
+      }
+    ]
+  }
+}

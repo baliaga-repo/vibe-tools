@@ -1,0 +1,61 @@
+{
+  "name": "decode_interface_builder",
+  "description": "Decode compiled storyboard and nib archives inside the active Apple app bundle, including keyed property lists and NIBArchive object tables, into a bounded object, hierarchy, and connection graph. This is static archive parsing; unrecognized archive classes and unresolved code handlers remain explicit unknowns. A full app graph is often several megabytes; detail summary retains it and returns documents with node, edge and coverage counts, then page rows, optionally one document's, with inspect_analysis_view kind interface-builder.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "max_documents": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Maximum permitted documents for this operation."
+      },
+      "max_objects": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Maximum permitted objects for this operation."
+      },
+      "max_connections": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Maximum permitted connections for this operation."
+      },
+      "detail": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Omitted or complete returns the complete decoded graph Evidence. summary retains that complete Evidence in this session and returns its inspect_analysis_view summary; use normalized_result.parent_evidence_id for interface-builder pages."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "default": 64,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 64
+      },
+      "__schema1": {
+        "default": 20000,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 20000
+      },
+      "__schema2": {
+        "default": 40000,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 40000
+      },
+      "__schema3": {
+        "description": "Omitted or complete returns the complete decoded graph Evidence. summary retains that complete Evidence in this session and returns its inspect_analysis_view summary; use normalized_result.parent_evidence_id for interface-builder pages.",
+        "$ref": "#/$defs/__schema4"
+      },
+      "__schema4": {
+        "type": "string",
+        "enum": [
+          "complete",
+          "summary"
+        ]
+      }
+    },
+    "examples": [
+      {}
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "xrefs",
+  "description": "Return analyzed references to a code or data address. Hopper may default to its current cursor; headless providers such as Ghidra require an explicit address. Use to connect strings, globals, selectors, and functions; bare addresses are untyped and indirect references may be incomplete. Use inspect_native_instruction at the target address for typed incoming references where supported.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "document": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The active target's provider document name; use open_binary to switch targets"
+      },
+      "address": {
+        "$ref": "#/$defs/__schema2",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "The active target's provider document name; use open_binary to switch targets",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string"
+      },
+      "__schema2": {
+        "type": "string",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      }
+    },
+    "examples": [
+      {}
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "search_strings",
+  "description": "Search every provider-defined string object using literal matching by default or regex when requested. Results are deterministic and complete over those defined objects, not every text sequence in artifact bytes. Ghidra may omit packed or undefined literals, including Rust strings; an empty result does not prove text is absent. If an address is known, read_bytes and xrefs inspect its bytes and references. Hopper retains typed byte decoding, native display, and explicit decoding unknowns. Adjacent long-literal fragments match independently. Hopper regex mode uses ECMAScript Unicode syntax in a cancellable worker; a matching deadline leaves its API usable.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "pattern": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The literal text or regex pattern to search for"
+      },
+      "mode": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Operation mode that selects the requested behavior."
+      },
+      "case_sensitive": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Whether to match case"
+      },
+      "document": {
+        "$ref": "#/$defs/__schema4",
+        "description": "The document name"
+      }
+    },
+    "required": [
+      "pattern"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "description": "The literal text or regex pattern to search for"
+      },
+      "__schema1": {
+        "default": "literal",
+        "type": "string",
+        "enum": [
+          "literal",
+          "regex"
+        ]
+      },
+      "__schema2": {
+        "default": false,
+        "description": "Whether to match case",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "boolean"
+      },
+      "__schema4": {
+        "description": "The document name",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "pattern": "authorization failed",
+        "mode": "literal",
+        "case_sensitive": false
+      }
+    ]
+  }
+}

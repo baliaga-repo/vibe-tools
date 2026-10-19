@@ -1,0 +1,121 @@
+{
+  "name": "decode_signal_recording",
+  "description": "Decode an existing local logic/signal recording on Linux with sigrok-cli 0.7.2 and util-linux prlimit. Supply decoder stack, channels and options explicitly; optionally select input format and annotation classes. Return 50 literal output lines by default, with line_offset/line_limit paging; line_limit:null requests all remaining lines. Output windows count display lines, not annotations or samples, and do not shorten decoding. Preserve selected text, sample ranges, stderr, source/tool identity and coverage inline. Configure absolute REA_SIGROK_COMMAND. File-only analysis; no hardware acquisition or device communication. Empty output does not prove absence of traffic.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Absolute local recording path"
+      },
+      "decoders": {
+        "$ref": "#/$defs/__schema1",
+        "description": "sigrok decoder stack, options and channel assignments, e.g. uart:rx=RX:baudrate=9600"
+      },
+      "input_format": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Explicit sigrok input format and options; omitted means autodetection"
+      },
+      "annotations": {
+        "$ref": "#/$defs/__schema5",
+        "description": "Optional annotation selection, e.g. uart=rx-data"
+      },
+      "line_offset": {
+        "$ref": "#/$defs/__schema7",
+        "description": "Skip this many literal LF-separated output lines; default 0"
+      },
+      "line_limit": {
+        "$ref": "#/$defs/__schema9",
+        "description": "Return at most this many output lines; default 50. Null explicitly returns all remaining lines within producer limits. Lines are not annotation counts."
+      }
+    },
+    "required": [
+      "path",
+      "decoders"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Absolute local recording path"
+      },
+      "__schema1": {
+        "description": "sigrok decoder stack, options and channel assignments, e.g. uart:rx=RX:baudrate=9600",
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 8192
+      },
+      "__schema3": {
+        "default": null,
+        "description": "Explicit sigrok input format and options; omitted means autodetection",
+        "$ref": "#/$defs/__schema4"
+      },
+      "__schema4": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/__schema2"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema5": {
+        "default": null,
+        "description": "Optional annotation selection, e.g. uart=rx-data",
+        "$ref": "#/$defs/__schema6"
+      },
+      "__schema6": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/__schema2"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema7": {
+        "default": 0,
+        "description": "Skip this many literal LF-separated output lines; default 0",
+        "$ref": "#/$defs/__schema8"
+      },
+      "__schema8": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema9": {
+        "default": 50,
+        "description": "Return at most this many output lines; default 50. Null explicitly returns all remaining lines within producer limits. Lines are not annotation counts.",
+        "$ref": "#/$defs/__schema10"
+      },
+      "__schema10": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "path": "/artifacts/uart.vcd",
+        "input_format": "vcd",
+        "decoders": "uart:rx=RX:baudrate=9600",
+        "annotations": "uart=rx-data"
+      }
+    ]
+  }
+}

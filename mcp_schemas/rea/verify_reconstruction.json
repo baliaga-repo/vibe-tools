@@ -1,0 +1,185 @@
+{
+  "name": "verify_reconstruction",
+  "description": "Verify a finite typed behavioral and structural specification against a canonical Evidence bundle. Pass means every declared claim has complete comparable authority\u2014not global source equivalence; changed claims fail and missing, limited, or unresolved evidence stays unknown.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "specification": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "required": [
+      "specification"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "$ref": "#/$defs/__schema1",
+            "description": "Exact name used by this operation."
+          },
+          "claims": {
+            "$ref": "#/$defs/__schema2"
+          }
+        },
+        "required": [
+          "name",
+          "claims"
+        ]
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema2": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema3"
+        }
+      },
+      "__schema3": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "claim_id": {
+                "$ref": "#/$defs/__schema4"
+              },
+              "title": {
+                "$ref": "#/$defs/__schema5"
+              },
+              "comparison_evidence_id": {
+                "$ref": "#/$defs/__schema6",
+                "description": "Exact Evidence identifier for the comparison observation."
+              },
+              "kind": {
+                "type": "string",
+                "const": "behavioral"
+              },
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "overall",
+                  "terminal",
+                  "interaction",
+                  "exit",
+                  "filesystem",
+                  "process"
+                ]
+              }
+            },
+            "required": [
+              "claim_id",
+              "title",
+              "comparison_evidence_id",
+              "kind",
+              "dimension"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claim_id": {
+                "$ref": "#/$defs/__schema4"
+              },
+              "title": {
+                "$ref": "#/$defs/__schema5"
+              },
+              "comparison_evidence_id": {
+                "$ref": "#/$defs/__schema6",
+                "description": "Exact Evidence identifier for the comparison observation."
+              },
+              "kind": {
+                "type": "string",
+                "const": "structural-function"
+              },
+              "dimension": {
+                "type": "string",
+                "enum": [
+                  "overall",
+                  "identity",
+                  "pseudocode",
+                  "assembly",
+                  "comments",
+                  "calls",
+                  "references",
+                  "strings_names",
+                  "cfg"
+                ]
+              }
+            },
+            "required": [
+              "claim_id",
+              "title",
+              "comparison_evidence_id",
+              "kind",
+              "dimension"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "claim_id": {
+                "$ref": "#/$defs/__schema4"
+              },
+              "title": {
+                "$ref": "#/$defs/__schema5"
+              },
+              "comparison_evidence_id": {
+                "$ref": "#/$defs/__schema6",
+                "description": "Exact Evidence identifier for the comparison observation."
+              },
+              "kind": {
+                "type": "string",
+                "const": "structural-artifact"
+              },
+              "dimension": {
+                "type": "string",
+                "const": "overall"
+              }
+            },
+            "required": [
+              "claim_id",
+              "title",
+              "comparison_evidence_id",
+              "kind",
+              "dimension"
+            ]
+          }
+        ]
+      },
+      "__schema4": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9._\\x2d]*$"
+      },
+      "__schema5": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema6": {
+        "type": "string",
+        "pattern": "^ev_[a-f0-9]{64}$"
+      }
+    },
+    "examples": [
+      {
+        "specification": {
+          "name": "Terminal compatibility",
+          "claims": [
+            {
+              "claim_id": "terminal-output",
+              "title": "Terminal output remains equivalent",
+              "comparison_evidence_id": "ev_38ed13bff29e8b0299cb7498be55b08f8fe629d9a12af1ccc4498c38b98c57d8",
+              "kind": "behavioral",
+              "dimension": "terminal"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

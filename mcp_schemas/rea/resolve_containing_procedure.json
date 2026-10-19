@@ -1,0 +1,40 @@
+{
+  "name": "resolve_containing_procedure",
+  "description": "Resolve an arbitrary address, including an interior instruction or exact external entry, to its provider-analyzed containing procedure. A negative result distinguishes outside segments from not in a procedure and is never guessed from nearby symbols.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "address": {
+        "$ref": "#/$defs/__schema0",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      },
+      "document": {
+        "$ref": "#/$defs/__schema1",
+        "description": "The active target's provider document name; use open_binary to switch targets"
+      }
+    },
+    "required": [
+      "address"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      },
+      "__schema1": {
+        "description": "The active target's provider document name; use open_binary to switch targets",
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema2": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "address": "0x1000"
+      }
+    ]
+  }
+}

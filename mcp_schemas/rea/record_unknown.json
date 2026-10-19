@@ -1,0 +1,293 @@
+{
+  "name": "record_unknown",
+  "description": "Create one deterministic residual unknown and immutable mutation evidence. Validates all evidence and relationship references, and rejects duplicate stable identity.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "question": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Concrete unresolved question to retain for later investigation."
+      },
+      "severity": {
+        "$ref": "#/$defs/__schema1"
+      },
+      "domain": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "comparison_conclusion_scope": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "required_authority": {
+        "$ref": "#/$defs/__schema6"
+      },
+      "required_confidence": {
+        "$ref": "#/$defs/__schema7"
+      },
+      "required_environment": {
+        "$ref": "#/$defs/__schema8"
+      },
+      "recommended_probes": {
+        "$ref": "#/$defs/__schema9"
+      },
+      "relationships": {
+        "$ref": "#/$defs/__schema10"
+      },
+      "supporting_evidence_ids": {
+        "$ref": "#/$defs/__schema11",
+        "description": "Ordered Evidence identifiers for the supporting observations."
+      },
+      "contradicting_evidence_ids": {
+        "$ref": "#/$defs/__schema12",
+        "description": "Ordered Evidence identifiers for the contradicting observations."
+      }
+    },
+    "required": [
+      "question",
+      "severity",
+      "domain",
+      "required_authority",
+      "required_confidence",
+      "required_environment",
+      "recommended_probes",
+      "relationships"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema1": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      "__schema2": {
+        "type": "object",
+        "properties": {
+          "comparison_evidence_id": {
+            "$ref": "#/$defs/__schema3",
+            "description": "Exact Evidence identifier for the comparison observation."
+          },
+          "dimensions": {
+            "$ref": "#/$defs/__schema4"
+          }
+        },
+        "required": [
+          "comparison_evidence_id",
+          "dimensions"
+        ],
+        "additionalProperties": false
+      },
+      "__schema3": {
+        "type": "string",
+        "pattern": "^ev_[a-f0-9]{64}$"
+      },
+      "__schema4": {
+        "minItems": 1,
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema5"
+        }
+      },
+      "__schema5": {
+        "anyOf": [
+          {
+            "type": "string",
+            "const": "overall"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "identity",
+              "pseudocode",
+              "assembly",
+              "comments",
+              "calls",
+              "references",
+              "strings_names",
+              "cfg"
+            ]
+          }
+        ]
+      },
+      "__schema6": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "shipped-artifact",
+              "controlled-replay",
+              "historical-reference",
+              "external-service",
+              "analyst-inference"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema7": {
+        "type": "string",
+        "enum": [
+          "observed",
+          "derived",
+          "inferred"
+        ]
+      },
+      "__schema8": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "platform": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "architecture": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "isolation": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "process",
+                      "container",
+                      "virtual-machine"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "platform",
+              "architecture",
+              "isolation"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema9": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "operation": {
+              "type": "string",
+              "minLength": 1
+            },
+            "rationale": {
+              "$ref": "#/$defs/__schema0"
+            }
+          },
+          "required": [
+            "operation",
+            "rationale"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "__schema10": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "depends-on",
+                "related-to",
+                "contradicts"
+              ]
+            },
+            "unknown_id": {
+              "type": "string",
+              "pattern": "^unk_[a-f0-9]{64}$",
+              "description": "Exact residual-unknown identifier."
+            }
+          },
+          "required": [
+            "type",
+            "unknown_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "__schema11": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema3"
+        }
+      },
+      "__schema12": {
+        "default": [],
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema3"
+        }
+      }
+    },
+    "examples": [
+      {
+        "question": "Does this branch require an unavailable external service?",
+        "severity": "medium",
+        "domain": "protocol",
+        "required_authority": "controlled-replay",
+        "required_confidence": "observed",
+        "required_environment": null,
+        "recommended_probes": [
+          {
+            "operation": "capture_process_scenario",
+            "rationale": "Replay branch."
+          }
+        ],
+        "relationships": [],
+        "supporting_evidence_ids": [],
+        "contradicting_evidence_ids": []
+      }
+    ]
+  }
+}

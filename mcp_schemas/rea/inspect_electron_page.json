@@ -1,0 +1,118 @@
+{
+  "name": "inspect_electron_page",
+  "description": "Passively inspect one Electron file page by supplying its loopback CDP endpoint and target ID. The provider rechecks that the target currently exists at that endpoint and is a local file page. Returns frames, DOM structure, resource paths, and scripts without evaluating renderer JavaScript or invoking Electron APIs. The selected endpoint exposes every local file page and its metadata to this tool.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "__schema0": {
+        "type": "object",
+        "properties": {
+          "cdp_endpoint": {
+            "$ref": "#/$defs/__schema1",
+            "description": "Literal loopback Chrome DevTools Protocol endpoint."
+          },
+          "target_id": {
+            "$ref": "#/$defs/__schema2",
+            "description": "Exact CDP target identifier selected from the endpoint's target listing."
+          },
+          "observation_ms": {
+            "$ref": "#/$defs/__schema3"
+          },
+          "include_script_sources": {
+            "default": false,
+            "type": "boolean",
+            "const": false,
+            "description": "Whether to include script sources in the result."
+          }
+        },
+        "required": [
+          "cdp_endpoint",
+          "target_id"
+        ],
+        "additionalProperties": false
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema3": {
+        "default": 100,
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema4": {
+        "type": "object",
+        "properties": {
+          "cdp_endpoint": {
+            "$ref": "#/$defs/__schema1",
+            "description": "Literal loopback Chrome DevTools Protocol endpoint."
+          },
+          "target_id": {
+            "$ref": "#/$defs/__schema2",
+            "description": "Exact CDP target identifier selected from the endpoint's target listing."
+          },
+          "observation_ms": {
+            "$ref": "#/$defs/__schema3"
+          },
+          "include_script_sources": {
+            "type": "boolean",
+            "const": true,
+            "description": "Whether to include script sources in the result."
+          }
+        },
+        "required": [
+          "cdp_endpoint",
+          "target_id",
+          "include_script_sources"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "description": "Provide a complete input group: cdp_endpoint + target_id + [observation_ms] + [include_script_sources]; cdp_endpoint + target_id + include_script_sources + [observation_ms].",
+    "properties": {
+      "cdp_endpoint": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Literal loopback Chrome DevTools Protocol endpoint."
+      },
+      "target_id": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Exact CDP target identifier selected from the endpoint's target listing."
+      },
+      "observation_ms": {
+        "$ref": "#/$defs/__schema3"
+      },
+      "include_script_sources": {
+        "anyOf": [
+          {
+            "default": false,
+            "type": "boolean",
+            "const": false
+          },
+          {
+            "type": "boolean",
+            "const": true
+          }
+        ],
+        "description": "Whether to include script sources in the result."
+      }
+    },
+    "required": [
+      "cdp_endpoint",
+      "target_id"
+    ],
+    "minProperties": 2,
+    "additionalProperties": false,
+    "examples": [
+      {
+        "cdp_endpoint": "http://127.0.0.1:9223",
+        "target_id": "TARGET_ID_FROM_LIST_ELECTRON_TARGETS"
+      }
+    ]
+  }
+}

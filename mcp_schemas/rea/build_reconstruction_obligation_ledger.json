@@ -1,0 +1,1813 @@
+{
+  "name": "build_reconstruction_obligation_ledger",
+  "description": "Generate the complete deterministic ReconstructionObligationLedger from an authenticated Evidence bundle, reviewed obligations, and an explicit reconstruction manifest. Static candidates remain candidates; duplicate ownership, missing original or reconstruction cases, missing parser/type, weak verifier authority, unenumerated claims, contradictions, dependencies, and residual unknowns fail closed. The inline result carries the full-ledger closure digest and typed per-obligation diagnostics.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "evidence_bundle": {
+        "type": "object",
+        "properties": {
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "digest": {
+                      "type": "object",
+                      "properties": {
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        }
+                      },
+                      "required": [
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "format": {
+                      "type": "string",
+                      "enum": [
+                        "hopper",
+                        "analysis-database",
+                        "mach-o",
+                        "elf",
+                        "pe",
+                        "dos-mz",
+                        "dos-com",
+                        "zip",
+                        "ipa",
+                        "apk",
+                        "msix",
+                        "appx",
+                        "hap",
+                        "hsp",
+                        "app-pack",
+                        "asar",
+                        "dmg",
+                        "pkg",
+                        "plist",
+                        "javascript",
+                        "source-map",
+                        "directory",
+                        "file",
+                        "unknown",
+                        "mach-o-universal",
+                        "javascript-bundle",
+                        "entitlements"
+                      ],
+                      "description": "Declared input artifact format."
+                    },
+                    "architecture": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "x86",
+                            "x86_64",
+                            "arm",
+                            "arm64",
+                            "mips",
+                            "riscv",
+                            "powerpc"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "digest",
+                    "format",
+                    "architecture"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "digest": {
+                      "type": "object",
+                      "properties": {
+                        "sha256": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        }
+                      },
+                      "required": [
+                        "sha256"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "format": {
+                      "type": "string",
+                      "const": "raw-binary",
+                      "description": "Declared input artifact format."
+                    },
+                    "architecture": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "6502",
+                            "x86",
+                            "x86_64",
+                            "arm",
+                            "arm64",
+                            "mips",
+                            "riscv",
+                            "powerpc"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "digest",
+                    "format",
+                    "architecture"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "providers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Exact name used by this operation."
+                },
+                "version": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "version"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "environments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "platform": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "architecture": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "isolation": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "process",
+                    "container",
+                    "virtual-machine"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "platform",
+                "architecture",
+                "isolation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "scenarios": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "pattern": "^ev_[a-f0-9]{64}$",
+                  "description": "Stable identifier of the recorded Evidence observation."
+                },
+                "operation": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "authority": {
+                  "type": "string",
+                  "const": "controlled-replay"
+                }
+              },
+              "required": [
+                "evidence_id",
+                "operation",
+                "authority"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "captures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "pattern": "^ev_[a-f0-9]{64}$",
+                  "description": "Stable identifier of the recorded Evidence observation."
+                },
+                "predicate_type": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "evidence_id",
+                "predicate_type"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "unknowns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "unknown_id": {
+                  "type": "string",
+                  "pattern": "^unk_[a-f0-9]{64}$",
+                  "description": "Exact residual-unknown identifier."
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                },
+                "previous_revision_digest": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "revision_digest": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "scope_digest": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "question": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Concrete unresolved question to retain for later investigation."
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "open",
+                    "investigating",
+                    "blocked",
+                    "contradicted",
+                    "resolved"
+                  ],
+                  "description": "Current lifecycle or verification status."
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high",
+                    "critical"
+                  ]
+                },
+                "domain": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "comparison_conclusion_scope": {
+                  "type": "object",
+                  "properties": {
+                    "comparison_evidence_id": {
+                      "type": "string",
+                      "pattern": "^ev_[a-f0-9]{64}$",
+                      "description": "Exact Evidence identifier for the comparison observation."
+                    },
+                    "dimensions": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "const": "overall"
+                          },
+                          {
+                            "type": "string",
+                            "enum": [
+                              "identity",
+                              "pseudocode",
+                              "assembly",
+                              "comments",
+                              "calls",
+                              "references",
+                              "strings_names",
+                              "cfg"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "comparison_evidence_id",
+                    "dimensions"
+                  ],
+                  "additionalProperties": false
+                },
+                "supporting_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^ev_[a-f0-9]{64}$"
+                  },
+                  "description": "Ordered Evidence identifiers for the supporting observations."
+                },
+                "contradicting_evidence_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^ev_[a-f0-9]{64}$"
+                  },
+                  "description": "Ordered Evidence identifiers for the contradicting observations."
+                },
+                "required_authority": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "shipped-artifact",
+                        "controlled-replay",
+                        "historical-reference",
+                        "external-service",
+                        "analyst-inference"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "required_confidence": {
+                  "type": "string",
+                  "enum": [
+                    "observed",
+                    "derived",
+                    "inferred"
+                  ]
+                },
+                "required_environment": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "platform": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "architecture": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "isolation": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "process",
+                                "container",
+                                "virtual-machine"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "platform",
+                        "architecture",
+                        "isolation"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "recommended_probes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "operation": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "rationale": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "operation",
+                      "rationale"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "relationships": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "depends-on",
+                          "related-to",
+                          "contradicts"
+                        ]
+                      },
+                      "unknown_id": {
+                        "type": "string",
+                        "pattern": "^unk_[a-f0-9]{64}$",
+                        "description": "Exact residual-unknown identifier."
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "unknown_id"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "resolution": {
+                  "anyOf": [
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "disposition": {
+                              "type": "string",
+                              "const": "verified"
+                            },
+                            "rationale": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "evidence_ids": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^ev_[a-f0-9]{64}$"
+                              }
+                            }
+                          },
+                          "required": [
+                            "disposition",
+                            "rationale",
+                            "evidence_ids"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "disposition": {
+                              "type": "string",
+                              "enum": [
+                                "withdrawn",
+                                "out-of-scope"
+                              ]
+                            },
+                            "rationale": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "evidence_ids": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "pattern": "^ev_[a-f0-9]{64}$"
+                              }
+                            }
+                          },
+                          "required": [
+                            "disposition",
+                            "rationale",
+                            "evidence_ids"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "mutation_evidence_ids": {
+                  "minItems": 1,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^ev_[a-f0-9]{64}$"
+                  },
+                  "description": "Ordered Evidence identifiers for the mutation observations."
+                }
+              },
+              "required": [
+                "unknown_id",
+                "revision",
+                "previous_revision_digest",
+                "revision_digest",
+                "scope_digest",
+                "question",
+                "status",
+                "severity",
+                "domain",
+                "supporting_evidence_ids",
+                "contradicting_evidence_ids",
+                "required_authority",
+                "required_confidence",
+                "required_environment",
+                "recommended_probes",
+                "relationships",
+                "resolution",
+                "mutation_evidence_ids"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "evidence_id": {
+                  "type": "string",
+                  "pattern": "^ev_[a-f0-9]{64}$",
+                  "description": "Stable identifier of the recorded Evidence observation."
+                },
+                "subject": {
+                  "anyOf": [
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Exact name used by this operation."
+                            },
+                            "digest": {
+                              "type": "object",
+                              "properties": {
+                                "sha256": {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$"
+                                }
+                              },
+                              "required": [
+                                "sha256"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "local_path": {
+                              "type": "string",
+                              "pattern": "^[^\\x00]*$",
+                              "description": "Local filesystem path for local."
+                            },
+                            "format": {
+                              "type": "string",
+                              "enum": [
+                                "hopper",
+                                "analysis-database",
+                                "mach-o",
+                                "elf",
+                                "pe",
+                                "dos-mz",
+                                "dos-com",
+                                "zip",
+                                "ipa",
+                                "apk",
+                                "msix",
+                                "appx",
+                                "hap",
+                                "hsp",
+                                "app-pack",
+                                "asar",
+                                "dmg",
+                                "pkg",
+                                "plist",
+                                "javascript",
+                                "source-map",
+                                "directory",
+                                "file",
+                                "unknown",
+                                "mach-o-universal",
+                                "javascript-bundle",
+                                "entitlements"
+                              ],
+                              "description": "Declared input artifact format."
+                            },
+                            "architecture": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "x86",
+                                    "x86_64",
+                                    "arm",
+                                    "arm64",
+                                    "mips",
+                                    "riscv",
+                                    "powerpc"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "digest",
+                            "local_path",
+                            "format",
+                            "architecture"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Exact name used by this operation."
+                            },
+                            "digest": {
+                              "type": "object",
+                              "properties": {
+                                "sha256": {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$"
+                                }
+                              },
+                              "required": [
+                                "sha256"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "local_path": {
+                              "type": "string",
+                              "pattern": "^[^\\x00]*$",
+                              "description": "Local filesystem path for local."
+                            },
+                            "format": {
+                              "type": "string",
+                              "const": "raw-binary",
+                              "description": "Declared input artifact format."
+                            },
+                            "architecture": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "6502",
+                                    "x86",
+                                    "x86_64",
+                                    "arm",
+                                    "arm64",
+                                    "mips",
+                                    "riscv",
+                                    "powerpc"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "digest",
+                            "local_path",
+                            "format",
+                            "architecture"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "provider": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Exact name used by this operation."
+                    },
+                    "version": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "version"
+                  ],
+                  "additionalProperties": false
+                },
+                "analysis_profile": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "provider": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Exact name used by this operation."
+                            },
+                            "version": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "version"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "parameters": {
+                          "type": "object",
+                          "additionalProperties": {}
+                        },
+                        "digest": {
+                          "type": "string",
+                          "pattern": "^[a-f0-9]{64}$"
+                        }
+                      },
+                      "required": [
+                        "provider",
+                        "parameters",
+                        "digest"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "predicate_type": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "operation": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "parameters": {
+                  "type": "object",
+                  "additionalProperties": {}
+                },
+                "raw_result": {
+                  "anyOf": [
+                    {},
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "normalized_result": {},
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "observed",
+                    "derived",
+                    "inferred"
+                  ]
+                },
+                "authority": {
+                  "type": "string",
+                  "enum": [
+                    "shipped-artifact",
+                    "controlled-replay",
+                    "historical-reference",
+                    "external-service",
+                    "analyst-inference"
+                  ]
+                },
+                "environment": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "platform": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "architecture": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "isolation": {
+                          "type": "string",
+                          "enum": [
+                            "none",
+                            "process",
+                            "container",
+                            "virtual-machine"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "platform",
+                        "architecture",
+                        "isolation"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "limitations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "relationship_coverage": {
+                  "default": null,
+                  "anyOf": [
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "const": "complete",
+                              "description": "Current lifecycle or verification status."
+                            },
+                            "diagnostics": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          },
+                          "required": [
+                            "status"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "const": "partial",
+                              "description": "Current lifecycle or verification status."
+                            },
+                            "limitations": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "limited_directions": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "string",
+                                      "const": "callers"
+                                    }
+                                  ],
+                                  "minItems": 1,
+                                  "maxItems": 1
+                                },
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "string",
+                                      "const": "callees"
+                                    }
+                                  ],
+                                  "minItems": 1,
+                                  "maxItems": 1
+                                },
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "string",
+                                      "const": "callers"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "callees"
+                                    }
+                                  ],
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                }
+                              ]
+                            },
+                            "diagnostics": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "limitations"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "const": "unknown",
+                              "description": "Current lifecycle or verification status."
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "limited_directions": {
+                              "anyOf": [
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "string",
+                                      "const": "callers"
+                                    }
+                                  ],
+                                  "minItems": 1,
+                                  "maxItems": 1
+                                },
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "string",
+                                      "const": "callees"
+                                    }
+                                  ],
+                                  "minItems": 1,
+                                  "maxItems": 1
+                                },
+                                {
+                                  "type": "array",
+                                  "prefixItems": [
+                                    {
+                                      "type": "string",
+                                      "const": "callers"
+                                    },
+                                    {
+                                      "type": "string",
+                                      "const": "callees"
+                                    }
+                                  ],
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                }
+                              ]
+                            },
+                            "diagnostics": {
+                              "minItems": 1,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "locations": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "address"
+                          },
+                          "address": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "address"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "address-range"
+                          },
+                          "start": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "end": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "start",
+                          "end"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "artifact-path"
+                          },
+                          "path": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Local filesystem path used by this operation."
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "path"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "file-offset"
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "offset"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "file-offset-range"
+                          },
+                          "start": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "end": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "start",
+                          "end"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "evidence_links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^ev_[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "required": [
+                "evidence_id",
+                "subject",
+                "provider",
+                "analysis_profile",
+                "predicate_type",
+                "operation",
+                "parameters",
+                "raw_result",
+                "normalized_result",
+                "confidence",
+                "authority",
+                "environment",
+                "limitations",
+                "locations",
+                "evidence_links"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "artifacts",
+          "providers",
+          "environments",
+          "scenarios",
+          "captures",
+          "unknowns",
+          "records"
+        ],
+        "additionalProperties": false
+      },
+      "reviewed_obligations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "obligation_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+            },
+            "obligation_version": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "application_layer": {
+              "type": "string",
+              "enum": [
+                "cli",
+                "protocol",
+                "electron",
+                "persistence",
+                "process",
+                "runtime",
+                "packaging",
+                "native-abi",
+                "application",
+                "other"
+              ]
+            },
+            "family": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "object",
+              "properties": {
+                "artifact_sha256": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Exact SHA-256 digest of artifact."
+                },
+                "application_node_id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^jag_node_[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "semantic_node_id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^jsrg_node_[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "location": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "artifact_sha256",
+                "application_node_id",
+                "semantic_node_id",
+                "location"
+              ],
+              "additionalProperties": false
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "required_case_kinds": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "positive",
+                  "negative",
+                  "malformed",
+                  "cancellation",
+                  "teardown"
+                ]
+              }
+            },
+            "required_original_authority": {
+              "type": "string",
+              "enum": [
+                "static",
+                "runtime",
+                "process",
+                "external"
+              ]
+            },
+            "required_fixture_authority": {
+              "type": "string",
+              "enum": [
+                "unit",
+                "integration",
+                "protocol",
+                "renderer",
+                "packaged-process",
+                "native-abi",
+                "live-observation",
+                "external"
+              ]
+            },
+            "required_verifier_authority": {
+              "type": "string",
+              "enum": [
+                "unit",
+                "integration",
+                "protocol",
+                "renderer",
+                "packaged-process",
+                "native-abi",
+                "live-observation",
+                "external"
+              ]
+            },
+            "requires_parser_type": {
+              "type": "boolean"
+            },
+            "dependency_obligation_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+              }
+            },
+            "residual_unknown_ids": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+              }
+            },
+            "unavailable_authority": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required_next_evidence": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "disposition": {
+              "type": "string",
+              "enum": [
+                "active",
+                "blocked",
+                "out-of-scope"
+              ]
+            },
+            "review_evidence_ids": {
+              "minItems": 1,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^ev_[a-f0-9]{64}$"
+              },
+              "description": "Ordered Evidence identifiers for the review observations."
+            }
+          },
+          "required": [
+            "obligation_id",
+            "obligation_version",
+            "title",
+            "application_layer",
+            "family",
+            "target",
+            "required",
+            "required_case_kinds",
+            "required_original_authority",
+            "required_fixture_authority",
+            "required_verifier_authority",
+            "requires_parser_type",
+            "dependency_obligation_ids",
+            "residual_unknown_ids",
+            "unavailable_authority",
+            "required_next_evidence",
+            "disposition",
+            "review_evidence_ids"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "manifest": {
+        "type": "object",
+        "properties": {
+          "bindings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "obligation_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+                },
+                "owner": {
+                  "type": "object",
+                  "properties": {
+                    "module_path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Local filesystem path for module."
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "owner_sha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$",
+                      "description": "Exact SHA-256 digest of owner."
+                    }
+                  },
+                  "required": [
+                    "module_path",
+                    "symbol",
+                    "owner_sha256"
+                  ],
+                  "additionalProperties": false
+                },
+                "parser_type": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "parser": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "schema": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "domain_type": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "parser",
+                        "schema",
+                        "domain_type"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "original_cases": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "positive",
+                          "negative",
+                          "malformed",
+                          "cancellation",
+                          "teardown"
+                        ]
+                      },
+                      "evidence_id": {
+                        "type": "string",
+                        "pattern": "^ev_[a-f0-9]{64}$",
+                        "description": "Stable identifier of the recorded Evidence observation."
+                      },
+                      "location": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "evidence_id",
+                      "location"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "fixtures": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fixture_id": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+                      },
+                      "case_kind": {
+                        "type": "string",
+                        "enum": [
+                          "positive",
+                          "negative",
+                          "malformed",
+                          "cancellation",
+                          "teardown"
+                        ]
+                      },
+                      "authority": {
+                        "type": "string",
+                        "enum": [
+                          "unit",
+                          "integration",
+                          "protocol",
+                          "renderer",
+                          "packaged-process",
+                          "native-abi",
+                          "live-observation",
+                          "external"
+                        ]
+                      },
+                      "evidence_ids": {
+                        "minItems": 1,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "pattern": "^ev_[a-f0-9]{64}$"
+                        }
+                      }
+                    },
+                    "required": [
+                      "fixture_id",
+                      "case_kind",
+                      "authority",
+                      "evidence_ids"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "verifier": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "verifier_id": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+                        },
+                        "claim_id": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+                        },
+                        "command": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "authority": {
+                          "type": "string",
+                          "enum": [
+                            "unit",
+                            "integration",
+                            "protocol",
+                            "renderer",
+                            "packaged-process",
+                            "native-abi",
+                            "live-observation",
+                            "external"
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "pass",
+                            "fail",
+                            "unknown",
+                            "unsupported",
+                            "skipped"
+                          ],
+                          "description": "Current lifecycle or verification status."
+                        },
+                        "result_evidence_id": {
+                          "type": "string",
+                          "pattern": "^ev_[a-f0-9]{64}$",
+                          "description": "Exact Evidence identifier for the result observation."
+                        },
+                        "enumerated_obligation_ids": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+                          }
+                        },
+                        "nondeterminism": {
+                          "type": "object",
+                          "properties": {
+                            "mode": {
+                              "type": "string",
+                              "enum": [
+                                "total-order",
+                                "partial-order",
+                                "finite-traces"
+                              ],
+                              "description": "Operation mode that selects the requested behavior."
+                            },
+                            "specification": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "specification"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "verifier_id",
+                        "claim_id",
+                        "command",
+                        "authority",
+                        "status",
+                        "result_evidence_id",
+                        "enumerated_obligation_ids",
+                        "nondeterminism"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "obligation_id",
+                "owner",
+                "parser_type",
+                "original_cases",
+                "fixtures",
+                "verifier"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "contradictions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "obligation_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9._:\\x2f\\x2d]*$"
+                },
+                "evidence_ids": {
+                  "minItems": 2,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^ev_[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "required": [
+                "obligation_id",
+                "evidence_ids"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "bindings",
+          "contradictions"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "evidence_bundle",
+      "reviewed_obligations",
+      "manifest"
+    ],
+    "additionalProperties": false,
+    "examples": [
+      {
+        "evidence_bundle": {
+          "artifacts": [],
+          "providers": [],
+          "environments": [],
+          "scenarios": [],
+          "captures": [],
+          "unknowns": [],
+          "records": []
+        },
+        "reviewed_obligations": [],
+        "manifest": {
+          "bindings": [],
+          "contradictions": []
+        }
+      }
+    ]
+  }
+}

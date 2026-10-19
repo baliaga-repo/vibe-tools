@@ -1,0 +1,28 @@
+{
+  "name": "find_xrefs_to_name",
+  "description": "Resolve an exact name against the bound provider's name inventory and return a resolved or unresolved result. Unresolved names use the stable name_not_found reason; this xref workflow returns address-only projections.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "name": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Exact name used by this operation."
+      }
+    },
+    "required": [
+      "name"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "name": "malloc"
+      }
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "address_name",
+  "description": "Resolve the primary analyzed name at a code or data address. Headless providers require an explicit address; GUI providers may default to their current cursor. Null means the provider has no primary name at that address.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "document": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The active target's provider document name; use open_binary to switch targets"
+      },
+      "address": {
+        "$ref": "#/$defs/__schema2",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "The active target's provider document name; use open_binary to switch targets",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string"
+      },
+      "__schema2": {
+        "type": "string",
+        "description": "A provider-normalized address; default memory uses 0x-prefixed hexadecimal"
+      }
+    },
+    "examples": [
+      {}
+    ]
+  }
+}

@@ -1,0 +1,333 @@
+{
+  "name": "update_unknown",
+  "description": "Append one immutable full-state revision and mutation evidence. Requires exact expected_revision; stale concurrent writers fail instead of overwriting newer analysis.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "unknown_id": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Exact residual-unknown identifier."
+      },
+      "expected_revision": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Expected revision used to reject stale or mismatched input."
+      },
+      "status": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Current lifecycle or verification status."
+      },
+      "severity": {
+        "$ref": "#/$defs/__schema3"
+      },
+      "supporting_evidence_ids": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Ordered Evidence identifiers for the supporting observations."
+      },
+      "contradicting_evidence_ids": {
+        "$ref": "#/$defs/__schema6",
+        "description": "Ordered Evidence identifiers for the contradicting observations."
+      },
+      "required_authority": {
+        "$ref": "#/$defs/__schema7"
+      },
+      "required_confidence": {
+        "$ref": "#/$defs/__schema8"
+      },
+      "required_environment": {
+        "$ref": "#/$defs/__schema9"
+      },
+      "recommended_probes": {
+        "$ref": "#/$defs/__schema10"
+      },
+      "relationships": {
+        "$ref": "#/$defs/__schema12"
+      },
+      "resolution": {
+        "$ref": "#/$defs/__schema13"
+      }
+    },
+    "required": [
+      "unknown_id",
+      "expected_revision",
+      "status",
+      "severity",
+      "supporting_evidence_ids",
+      "contradicting_evidence_ids",
+      "required_authority",
+      "required_confidence",
+      "required_environment",
+      "recommended_probes",
+      "relationships",
+      "resolution"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "pattern": "^unk_[a-f0-9]{64}$"
+      },
+      "__schema1": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "__schema2": {
+        "type": "string",
+        "enum": [
+          "open",
+          "investigating",
+          "blocked",
+          "contradicted",
+          "resolved"
+        ]
+      },
+      "__schema3": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ]
+      },
+      "__schema4": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema5"
+        }
+      },
+      "__schema5": {
+        "type": "string",
+        "pattern": "^ev_[a-f0-9]{64}$"
+      },
+      "__schema6": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/__schema5"
+        }
+      },
+      "__schema7": {
+        "anyOf": [
+          {
+            "type": "string",
+            "enum": [
+              "shipped-artifact",
+              "controlled-replay",
+              "historical-reference",
+              "external-service",
+              "analyst-inference"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema8": {
+        "type": "string",
+        "enum": [
+          "observed",
+          "derived",
+          "inferred"
+        ]
+      },
+      "__schema9": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "platform": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "architecture": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "isolation": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "none",
+                      "process",
+                      "container",
+                      "virtual-machine"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "platform",
+              "architecture",
+              "isolation"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "__schema10": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "operation": {
+              "type": "string",
+              "minLength": 1
+            },
+            "rationale": {
+              "$ref": "#/$defs/__schema11"
+            }
+          },
+          "required": [
+            "operation",
+            "rationale"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "__schema11": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema12": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "depends-on",
+                "related-to",
+                "contradicts"
+              ]
+            },
+            "unknown_id": {
+              "$ref": "#/$defs/__schema0",
+              "description": "Exact residual-unknown identifier."
+            }
+          },
+          "required": [
+            "type",
+            "unknown_id"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "__schema13": {
+        "anyOf": [
+          {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "disposition": {
+                    "type": "string",
+                    "const": "verified"
+                  },
+                  "rationale": {
+                    "$ref": "#/$defs/__schema11"
+                  },
+                  "evidence_ids": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema5"
+                    }
+                  }
+                },
+                "required": [
+                  "disposition",
+                  "rationale",
+                  "evidence_ids"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "disposition": {
+                    "type": "string",
+                    "enum": [
+                      "withdrawn",
+                      "out-of-scope"
+                    ]
+                  },
+                  "rationale": {
+                    "$ref": "#/$defs/__schema11"
+                  },
+                  "evidence_ids": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/__schema5"
+                    }
+                  }
+                },
+                "required": [
+                  "disposition",
+                  "rationale",
+                  "evidence_ids"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "examples": [
+      {
+        "unknown_id": "unk_0000000000000000000000000000000000000000000000000000000000000000",
+        "expected_revision": 1,
+        "status": "investigating",
+        "severity": "medium",
+        "supporting_evidence_ids": [],
+        "contradicting_evidence_ids": [],
+        "required_authority": "controlled-replay",
+        "required_confidence": "observed",
+        "required_environment": null,
+        "recommended_probes": [],
+        "relationships": [],
+        "resolution": null
+      }
+    ]
+  }
+}

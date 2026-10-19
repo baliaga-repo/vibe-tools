@@ -1,0 +1,13 @@
+{
+  "name": "inspect_signature",
+  "description": "Inspect the active Mach-O executable's code-signing identity, hashes, authorities, requirements, entitlements, hardened-runtime state, and exact command provenance.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {},
+    "additionalProperties": false,
+    "examples": [
+      {}
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "current_address",
+  "description": "Return Hopper's current cursor address for the selected document. Use only for interactive navigation state; prefer explicit addresses in reproducible investigations.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "document": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The active target's provider document name; use open_binary to switch targets"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "The active target's provider document name; use open_binary to switch targets",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {}
+    ]
+  }
+}

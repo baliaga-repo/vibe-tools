@@ -1,0 +1,45 @@
+{
+  "name": "start_adb_app",
+  "description": "Start one installed app's resolved launcher activity with `am start -W -n`. A device-mutating tool for dynamic analysis. The full wait report determines success; failures retain launch-attempt facts and raw output. Pair with `read_adb_logcat` (pid filter) and `list_adb_processes` to observe the app, and `stop_adb_app` to end the run.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "serial": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "package": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Installed package whose launcher activity is started"
+      }
+    },
+    "required": [
+      "serial",
+      "package"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[^\\x00\\s\"']+$",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)*$",
+        "description": "Installed package whose launcher activity is started"
+      }
+    },
+    "examples": [
+      {
+        "serial": "emulator-5554",
+        "package": "com.example.app"
+      }
+    ]
+  }
+}

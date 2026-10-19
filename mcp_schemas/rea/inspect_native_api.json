@@ -1,0 +1,29 @@
+{
+  "name": "inspect_native_api",
+  "description": "Analyze a native API boundary in one function identified by symbol or provider-returned address. Returns confidence, evidence, jump-table dispatch/data/case mappings, separately evidenced default targets, unsupported branches, and residual unknowns. Null case values mean unresolved cases, never a known default.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "procedure": {
+        "$ref": "#/$defs/__schema0",
+        "description": "A procedure name or address"
+      }
+    },
+    "required": [
+      "procedure"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "description": "A procedure name or address"
+      }
+    },
+    "examples": [
+      {
+        "procedure": "main"
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "verify_unknown_resolution",
+  "description": "Revalidate the current residual-unknown head against live bundled evidence, exact authority/confidence/environment requirements, and revision integrity. Withdrawn and out-of-scope dispositions are not truth claims.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "unknown_id": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Exact residual-unknown identifier."
+      }
+    },
+    "required": [
+      "unknown_id"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "pattern": "^unk_[a-f0-9]{64}$"
+      }
+    },
+    "examples": [
+      {
+        "unknown_id": "unk_0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "name": "observe_native_ui",
+  "description": "Observe an already-running native app by PID and window ID, bound to the active Mach-O target. Captures a bounded accessibility tree and selected-window screenshot; OS permission denial fails without broad capture or target launch.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "pid": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "window_id": {
+        "$ref": "#/$defs/__schema1"
+      },
+      "screenshot": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "accessibility": {
+        "$ref": "#/$defs/__schema3"
+      },
+      "max_nodes": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Maximum accessibility nodes per capture; increase for large windows."
+      }
+    },
+    "required": [
+      "pid",
+      "window_id"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema1": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema2": {
+        "default": true,
+        "type": "boolean"
+      },
+      "__schema3": {
+        "default": true,
+        "type": "boolean"
+      },
+      "__schema4": {
+        "default": 500,
+        "description": "Maximum accessibility nodes per capture; increase for large windows.",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      }
+    },
+    "examples": [
+      {
+        "pid": 123,
+        "window_id": 456
+      }
+    ]
+  }
+}

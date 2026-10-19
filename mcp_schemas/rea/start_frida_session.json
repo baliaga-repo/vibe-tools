@@ -1,0 +1,100 @@
+{
+  "name": "start_frida_session",
+  "description": "Attach Frida to one selected process or spawn one selected target. Spawned targets remain paused until resume_frida_session, allowing scripts to load before execution. Closing a session detaches instrumentation; it does not kill the target.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "mode": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Operation mode that selects the requested behavior."
+      },
+      "device_id": {
+        "$ref": "#/$defs/__schema1"
+      },
+      "remote": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "pid": {
+        "$ref": "#/$defs/__schema3"
+      },
+      "program": {
+        "$ref": "#/$defs/__schema4"
+      },
+      "argv": {
+        "$ref": "#/$defs/__schema5"
+      }
+    },
+    "required": [
+      "mode"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "enum": [
+          "attach",
+          "spawn"
+        ]
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema2": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certificate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "origin": {
+            "type": "string",
+            "minLength": 1
+          },
+          "keepalive_interval": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Remote keepalive interval in seconds"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "additionalProperties": false
+      },
+      "__schema3": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema4": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema5": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "examples": [
+      {
+        "mode": "attach",
+        "device_id": "local",
+        "pid": 1234
+      }
+    ]
+  }
+}

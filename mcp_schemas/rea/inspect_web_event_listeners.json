@@ -1,0 +1,58 @@
+{
+  "name": "inspect_web_event_listeners",
+  "description": "Inspect listeners registered directly on the first main-document CSS match in one selected CDP page. Returns event flags, native callback locations, source ownership and exact script text/digests inline. Does not dispatch events, evaluate JavaScript or invoke handlers. Delegated ancestor/framework listeners and execution history remain unknown. Releases REA's object group and transport, preserving the external page.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "cdp_endpoint": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Literal loopback Chrome DevTools Protocol endpoint."
+      },
+      "allowed_origins": {
+        "$ref": "#/$defs/__schema1"
+      },
+      "target_id": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Exact CDP target identifier selected from the endpoint's target listing."
+      },
+      "selector": {
+        "$ref": "#/$defs/__schema3"
+      }
+    },
+    "required": [
+      "cdp_endpoint",
+      "target_id",
+      "selector"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema1": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema3": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "examples": [
+      {
+        "cdp_endpoint": "http://127.0.0.1:9222",
+        "target_id": "TARGET_ID_FROM_LIST_BROWSER_TARGETS",
+        "selector": "#submit"
+      }
+    ]
+  }
+}

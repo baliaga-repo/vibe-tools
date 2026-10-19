@@ -1,0 +1,44 @@
+{
+  "name": "collect_adb_bugreport",
+  "description": "Collect one device-generated bugreport archive (`adb bugreport`) into a caller-selected output directory, digesting the zip. The archive contains the device's own dumpstate, dumpsys, and logcat report; collection can take minutes. Read-only with respect to configuration.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "serial": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "output_directory": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Local directory for the bugreport archive; REA writes exactly one new zip into it"
+      }
+    },
+    "required": [
+      "serial",
+      "output_directory"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "pattern": "^[^\\x00\\s\"']+$",
+        "description": "Device serial exactly as `adb devices` reports it"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Local directory for the bugreport archive; REA writes exactly one new zip into it"
+      }
+    },
+    "examples": [
+      {
+        "serial": "emulator-5554",
+        "output_directory": "/tmp/rea-bugreports"
+      }
+    ]
+  }
+}

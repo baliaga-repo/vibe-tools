@@ -1,0 +1,13 @@
+{
+  "name": "current_document",
+  "description": "Return the document currently selected by REA's Hopper bridge.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {},
+    "additionalProperties": false,
+    "examples": [
+      {}
+    ]
+  }
+}

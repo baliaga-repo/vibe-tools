@@ -1,0 +1,70 @@
+{
+  "name": "list_jeb_units",
+  "description": "List project units by stable unit path and type, with optional wildcard filter, parent restriction, and pagination. The engine caps pages at 100 units; a full page reports partial coverage because more units may exist. Read-only.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "filter": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Wildcard filter matched against unit paths; '*' allowed"
+      },
+      "parent_unit_path": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Restrict results to descendants of this unit path"
+      },
+      "index": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Zero-based index of the first result to return"
+      },
+      "count": {
+        "$ref": "#/$defs/__schema6",
+        "description": "Maximum results to return; the engine protocol caps pages at 100"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "description": "Wildcard filter matched against unit paths; '*' allowed",
+        "$ref": "#/$defs/__schema1"
+      },
+      "__schema1": {
+        "type": "string"
+      },
+      "__schema2": {
+        "description": "Restrict results to descendants of this unit path",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema4": {
+        "default": 0,
+        "description": "Zero-based index of the first result to return",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      },
+      "__schema6": {
+        "default": 100,
+        "description": "Maximum results to return; the engine protocol caps pages at 100",
+        "$ref": "#/$defs/__schema7"
+      },
+      "__schema7": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100
+      }
+    },
+    "examples": [
+      {},
+      {
+        "filter": "*.dex"
+      }
+    ]
+  }
+}

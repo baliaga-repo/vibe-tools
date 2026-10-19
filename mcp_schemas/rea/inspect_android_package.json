@@ -1,0 +1,45 @@
+{
+  "name": "inspect_android_package",
+  "description": "Inspect a local APK's package, SDK and permission declarations, decoded manifest and class/resource counts. Omitted or complete detail preserves the complete result. Select detail: \"summary\" for all declarations, engine identity and counts without decoded manifest text or duplicate raw calls; retains the complete source and returns a distinct linked inspect_analysis_view summary. Read the exact retained manifest with view kind android, facet manifest, offset and limit (UTF-16 code units), using normalized_result.parent_evidence_id. Does not execute the APK or verify signatures. Requires a caller-supplied JADX MCP JAR and JDK; uses one worker in an isolated temporary workspace.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local APK path; the target is never executed"
+      },
+      "detail": {
+        "$ref": "#/$defs/__schema1"
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Local APK path; the target is never executed"
+      },
+      "__schema1": {
+        "type": "string",
+        "enum": [
+          "complete",
+          "summary"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/Example.apk"
+      },
+      {
+        "path": "/tmp/Example.apk",
+        "detail": "summary"
+      }
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "list_frida_devices",
+  "description": "List Frida devices currently available to this host, optionally connecting to the caller-selected remote Frida endpoint. Remote authentication options are used for this call only and are never returned or recorded.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "remote": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "certificate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "origin": {
+            "type": "string",
+            "minLength": 1
+          },
+          "keepalive_interval": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Remote keepalive interval in seconds"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "examples": [
+      {}
+    ]
+  }
+}

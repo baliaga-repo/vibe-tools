@@ -1,0 +1,63 @@
+{
+  "name": "inspect_dart_aot",
+  "description": "Inspect one ABI's Dart AOT snapshot inside an APK: the four snapshot symbols located through the ELF dynamic symbol table with their offsets, sizes, and section headers (magic, kind, length), the snapshot hash, and a bounded string-pool projection from the isolate data section (package: source URIs, dart: SDK URIs, identifier-like tokens) exposing the app's dependency structure. String-pool entries are byte-pattern observations, not deserialized cluster semantics; typed class and function recovery needs an SDK-specific parser. Omitted or complete detail returns the full observation. Select detail: \"summary\" for target/ABI/library identity, all snapshot headers, coverage and original lower-bound counts without string lists. The complete source stays retained; read returned strings via inspect_analysis_view with parent_evidence_id and kind dart-aot, collection package_uris/dart_uris/class_like_tokens, offset and limit. Exhausting pages does not imply complete pool coverage. No engine, no execution.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local APK file carrying a Flutter AOT payload"
+      },
+      "abi": {
+        "$ref": "#/$defs/__schema1",
+        "description": "ABI to inspect; defaults to arm64-v8a, x86_64, x86, armeabi-v7a, then remaining ABIs alphabetically"
+      },
+      "detail": {
+        "$ref": "#/$defs/__schema3"
+      }
+    },
+    "required": [
+      "path"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Local APK file carrying a Flutter AOT payload"
+      },
+      "__schema1": {
+        "description": "ABI to inspect; defaults to arm64-v8a, x86_64, x86, armeabi-v7a, then remaining ABIs alphabetically",
+        "$ref": "#/$defs/__schema2"
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 16,
+        "pattern": "^[a-z0-9_\\x2d]+$"
+      },
+      "__schema3": {
+        "type": "string",
+        "enum": [
+          "complete",
+          "summary"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "path": "/targets/Example.apk"
+      },
+      {
+        "path": "/targets/Example.apk",
+        "abi": "arm64-v8a"
+      },
+      {
+        "path": "/targets/Example.apk",
+        "detail": "summary"
+      }
+    ]
+  }
+}

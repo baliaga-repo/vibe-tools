@@ -1,0 +1,60 @@
+{
+  "name": "observe_web_session",
+  "description": "Arm a CDP observation window of the requested duration while the user operates the page. By default it follows the selected target's current origin; an explicit origin list controls which origins may be retained. Records navigation, redirect, lifecycle, and failure events.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "cdp_endpoint": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Literal loopback CDP endpoint: http://127.0.0.1:PORT, or ws://127.0.0.1:PORT/devtools/browser/ID."
+      },
+      "allowed_origins": {
+        "$ref": "#/$defs/__schema1"
+      },
+      "target_id": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Exact CDP target identifier selected from the endpoint's target listing."
+      },
+      "observation_ms": {
+        "$ref": "#/$defs/__schema3"
+      }
+    },
+    "required": [
+      "cdp_endpoint",
+      "target_id"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Literal loopback CDP endpoint: http://127.0.0.1:PORT, or ws://127.0.0.1:PORT/devtools/browser/ID."
+      },
+      "__schema1": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema3": {
+        "default": 10000,
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      }
+    },
+    "examples": [
+      {
+        "cdp_endpoint": "http://127.0.0.1:9222",
+        "target_id": "TARGET_ID_FROM_LIST_BROWSER_TARGETS",
+        "observation_ms": 10000
+      }
+    ]
+  }
+}

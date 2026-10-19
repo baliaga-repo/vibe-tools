@@ -1,0 +1,28 @@
+{
+  "name": "list_javascript_runtime_targets",
+  "description": "List every eligible Node/Electron V8 Inspector target from an explicit literal-loopback endpoint. Node discovery file locations that cannot be verified are preserved as unresolved reported URLs; they do not prove filesystem identity. Listing does not attach to targets.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "inspector_endpoint": {
+        "$ref": "#/$defs/__schema0"
+      }
+    },
+    "required": [
+      "inspector_endpoint"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "examples": [
+      {
+        "inspector_endpoint": "http://127.0.0.1:9229"
+      }
+    ]
+  }
+}

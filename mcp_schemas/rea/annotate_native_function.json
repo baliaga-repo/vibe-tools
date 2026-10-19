@@ -1,0 +1,60 @@
+{
+  "name": "annotate_native_function",
+  "description": "Atomically update one function name and/or entry comments, read them back, and return a refreshed complete function dossier. Ghidra changes its ephemeral session analysis database only; original executable bytes remain unchanged. Empty comment text clears that comment. Edits remain available to subsequent MCP calls until close; CLI returns the updated dossier before discarding its session. Invalid edits roll back the entire operation. Windows P0 and providers without this capability are unsupported.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "procedure": {
+        "$ref": "#/$defs/__schema0"
+      },
+      "name": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact name used by this operation."
+      },
+      "comment": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Regular entry comment; empty text clears it"
+      },
+      "inline_comment": {
+        "$ref": "#/$defs/__schema4",
+        "description": "Inline entry comment; empty text clears it"
+      }
+    },
+    "required": [
+      "procedure"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema2": {
+        "description": "Regular entry comment; empty text clears it",
+        "$ref": "#/$defs/__schema3"
+      },
+      "__schema3": {
+        "type": "string"
+      },
+      "__schema4": {
+        "description": "Inline entry comment; empty text clears it",
+        "$ref": "#/$defs/__schema5"
+      },
+      "__schema5": {
+        "type": "string"
+      }
+    },
+    "examples": [
+      {
+        "procedure": "0x10100",
+        "name": "entry",
+        "comment": "Analyst observation"
+      }
+    ]
+  }
+}

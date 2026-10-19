@@ -1,0 +1,51 @@
+{
+  "name": "trace_call_path",
+  "description": "Resolve start and optional goal symbols or addresses to canonical procedure entries, then trace direct callers or callees until the graph is exhausted or the goal is reached. Results use canonical addresses; Evidence preserves supplied selectors. Returns visited nodes, direct-call edges, a shortest traversal path, provider failures, and residual unknowns. A requested goal is unknown when unresolved expansions prevent proving it absent; unresolved indirect calls remain unknown.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "start": {
+        "$ref": "#/$defs/__schema0",
+        "description": "A starting procedure symbol or address"
+      },
+      "goal": {
+        "$ref": "#/$defs/__schema1",
+        "description": "An optional destination procedure symbol or address"
+      },
+      "direction": {
+        "$ref": "#/$defs/__schema2",
+        "description": "Direction in which to traverse or compare relationships."
+      }
+    },
+    "required": [
+      "start"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "description": "A starting procedure symbol or address"
+      },
+      "__schema1": {
+        "type": "string",
+        "description": "An optional destination procedure symbol or address"
+      },
+      "__schema2": {
+        "default": "forward",
+        "type": "string",
+        "enum": [
+          "forward",
+          "backward"
+        ]
+      }
+    },
+    "examples": [
+      {
+        "start": "0x1000",
+        "goal": "0x1100",
+        "direction": "forward"
+      }
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "name": "compare_web_screenshots",
+  "description": "Compare two self-verifying PNG screenshot artifacts with local pixel metrics. Returns exact changed-pixel ratios and channel deltas without OCR or external services.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "before": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The earlier or left-hand observation to compare."
+      },
+      "after": {
+        "$ref": "#/$defs/__schema0",
+        "description": "The later or right-hand observation to compare."
+      },
+      "channel_threshold": {
+        "$ref": "#/$defs/__schema5"
+      }
+    },
+    "required": [
+      "before",
+      "after"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "object",
+        "properties": {
+          "sha256": {
+            "$ref": "#/$defs/__schema1"
+          },
+          "bytes": {
+            "$ref": "#/$defs/__schema2"
+          },
+          "media_type": {
+            "$ref": "#/$defs/__schema3"
+          },
+          "data_base64": {
+            "$ref": "#/$defs/__schema4"
+          }
+        },
+        "required": [
+          "sha256",
+          "bytes",
+          "media_type",
+          "data_base64"
+        ]
+      },
+      "__schema1": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "__schema2": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      },
+      "__schema3": {
+        "type": "string",
+        "const": "image/png"
+      },
+      "__schema4": {
+        "type": "string"
+      },
+      "__schema5": {
+        "default": 0,
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      }
+    },
+    "examples": [
+      {
+        "before": {
+          "sha256": "153cf6c9a526a63053a37b10234c2fd85df38887c2dc0a800d90abfa6631d01c",
+          "bytes": 70,
+          "media_type": "image/png",
+          "data_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PzWvWQAAAABJRU5ErkJggg=="
+        },
+        "after": {
+          "sha256": "153cf6c9a526a63053a37b10234c2fd85df38887c2dc0a800d90abfa6631d01c",
+          "bytes": 70,
+          "media_type": "image/png",
+          "data_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PzWvWQAAAABJRU5ErkJggg=="
+        },
+        "channel_threshold": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "inspect_plist",
+  "description": "Parse Info.plist from the active artifact by default, or pass any local plist path. Returns normalized JSON rather than plutil text.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local filesystem path used by this operation."
+      }
+    },
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$"
+      }
+    },
+    "examples": [
+      {
+        "path": "/Applications/Example.app/Contents/Info.plist"
+      }
+    ]
+  }
+}

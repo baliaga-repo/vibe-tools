@@ -1,0 +1,64 @@
+{
+  "name": "inspect_android_method",
+  "description": "Decompile one Android method with smali fallback. Requires explicit overload_index when multiple methods share a name. Reports its DEX prototype, representation, fallback markers and source truncation; display signatures may be aliases.",
+  "parameters": {
+    "type": "object",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "path": {
+        "$ref": "#/$defs/__schema0",
+        "description": "Local APK path; the target is never executed"
+      },
+      "class_name": {
+        "$ref": "#/$defs/__schema1",
+        "description": "Exact fully qualified class name"
+      },
+      "method_name": {
+        "$ref": "#/$defs/__schema2"
+      },
+      "overload_index": {
+        "$ref": "#/$defs/__schema3",
+        "description": "Explicit index among same-name methods; required when ambiguous"
+      }
+    },
+    "required": [
+      "path",
+      "class_name",
+      "method_name"
+    ],
+    "additionalProperties": false,
+    "$defs": {
+      "__schema0": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^[^\\x00]*$",
+        "description": "Local APK path; the target is never executed"
+      },
+      "__schema1": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Exact fully qualified class name"
+      },
+      "__schema2": {
+        "type": "string",
+        "minLength": 1
+      },
+      "__schema3": {
+        "description": "Explicit index among same-name methods; required when ambiguous",
+        "$ref": "#/$defs/__schema4"
+      },
+      "__schema4": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9007199254740991
+      }
+    },
+    "examples": [
+      {
+        "path": "/tmp/Example.apk",
+        "class_name": "example.MainActivity",
+        "method_name": "onCreate"
+      }
+    ]
+  }
+}
