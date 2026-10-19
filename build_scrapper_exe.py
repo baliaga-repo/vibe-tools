@@ -115,6 +115,10 @@ def build_scrapper(console_mode=False):
         "--hidden-import=win32com.client",
         "--hidden-import=pythoncom",
         "--hidden-import=runner.security_guard",
+        "--hidden-import=scrapper_core",
+        "--hidden-import=konfigurasi",
+        "--hidden-import=ACMT.update_prabayar",
+        "--hidden-import=ACMT.update_prabayar_server",
         "--exclude-module=pytest",
         "--exclude-module=IPython",
         "--exclude-module=matplotlib",
@@ -166,6 +170,26 @@ def build_scrapper(console_mode=False):
             print("✅ Berkas template kontrol akses access_control.json disalin.")
         except Exception as e:
             print(f"[WARNING] Gagal menyalin access_control.json: {e}")
+
+    # Salin berkas konfigurasi.py agar executable dapat membaca dan menyimpan preferensi
+    cfg_src = os.path.join(root_dir, "konfigurasi.py")
+    if os.path.exists(cfg_src):
+        try:
+            shutil.copy2(cfg_src, os.path.join(app_output_dir, "konfigurasi.py"))
+            print("✅ Berkas konfigurasi.py disalin ke folder rilis.")
+        except Exception as e:
+            print(f"[WARNING] Gagal menyalin konfigurasi.py: {e}")
+
+    # Salin binary pendukung enkripsi AP2T jika tersedia
+    enkripsi_src = os.path.join(root_dir, "ACMT", "enkripsi-new-ap2t_windows.exe")
+    if os.path.exists(enkripsi_src):
+        dest_acmt = os.path.join(app_output_dir, "ACMT")
+        os.makedirs(dest_acmt, exist_ok=True)
+        try:
+            shutil.copy2(enkripsi_src, os.path.join(dest_acmt, "enkripsi-new-ap2t_windows.exe"))
+            print("✅ Binary pendukung enkripsi-new-ap2t_windows.exe disalin.")
+        except Exception as e:
+            print(f"[WARNING] Gagal menyalin enkripsi-new-ap2t_windows.exe: {e}")
 
     # Buat template file github_token.txt jika belum ada
     token_dest = os.path.join(app_output_dir, "github_token.txt")
