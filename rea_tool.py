@@ -26,7 +26,10 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
 
 
 def temukan_rea_executable() -> str:
-    """Mencari executable rea di sistem (rea.cmd di Windows atau rea di Unix)."""
+    """
+[ID]: Mencari executable rea di sistem (rea.cmd di Windows atau rea di Unix).
+[EN]: Locate the rea executable on the system (rea.cmd on Windows or rea on Unix).
+"""
     exe_name = "rea.cmd" if os.name == "nt" else "rea"
     exe = shutil.which(exe_name)
     if exe:

@@ -36,7 +36,10 @@ def cetak_langkah(pesan: str):
 
 
 def cetak_sukses(pesan: str):
-    """Cetak status sukses."""
+    """
+[ID]: Cetak status sukses.
+[EN]: Print the success status.
+"""
     print(f"  [OK] {pesan}")
 
 

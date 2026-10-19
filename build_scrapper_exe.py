@@ -43,7 +43,10 @@ def pastikan_pyinstaller():
 
 
 def buat_launcher_bat(target_dir):
-    """Membuat file batch pendamping ramah pengguna di folder hasil build."""
+    """
+[ID]: Membuat file batch pendamping ramah pengguna di folder hasil build.
+[EN]: Create a user-friendly companion batch file in the build output folder.
+"""
     launcher_path = os.path.join(target_dir, "START_ACMT.bat")
     content = """@echo off
 title Scrapper ACMT Runner
@@ -197,8 +200,9 @@ def buat_arsip_zip(source_dir, zip_path):
 
 def build_scrapper(console_mode=False):
     """
-    Eksekutor utama proses compile PyInstaller Onedir untuk Scrapper ACMT.
-    """
+[ID]: Eksekutor utama proses compile PyInstaller Onedir untuk Scrapper ACMT.
+[EN]: Main executor for the PyInstaller Onedir compilation process for Scrapper ACMT.
+"""
     root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     target_script = os.path.join(root_dir, "scrapper_runner.py")
     hooks_dir = os.path.join(root_dir, "vibe_tools", "hooks")

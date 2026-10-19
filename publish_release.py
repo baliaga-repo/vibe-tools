@@ -55,12 +55,18 @@ def cetak_header():
 
 def dapatkan_github_token():
     """
-    Mengambil GitHub Personal Access Token dari berbagai sumber lokal.
+[ID]: Mengambil GitHub Personal Access Token dari berbagai sumber lokal.
     Prioritas:
     1. File 'github_token.txt' di direktori proyek
     2. Variabel environment GITHUB_TOKEN atau GH_TOKEN
     3. Input interaktif via terminal
-    """
+
+[EN]: Retrieve GitHub Personal Access Token from various local sources.
+    Priority:
+    1. 'github_token.txt' file in the project directory
+    2. GITHUB_TOKEN or GH_TOKEN environment variable
+    3. Interactive input via terminal
+"""
     token_file = BASE_DIR / "github_token.txt"
     if token_file.exists():
         try:

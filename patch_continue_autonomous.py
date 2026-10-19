@@ -26,7 +26,10 @@ if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
 
 
 def temukan_folder_ekstensi_continue() -> Path | None:
-    """Mencari direktori ekstensi Continue di folder .vscode/extensions."""
+    """
+[ID]: Mencari direktori ekstensi Continue di folder .vscode/extensions.
+[EN]: Find the Continue extension directory in the .vscode/extensions folder.
+"""
     user_home = Path.home()
     vscode_ext_dir = user_home / ".vscode" / "extensions"
     if not vscode_ext_dir.exists():
