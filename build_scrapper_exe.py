@@ -64,6 +64,137 @@ exit
         print(f"[WARNING] Gagal membuat launcher batch: {e}")
 
 
+def buat_updater_bat(target_dir):
+    """
+    [ID]: Membuat file batch updater mandiri di folder klien untuk mengunduh update dari GitHub Releases.
+    """
+    updater_path = os.path.join(target_dir, "UPDATE_APLIKASI.bat")
+    content = """@echo off
+title Update ACMT Scrapper
+chcp 65001 >nul 2>&1
+cd /d "%~dp0"
+
+echo =================================================================
+echo             PEMBARUAN APLIKASI ACMT SCRAPPER (GITHUB)
+echo =================================================================
+echo Direktori Aplikasi: %CD%
+echo.
+
+:: 1. Deteksi token GitHub
+set "TOKEN="
+if exist "%~dp0github_token.txt" (
+    set /p TOKEN=<"%~dp0github_token.txt"
+)
+if not defined TOKEN if defined GITHUB_TOKEN (
+    set "TOKEN=%GITHUB_TOKEN%"
+)
+
+if not defined TOKEN (
+    echo [ERROR] Token GitHub tidak ditemukan di github_token.txt.
+    echo Silakan isi token GitHub Anda terlebih dahulu.
+    echo.
+    pause
+    exit /b 1
+)
+
+:: 2. Jalankan PowerShell untuk cek rilis terbaru dan unduh
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+    "$ErrorActionPreference = 'Stop'; " ^
+    "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
+    "$token = '%TOKEN%'.Trim(); " ^
+    "$repo = 'baliaga-repo/Scrapper_new_acmt'; " ^
+    "$headers = @{ 'Authorization' = \\"Bearer $token\\"; 'User-Agent' = 'ACMT-Updater/1.0'; 'Accept' = 'application/vnd.github.v3+json' }; " ^
+    "Write-Host '🔍 Memeriksa rilis terbaru di GitHub...' -ForegroundColor Cyan; " ^
+    "try { $release = Invoke-RestMethod -Uri \\"https://api.github.com/repos/$repo/releases/latest\\" -Headers $headers -Method Get; } " ^
+    "catch { Write-Host \\"❌ Gagal menghubungi GitHub API: $_\\" -ForegroundColor Red; exit 1 }; " ^
+    "$tag = $release.tag_name; " ^
+    "$name = $release.name; " ^
+    "Write-Host \\"👉 Versi Rilis Terbaru : $tag ($name)\\" -ForegroundColor Green; " ^
+    "$asset = $release.assets | Where-Object { $_.name -like '*ACMT_Scrapper*.zip' } | Select-Object -First 1; " ^
+    "if (-not $asset) { Write-Host '❌ Aset ACMT_Scrapper.zip tidak ditemukan pada rilis ini!' -ForegroundColor Red; exit 1 }; " ^
+    "Write-Host ('📦 Ukuran Aset       : {0:N1} MB' -f ($asset.size / 1MB)) -ForegroundColor Yellow; " ^
+    "$confirm = Read-Host 'Apakah Anda ingin mengunduh dan menerapkan pembaruan ini? (Y/T)'; " ^
+    "if ($confirm -notmatch '^[Yy]') { Write-Host 'Pembaruan dibatalkan oleh pengguna.' -ForegroundColor Gray; exit 0 }; " ^
+    "Write-Host '⏳ Mengunduh arsip rilis terbaru...' -ForegroundColor Cyan; " ^
+    "$tempZip = [System.IO.Path]::Combine($env:TEMP, 'ACMT_Scrapper_update.zip'); " ^
+    "$downloadHeaders = @{ 'Authorization' = \\"Bearer $token\\"; 'User-Agent' = 'ACMT-Updater/1.0'; 'Accept' = 'application/octet-stream' }; " ^
+    "Invoke-WebRequest -Uri $asset.url -Headers $downloadHeaders -OutFile $tempZip; " ^
+    "Write-Host '✅ Unduhan selesai!' -ForegroundColor Green; " ^
+    "Write-Host '🔄 Menutup proses scrapper yang berjalan...' -ForegroundColor Cyan; " ^
+    "Stop-Process -Name 'scrapper_runner' -Force -ErrorAction SilentlyContinue; " ^
+    "Start-Sleep -Seconds 1; " ^
+    "Write-Host '📦 Menerapkan pembaruan...' -ForegroundColor Cyan; " ^
+    "$extractDir = [System.IO.Path]::Combine($env:TEMP, 'acmt_extract_temp'); " ^
+    "if (Test-Path $extractDir) { Remove-Item $extractDir -Recurse -Force }; " ^
+    "Expand-Archive -Path $tempZip -DestinationPath $extractDir -Force; " ^
+    "$srcFolder = [System.IO.Path]::Combine($extractDir, 'ACMT_Scrapper'); " ^
+    "if (-not (Test-Path $srcFolder)) { $srcFolder = $extractDir }; " ^
+    "Copy-Item -Path \\"$srcFolder\\*\\" -Destination '%~dp0' -Recurse -Force -Exclude 'konfigurasi.py','last_config.json','github_token.txt'; " ^
+    "Remove-Item $tempZip -Force -ErrorAction SilentlyContinue; " ^
+    "Remove-Item $extractDir -Recurse -Force -ErrorAction SilentlyContinue; " ^
+    "Write-Host '🎉 PEMBARUAN BERHASIL DITERAPKAN!' -ForegroundColor Green; " ^
+    "Write-Host 'Silakan jalankan kembali aplikasi menggunakan START_ACMT.bat.' -ForegroundColor Cyan"
+
+if %errorlevel% neq 0 (
+    echo.
+    echo [ERROR] Proses pembaruan gagal atau dibatalkan.
+) else (
+    echo.
+    echo =================================================================
+    echo [SELESAI] Aplikasi berhasil diperbarui ke versi terbaru!
+    echo =================================================================
+)
+pause
+"""
+    try:
+        with open(updater_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        print(f"✅ Updater dibuat: {updater_path}")
+    except Exception as e:
+        print(f"[WARNING] Gagal membuat updater batch: {e}")
+
+
+def buat_arsip_zip(source_dir, zip_path):
+    """
+    [ID]: Mengompresi seluruh isi direktori rilis ke dalam file arsip ZIP untuk distribusi GitHub Releases.
+    """
+    import zipfile
+    print(f"\n📦 Mengompresi direktori rilis ke arsip ZIP...")
+    print(f"👉 Target File: {zip_path}")
+
+    temp_zip = zip_path + ".tmp"
+    if os.path.exists(temp_zip):
+        try:
+            os.remove(temp_zip)
+        except Exception:
+            pass
+
+    total_files = sum(len(files) for _, _, files in os.walk(source_dir))
+    diproses = 0
+
+    with zipfile.ZipFile(temp_zip, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(source_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, os.path.dirname(source_dir))
+                zf.write(file_path, arcname)
+                diproses += 1
+                if diproses % 50 == 0 or diproses == total_files:
+                    persen = (diproses / total_files) * 100
+                    print(f"\r⏳ Mengompresi berkas: {diproses}/{total_files} ({persen:.1f}%)", end="", flush=True)
+
+    print()
+    if os.path.exists(zip_path):
+        try:
+            os.remove(zip_path)
+        except Exception:
+            pass
+    os.rename(temp_zip, zip_path)
+    ukuran_mb = os.path.getsize(zip_path) / (1024 * 1024)
+    print(f"✅ Arsip ZIP rilis berhasil dibuat ({ukuran_mb:.1f} MB): {zip_path}")
+
+
+
 def build_scrapper(console_mode=False):
     """
     Eksekutor utama proses compile PyInstaller Onedir untuk Scrapper ACMT.
@@ -201,10 +332,19 @@ def build_scrapper(console_mode=False):
         except Exception:
             pass
 
+    # Buat updater batch di dalam folder rilis klien
+    buat_updater_bat(app_output_dir)
+
+    # Otomatisasi kompresi ke format ZIP untuk GitHub Releases
+    zip_output = os.path.join(dist_dir, "ACMT_Scrapper.zip")
+    buat_arsip_zip(app_output_dir, zip_output)
+
     print("\n" + "=" * 70)
-    print("🎉 SUKSES! Executable ACMT Scrapper berhasil dibuat:")
-    print(f"👉 Lokasi Rilis: {app_output_dir}")
-    print(f"👉 File Eksekusi: {os.path.join(app_output_dir, 'START_ACMT.bat')}")
+    print("🎉 SUKSES! Executable ACMT Scrapper berhasil dibuat dan dikemas:")
+    print(f"👉 Direktori Rilis : {app_output_dir}")
+    print(f"👉 File Eksekusi   : {os.path.join(app_output_dir, 'START_ACMT.bat')}")
+    print(f"👉 Updater Klien   : {os.path.join(app_output_dir, 'UPDATE_APLIKASI.bat')}")
+    print(f"📦 Arsip ZIP Rilis : {zip_output}")
     print("=" * 70 + "\n")
     return 0
 
