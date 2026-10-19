@@ -1,8 +1,13 @@
 """
-Modul Pembuat Executable Mandiri (.EXE) untuk Scrapper ACMT.
+[ID]: Modul Pembuat Executable Mandiri (.EXE) untuk Scrapper ACMT.
 Mengemas aplikasi ke dalam format folder portabel (PyInstaller --onedir),
 menyertakan PyInstaller hooks khusus untuk Playwright, dan menyiapkan
 seluruh launcher serta berkas panduan deployment PC klien.
+
+[EN]: Standalone executable (.EXE) builder module for the ACMT Scrapper.
+Packages the application into a portable folder format (PyInstaller --onedir),
+includes custom PyInstaller hooks for Playwright, and prepares
+all launchers and client PC deployment guide files.
 """
 
 import os
@@ -24,7 +29,10 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
 
 
 def pastikan_pyinstaller():
-    """Memastikan paket PyInstaller tersedia di environment Python saat ini."""
+    """
+[ID]: Memastikan paket PyInstaller tersedia di environment Python saat ini.
+[EN]: Ensure the PyInstaller package is available in the current Python environment.
+"""
     try:
         import PyInstaller
         return True
@@ -178,7 +186,10 @@ def build_scrapper(console_mode=False):
 
 
 def main():
-    """Fungsi pembungkus utama CLI."""
+    """
+[ID]: Fungsi pembungkus utama CLI.
+[EN]: Main CLI wrapper function.
+"""
     console_mode = "--console" in sys.argv or "-c" in sys.argv
     return build_scrapper(console_mode=console_mode)
 

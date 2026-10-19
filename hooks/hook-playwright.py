@@ -1,7 +1,11 @@
 """
-PyInstaller Hook khusus untuk pustaka Playwright.
+[ID]: PyInstaller Hook khusus untuk pustaka Playwright.
 Memastikan seluruh driver Node.js bawaan Playwright (node.exe dan bundle package),
 metadata, dan hidden imports (greenlet, pyee, dll) terbawa utuh ke dalam biner distribusi.
+
+[EN]: PyInstaller hook for the Playwright library.
+Ensures that all bundled Playwright Node.js drivers (node.exe and package bundles),
+metadata, and hidden imports (greenlet, pyee, etc.) are packaged intact into the distribution binary.
 """
 
 from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_submodules

@@ -44,7 +44,10 @@ def temukan_folder_ekstensi_continue() -> Path | None:
 
 
 def periksa_status_patch(ext_dir: Path) -> dict:
-    """Memeriksa apakah ekstensi Continue saat ini sudah ter-patch."""
+    """
+[ID]: Memeriksa apakah ekstensi Continue saat ini sudah ter-patch.
+[EN]: Check whether the current Continue extension is patched.
+"""
     ext_js = ext_dir / "out" / "extension.js"
     gui_js = ext_dir / "gui" / "assets" / "index.js"
 
@@ -74,7 +77,10 @@ def periksa_status_patch(ext_dir: Path) -> dict:
 
 
 def terapkan_patch(ext_dir: Path) -> bool:
-    """Menerapkan patch otonom ke file extension.js dan gui/assets/index.js."""
+    """
+[ID]: Menerapkan patch otonom ke file extension.js dan gui/assets/index.js.
+[EN]: Apply an autonomous patch to extension.js and gui/assets/index.js.
+"""
     ext_js = ext_dir / "out" / "extension.js"
     ext_js_bak = ext_dir / "out" / "extension.js.bak"
     gui_js = ext_dir / "gui" / "assets" / "index.js"
@@ -197,7 +203,10 @@ def terapkan_patch(ext_dir: Path) -> bool:
 
 
 def pulihkan_backup(ext_dir: Path) -> bool:
-    """Mengembalikan file asli dari backup .bak."""
+    """
+[ID]: Mengembalikan file asli dari backup .bak.
+[EN]: Restore the original file from the .bak backup.
+"""
     ext_js = ext_dir / "out" / "extension.js"
     ext_js_bak = ext_dir / "out" / "extension.js.bak"
     gui_js = ext_dir / "gui" / "assets" / "index.js"
