@@ -13,6 +13,7 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
 5. [Hermes Agent x Antigravity IDE](#5-hermes-agent-x-antigravity-ide)
 6. [OpenRouter MCP & Katalog Model](#6-openrouter-mcp--katalog-model)
 7. [FAQ & Troubleshooting](#7-faq--troubleshooting)
+8. [Katalog 15 Skill Universal & Panduan Penggunaan](#8-katalog-15-skill-universal--panduan-penggunaan)
 
 ---
 
@@ -1004,3 +1005,44 @@ Untuk teks panjang, Bahasa Indonesia dapat memakan **40% – 50% lebih banyak to
 
 ### Q: Apakah file-file tutorial lama masih ada?
 **A**: Tidak. Seluruh panduan telah dikonsolidasi secara resmi ke dalam berkas PANDUAN_LENGKAP_EKOSISTEM.md ini untuk menjaga repositori tetap bersih dan rapi.
+
+---
+
+## 8. Katalog 15 Skill Universal & Panduan Penggunaan
+
+Folder `vibe_tools/skills` telah dirombak menjadi **Single Source of Truth** universal yang otomatis dihubungkan ke `~/.gemini/config/skills` via Windows NTFS Junction (`sync_universal.py`).
+
+### 🌟 Ringkasan Perintah & Alur Kerja:
+
+```mermaid
+flowchart LR
+    A["/ask-matt\n(Pilih Jalur)"] --> B["/grill-me\n(Wawancara Desain)"]
+    B --> C["/to-spec\n(Formalisasi Spec)"]
+    C --> D["/to-tickets\n(Pecah Tiket)"]
+    D --> E["/implement + /tdd\n(Eksekusi Disiplin)"]
+    E --> F["/code-review\n(Audit Kepatuhan)"]
+```
+
+| Perintah | Deskripsi & Tujuan | Contoh Prompt |
+| :--- | :--- | :--- |
+| **`/ask-matt`** | Router penunjuk jalan alur rekayasa | `"/ask-matt apa langkah terbaik untuk fitur ini?"` |
+| **`/grill-me`** | Interview edge-case & arsitektur interaktif | `"/grill-me interogasi rancangan fitur auto-split"` |
+| **`/grill-with-docs`** | Domain glossary & Architectural Decision Records (ADR) | `"/grill-with-docs selaraskan istilah marker dan buat ADR"` |
+| **`/to-spec`** | Formalisasi spesifikasi teknis terstandarisasi | `"/to-spec buat spec teknis modul transkrip"` |
+| **`/to-tickets`** | Pemecah spesifikasi jadi tiket kerja modular | `"/to-tickets pecah spec menjadi tiket terurut"` |
+| **`/implement`** | Eksekusi tiket satu per satu (localized edits) | `"/implement kerjakan tiket nomor 1"` |
+| **`/tdd`** | Siklus Red-Green-Refactor berbasis pytest | `"/tdd buat fungsi hitung durasi dengan pytest"` |
+| **`/diagnosing-bugs`**| Pelacak bug via reproduksi tes gagal terlebih dahulu | `"/diagnosing-bugs telusuri penyebab KeyError di line 40"` |
+| **`/code-review`** | Audit kepatuhan arsitektur (<300 baris) & kesesuaian tiket | `"/code-review audit perubahan pada tab_subtitles.py"` |
+| **`/codebase-design`**| Desain modul deep architecture anti god-object | `"/codebase-design rancang pemisahan bridge DaVinci"` |
+| **`/modular-refactor`**| Pemecah script monolitik (>300 baris) tanpa regresi | `"/modular-refactor pecah download_srt_json_v2.py"` |
+| **`/unit-test-generator`**| Generator tes isolasi dengan mock fixtures | `"/unit-test-generator buat tes untuk resolve_bridge.py"` |
+| **`/graphify`** | Peta dependensi kode AST & GraphRAG lokal | `"/graphify petakan dependensi fungsi di folder gui"` |
+| **`/handoff`** | Kompresi konteks percakapan untuk ganti chat/model | `"/handoff rangkum sesi kerja ini ke dokumen handoff"` |
+| **`/retro`** | Retrospeksi & penyempurnaan rules guardrails | `"/retro evaluasi proses pengerjaan fitur tadi"` |
+
+> [!TIP]
+> **Panduan Lengkap & Contoh Nyata**:  
+> Untuk membaca skenario dialog mendalam, apa yang dilakukan AI, dan berkas output yang dihasilkan setiap skill, buka langsung berkas:  
+> 📖 [**`vibe_tools/skills/README.md`**](skills/README.md)
+

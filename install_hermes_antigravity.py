@@ -321,10 +321,9 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = ""
     model_aktif = model.strip() if model and model.strip() else muat_duo_settings().get("solo", "deepseek/deepseek-chat")
     instruksi_tugas = f"{{tugas}}\\n\\n(Berikan ringkasan padat langsung ke temuan/eksekusi agar hemat token.)"
 
-    cmd = [HERMES_EXE, "-z"]
+    cmd = [HERMES_EXE, "-z", instruksi_tugas]
     if model_aktif:
         cmd.extend(["-m", model_aktif])
-    cmd.append(instruksi_tugas)
 
     try:
         res = subprocess.run(cmd, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)

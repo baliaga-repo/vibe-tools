@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -32,6 +33,17 @@ except ImportError:
     ekspor_ke_edl = None
     injeksi_marker_ke_resolve = None
 
+# Pastikan direktori root project terdaftar di sys.path untuk impor core
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from core.chat_peak_detector import (
+    timecode_ke_detik,
+    detik_ke_timecode,
+    analisis_lonjakan_cpm
+)
+
 # Deteksi SDK Google Antigravity resmi
 try:
     import asyncio
@@ -47,36 +59,6 @@ KATA_KUNCI_REAKSI = [
     "imut", "lucu", "kawai", "tskr", "bless", "wholesome", "bengecc", "face-red",
     "cry", "silly", "わらう", "イヒヒ", "かわい", "membership", "superchat"
 ]
-
-
-def timecode_ke_detik(tc_str: str) -> float:
-    """
-    Mengonversi string waktu (HH:MM:SS atau MM:SS atau detik) menjadi nilai float detik.
-    """
-    tc = tc_str.strip().strip("[]()")
-    parts = tc.split(":")
-    try:
-        if len(parts) == 3:
-            return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
-        elif len(parts) == 2:
-            return float(parts[0]) * 60 + float(parts[1])
-        elif len(parts) == 1:
-            return float(parts[0])
-    except ValueError:
-        return 0.0
-    return 0.0
-
-
-def detik_ke_timecode(detik: float) -> str:
-    """
-    Mengonversi detik ke format timecode HH:MM:SS.
-    """
-    detik_int = int(round(max(0.0, detik)))
-    jam = detik_int // 3600
-    sisa = detik_int % 3600
-    menit = sisa // 60
-    det = sisa % 60
-    return f"{jam:02d}:{menit:02d}:{det:02d}"
 
 
 def muat_livechat(chat_path: str) -> List[Dict[str, Any]]:
@@ -151,112 +133,6 @@ def muat_transkrip(transkrip_path: str) -> List[Dict[str, Any]]:
     return hasil
 
 
-def analisis_lonjakan_cpm(
-    chats: List[Dict[str, Any]],
-    transkrips: List[Dict[str, Any]],
-    jendela_detik: int = 20,
-    pengali_cpm: float = 2.0,
-    target_segmen_minimal: int = 10
-) -> List[Dict[str, Any]]:
-    """
-    Melakukan pra-agregasi data lokal:
-    1. Mengelompokkan pesan ke dalam bin jendela waktu (15-30 detik).
-    2. Menghitung baseline CPM rata-rata.
-    3. Mendeteksi lonjakan CPM & kata kunci reaksi (> pengali baseline).
-    4. Menggabungkan klaster yang berdekatan (< 45 detik) dan menambahkan -10 detik buffer awal.
-    5. Menautkan transkrip percakapan ke setiap klaster untuk mencegah halusinasi.
-    """
-    if not chats:
-        return []
-
-    maks_detik = max(c["waktu_detik"] for c in chats)
-    jumlah_bin = int(maks_detik // jendela_detik) + 1
-    bins = [[] for _ in range(jumlah_bin)]
-
-    for c in chats:
-        idx = int(c["waktu_detik"] // jendela_detik)
-        if idx < len(bins):
-            bins[idx].append(c)
-
-    # Hitung CPM (Chat Per Minute) untuk setiap bin
-    cpm_per_bin = [(len(b) * (60.0 / jendela_detik)) for b in bins]
-    skor_reaksi_per_bin = [sum(c["skor_reaksi"] for c in b) for b in bins]
-
-    # Baseline dihitung dari bin yang memiliki chat aktif (menghindari idle stream)
-    bin_aktif = [cpm for cpm in cpm_per_bin if cpm > 0]
-    baseline_cpm = (sum(bin_aktif) / len(bin_aktif)) if bin_aktif else 10.0
-
-    # Penyesuaian otomatis ambang batas pengali jika segmen kurang dari target
-    ambang_list = [pengali_cpm, 1.8, 1.5, 1.2]
-    klaster_terpilih = []
-
-    for ambang in ambang_list:
-        ambang_cpm = baseline_cpm * ambang
-        kandidat_bin = []
-
-        for idx, (cpm, skor) in enumerate(zip(cpm_per_bin, skor_reaksi_per_bin)):
-            # Lolos jika CPM melebihi ambang batas ATAU ada ledakan kata kunci reaksi tinggi
-            if cpm >= ambang_cpm or (skor >= 5 and cpm >= baseline_cpm):
-                kandidat_bin.append(idx)
-
-        # Gabungkan bin berdekatan (gap < 45 detik -> gap <= 2 bin pada jendela 20s)
-        klaster_mentah = []
-        if kandidat_bin:
-            awal_bin = kandidat_bin[0]
-            akhir_bin = kandidat_bin[0]
-
-            for b in kandidat_bin[1:]:
-                if b - akhir_bin <= 2:
-                    akhir_bin = b
-                else:
-                    klaster_mentah.append((awal_bin, akhir_bin))
-                    awal_bin = b
-                    akhir_bin = b
-            klaster_mentah.append((awal_bin, akhir_bin))
-
-        if len(klaster_mentah) >= target_segmen_minimal or ambang == ambang_list[-1]:
-            klaster_terpilih = klaster_mentah
-            break
-
-    # Format hasil klaster dengan buffer -10 detik dan hubungkan ke transkrip
-    segmen_hasil = []
-    for idx_klaster, (b_awal, b_akhir) in enumerate(klaster_terpilih, start=1):
-        mulai_sec = max(0.0, (b_awal * jendela_detik) - 10.0)
-        selesai_sec = ((b_akhir + 1) * jendela_detik) + 5.0
-
-        # Ambil sampel chat di jendela waktu ini
-        chat_di_jendela = [
-            c for c in chats
-            if mulai_sec <= c["waktu_detik"] <= selesai_sec
-        ]
-        total_chat = len(chat_di_jendela)
-
-        # Cari pola pesan reaksi dominan
-        reaksi_list = [c["pesan"] for c in chat_di_jendela if c["skor_reaksi"] > 0]
-        cuplikan_chat = [f"{c['waktu_str']} {c['pesan']}" for c in chat_di_jendela[:8]]
-
-        # Ambil transkrip pada rentang waktu ini (anti-halusinasi)
-        transkrip_di_jendela = [
-            t["teks"] for t in transkrips
-            if mulai_sec <= t["waktu_detik"] <= selesai_sec
-        ]
-        dialog_transkrip = " ".join(transkrip_di_jendela) if transkrip_di_jendela else "Data tuturan tidak tersedia"
-
-        segmen_hasil.append({
-            "nomor": idx_klaster,
-            "mulai_detik": mulai_sec,
-            "selesai_detik": selesai_sec,
-            "mulai_tc": detik_ke_timecode(mulai_sec),
-            "selesai_tc": detik_ke_timecode(selesai_sec),
-            "total_chat": total_chat,
-            "dialog_transkrip": dialog_transkrip,
-            "cuplikan_chat": cuplikan_chat,
-            "jumlah_reaksi": len(reaksi_list)
-        })
-
-    return segmen_hasil
-
-
 def panggil_gemini_api(
     prompt_teks: str,
     model_name: str = "gemini-4-argon",
@@ -295,8 +171,8 @@ def panggil_gemini_api(
     resp = requests.post(url, headers=headers, json=payload, timeout=120)
     if resp.status_code != 200:
         print(f"[WARNING] Model '{model_name}' mengembalikan status {resp.status_code}.")
-        # Coba fallback ke model flash dengan tetap mempertahankan thinkingLevel HIGH jika didukung
-        fallback_models = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash"]
+        # Coba fallback ke model flash lainnya
+        fallback_models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-3.8-flash", "gemini-3.5-flash"]
         for fb in fallback_models:
             if fb == model_name:
                 continue
@@ -304,7 +180,6 @@ def panggil_gemini_api(
             url_fb = f"https://generativelanguage.googleapis.com/v1beta/models/{fb}:generateContent?key={api_key}"
             resp_fb = requests.post(url_fb, headers=headers, json=payload, timeout=120)
             if resp_fb.status_code != 200:
-                # Jika model fallback menolak thinkingConfig atau sedang 503, coba tanpa thinkingConfig
                 payload_basic = {
                     "contents": payload["contents"],
                     "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8192}
@@ -314,6 +189,19 @@ def panggil_gemini_api(
                 data = resp_fb.json()
                 teks_hasil = data["candidates"][0]["content"]["parts"][0]["text"]
                 return f"# Dihasilkan oleh: {fb} (Fallback dari {model_name})\n\n" + teks_hasil
+
+        if resp.status_code == 429:
+            pesan_429 = (
+                "\n" + "=" * 60 + "\n"
+                "❌ KUOTA REST API GEMINI HABIS (HTTP 429 / RESOURCE_EXHAUSTED)\n"
+                "Batas kuota harian/menit API Key Google AI Studio telah tercapai.\n\n"
+                "👉 SOLUSI TERBAIK (GRATIS & TANPA BATAS KUOTA):\n"
+                "Gunakan tombol 'Ekstrak Otomatis via Chromium (Mode B)' di tab Ringkasan Chat!\n"
+                "Mode B berjalan otomatis via peramban Chromium tanpa memerlukan kuota API Key.\n"
+                + "=" * 60
+            )
+            print(pesan_429)
+            raise RuntimeError(pesan_429)
 
         raise RuntimeError(f"Gagal memanggil API Gemini (Status {resp.status_code}): {resp.text}")
 
@@ -400,56 +288,58 @@ def buat_prompt_analisis(
     vod_title: str = "VTuber Livestream Highlight"
 ) -> str:
     """
-    Menyusun prompt reasoning terstruktur sesuai pedoman ketat prompt_rangkum.txt.
+    Menyusun prompt reasoning terstruktur dan ringkas sesuai pedoman anti-halusinasi.
     """
     baris_data = []
     for k in klaster_segmen:
-        cuplikan = " | ".join(k["cuplikan_chat"][:4])
+        cuplikan = " ".join(k["cuplikan_chat"][:3])
+        dialog = k["dialog_transkrip"]
+        if len(dialog) > 120:
+            dialog = dialog[:117] + "..."
         baris_data.append(
-            f"KLASTER #{k['nomor']} ({k['mulai_tc']} s/d {k['selesai_tc']}):\n"
-            f"  - Total Chat: {k['total_chat']} | Reaksi Kunci: {k['jumlah_reaksi']}\n"
-            f"  - Transkrip: \"{k['dialog_transkrip']}\"\n"
-            f"  - Sampel Chat: {cuplikan}"
+            f"[#{k['nomor']}] {k['mulai_tc']}-{k['selesai_tc']} | Chat:{k['total_chat']} | "
+            f"Reaksi:{k['jumlah_reaksi']} | Chat:\"{cuplikan}\" | Tuturan:\"{dialog}\""
         )
 
-    data_terstruktur = "\n\n".join(baris_data)
+    data_terstruktur = "\n".join(baris_data)
 
-    prompt = f"""# ROLE & OBJECTIVE
-Expert VTuber Highlight Editor & Lead Data Analyst. Map streamer-audience interactions using pre-aggregated chat spikes and transcript.
-OUTPUT LANGUAGE: STRICTLY INDONESIAN.
+    prompt = f"""Tolong buatkan rangkuman highlight dan daftar timestamp YouTube untuk livestream VTuber berikut:
+• Talent: {vtuber_name}
+• Judul VOD: {vod_title}
 
-# BACKEND & ANTI-HALLUCINATION RULES
-1. ZERO HALLUCINATION: Klaim WAJIB berasal dari data transkrip dan chat berikut. Jangan mengarang kejadian di luar data.
-2. Jika transkrip menyatakan "Data tuturan tidak tersedia", sebutkan bahwa momen bertumpu pada reaksi chat murni atau visual game.
-3. OUTPUT FORMAT: Direct Markdown only. Tanpa intro atau outro basa-basi.
+Berikut adalah data klaster momen potensial (hasil deteksi lonjakan reaksi penonton CPM dan dialog transkrip):
 
-# PARAMETERS
-- VTuber: {vtuber_name}
-- VOD: {vod_title}
-- Target: Minimal 10 Segmen Kronologis + Top 5 Kandidat Klip Terbaik.
-
-# DATA KLASTER LONJAKAN CPM & TRANSKRIP
 {data_terstruktur}
 
-# REPORT STRUCTURE (GUNAKAN FORMAT PERSIS DI BAWAH INI)
+Tugas:
+1. Susun minimal 10 segmen kronologis dengan format timecode HH:MM:SS (Waktu Mulai) dan waktu selesai di dalam tanda kurung.
+2. Tentukan Top 5 kandidat klip terbaik untuk video highlight / shorts.
+3. Berikan 3-5 kutipan ikonik dan rekomendasi hashtag (tanpa simbol '#').
+
+Aturan:
+- Gunakan Bahasa Indonesia yang menarik dan natural bagi penonton VTuber.
+- Klaim WAJIB berbasis data di atas (jangan mengarang dialog). Jika tuturan transkrip kosong, sebutkan momen bertumpu pada reaksi chat atau visual game.
+- Langsung berikan hasil dalam format Markdown persis seperti struktur berikut (tanpa intro/outro basa-basi):
+
+# STRUKTUR LAPORAN (WAJIB PERSIS FORMAT DI BAWAH)
 ## 1. Timeline Kronologis (Minimal 10 Segmen)
 - **HH:MM:SS | [Judul Momen] (Berakhir di HH:MM:SS)**
-  - **Aktivitas:** (Deskripsi akurat dari transkrip)
+  - **Aktivitas:** (Deskripsi tuturan/kejadian dari transkrip)
   - **Reaksi Chat:** (Pola pesan dominan)
-  - **Jumlah Chat:** (Total chat unik)
-  - **Konteks:** (Pemicu lonjakan CPM)
+  - **Jumlah Chat:** (Total pesan unik di jendela waktu)
+  - **Konteks:** (Pemicu lonjakan reaksi penonton)
 
 ## 2. Kandidat Klip Terbaik
 - **Top 5 Kandidat Klip (Prioritas Tinggi):**
   - **Klip #N — HH:MM:SS | [Judul Catchy] (Berakhir di HH:MM:SS)**
-  - **Alasan:** (Potensi viralitas)
-  - **Statistik Intensitas:** (Burst Velocity, Relative Spike, Sentimen)
-  - **Saran Edit:** (Zoom, SFX, atau Subtitle)
+  - **Alasan:** (Potensi viralitas & daya tarik)
+  - **Statistik Intensitas:** (Burst CPM, sentimen penonton)
+  - **Saran Edit:** (Zoom, SFX, subtitle)
 
 ## 3. Insight & Kutipan
 - **Insight Superchat:** (Jika ada)
 - **3-5 Kutipan Ikonik:** HH:MM:SS | "[Nama]: Kutipan dari transkrip"
-- **Hashtag:** (Misal: hololive, vtuber, clipper. Tanpa simbol '#')
+- **Hashtag:** (Daftar hashtag tanpa simbol '#')
 """
     return prompt
 
@@ -509,13 +399,74 @@ def simpan_ke_sections_txt(
     """
     lines = [f"# Dihasilkan otomatis oleh Antigravity Argon AI pada {time.strftime('%Y-%m-%d %H:%M:%S')}"]
     for idx, s in enumerate(segmen_list, start=1):
-        baris = f"{youtube_url} | {s['start_tc']}-{s['end_tc']} | {idx}. {s['title']}"
+        # Bersihkan karakter ilegal Windows (< > : " / \ | ? *) agar aman saat diunduh dan dipotong
+        clean_title = re.sub(r'[<>:"/\\|?*]', ' ', s['title'])
+        clean_title = re.sub(r'\s+', ' ', clean_title).strip()
+        baris = f"{youtube_url} | {s['start_tc']}-{s['end_tc']} | {idx}. {clean_title}"
         lines.append(baris)
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
     return len(segmen_list)
+
+
+def temukan_folder_channel(
+    url: str = "",
+    base_dir: Optional[Path] = None
+) -> Tuple[Optional[Path], str, str]:
+    """
+    Menemukan folder channel VTuber aktif (@Channel), nama talent, dan judul VOD secara dinamis.
+    Prioritas:
+    1. Info aktif dari cache_chat/active_stream_info.json jika tersedia
+    2. Folder @* yang berisi livechat.csv terbaru (berdasarkan mtime)
+    3. Parsing folder name menjadi nama talent (misal @VestiaZeta -> Vestia Zeta)
+    4. Ekstraksi judul VOD dari berkas FULL_*.json atau FULL_*.srt di dalam folder
+    """
+    if base_dir is None:
+        base_dir = Path(__file__).resolve().parent.parent
+
+    active_json = base_dir / "cache_chat" / "active_stream_info.json"
+    if active_json.exists():
+        try:
+            data = json.loads(active_json.read_text(encoding="utf-8", errors="ignore"))
+            folder_name = data.get("folder", "")
+            if folder_name and (base_dir / folder_name).is_dir():
+                target_folder = base_dir / folder_name
+                vtuber = data.get("vtuber") or re.sub(r'([a-z])([A-Z])', r'\1 \2', target_folder.name.lstrip('@'))
+                vod = data.get("title") or "VTuber Livestream Highlight"
+                return target_folder, vtuber, vod
+        except Exception:
+            pass
+
+    # Cari semua folder @* di direktori kerja yang memiliki livechat.csv
+    kandidat = []
+    for p in base_dir.glob("@*"):
+        if p.is_dir():
+            chat_csv = p / "livechat.csv"
+            if chat_csv.exists():
+                kandidat.append((chat_csv.stat().st_mtime, p))
+
+    if not kandidat:
+        if (base_dir / "cache_chat" / "livechat.csv").exists():
+            return base_dir / "cache_chat", "VTuber", "VTuber Livestream Highlight"
+        return None, "VTuber", "VTuber Livestream Highlight"
+
+    # Urutkan berdasarkan waktu modifikasi terbaru
+    kandidat.sort(key=lambda x: x[0], reverse=True)
+    folder_terpilih = kandidat[0][1]
+
+    raw_name = folder_terpilih.name.lstrip("@")
+    vtuber_name = re.sub(r'([a-z])([A-Z])', r'\1 \2', raw_name)
+
+    vod_title = "VTuber Livestream Highlight"
+    for f in folder_terpilih.glob("FULL_*"):
+        stem = f.stem.replace("FULL_", "").strip()
+        if stem and "transkrip" not in stem.lower():
+            vod_title = stem
+            break
+
+    return folder_terpilih, vtuber_name, vod_title
 
 
 def main():
@@ -530,43 +481,56 @@ def main():
     parser.add_argument("--model", type=str, default="gemini-4-argon", help="Model AI (gemini-4-argon / gemini-3.8-flash)")
     parser.add_argument("--output-sections", type=str, default="sections.txt", help="Path keluaran sections.txt")
     parser.add_argument("--auto-marker", action="store_true", default=True, help="Otomatis injeksikan marker ke DaVinci Resolve jika aktif")
+    parser.add_argument("--jarak-min", type=int, default=45, help="Jarak minimum antar puncak highlight (detik, default: 45)")
+    parser.add_argument("--buffer-awal", type=float, default=15.0, help="Buffer pre-roll mundur sebelum highlight (detik, default: 15.0)")
+    parser.add_argument("--buffer-akhir", type=float, default=10.0, help="Buffer post-roll maju setelah highlight (detik, default: 10.0)")
 
     args = parser.parse_args()
 
-    # Deteksi otomatis file jika tidak ditentukan
     base_dir = Path(__file__).resolve().parent.parent
     chat_file = args.chat
     transkrip_file = args.transcript
     url = args.url
-
-    # Cari file livechat default jika kosong
-    if not chat_file:
-        for p in [base_dir / "@KureijiOllie" / "livechat.csv", base_dir / "@KoboKanaeru" / "livechat.csv", base_dir / "cache_chat" / "livechat.csv"]:
-            if p.exists():
-                chat_file = str(p)
-                break
-
-    if not transkrip_file:
-        for p in [base_dir / "@KureijiOllie" / "transkrip.csv", base_dir / "@KoboKanaeru" / "transkrip.csv", base_dir / "cache_chat" / "transkrip.csv"]:
-            if p.exists():
-                transkrip_file = str(p)
-                break
+    vtuber = args.vtuber
+    vod = args.vod
 
     if not url:
         sec_file = base_dir / "sections.txt"
         if sec_file.exists():
-            first_line = sec_file.read_text(encoding="utf-8").splitlines()
-            for l in first_line:
-                l = l.strip()
-                if l and not l.startswith("#"):
-                    url = l.split("|")[0].strip()
+            for line in sec_file.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    url = line.split("|")[0].strip()
                     break
         if not url:
             url = "https://www.youtube.com/watch?v=source_video"
 
+    # Resolusi otomatis folder channel, talent, dan judul VOD
+    auto_folder, auto_vtuber, auto_vod = temukan_folder_channel(url, base_dir)
+
+    if chat_file and Path(chat_file).exists():
+        auto_folder = Path(chat_file).parent
+    elif not chat_file and auto_folder:
+        calon_chat = auto_folder / "livechat.csv"
+        if calon_chat.exists():
+            chat_file = str(calon_chat)
+
+    if not transkrip_file and auto_folder:
+        calon_transkrip = auto_folder / "transkrip.csv"
+        if calon_transkrip.exists():
+            transkrip_file = str(calon_transkrip)
+
+    if vtuber == "VTuber" and auto_vtuber != "VTuber":
+        vtuber = auto_vtuber
+
+    if vod in ("VTuber Highlight", "VTuber Livestream Highlight") and auto_vod != "VTuber Livestream Highlight":
+        vod = auto_vod
+
     print("=" * 60)
     print("🚀 ANTIGRAVITY AGENTIC HIGHLIGHT EXTRACTOR")
     print(f"• Model AI       : {args.model}")
+    print(f"• Talent         : {vtuber}")
+    print(f"• Judul VOD      : {vod}")
     print(f"• Berkas Chat    : {chat_file}")
     print(f"• Transkrip      : {transkrip_file}")
     print(f"• URL Sumber     : {url}")
@@ -580,8 +544,16 @@ def main():
     print(f"      Ditemukan {len(chats)} baris pesan chat dan {len(transkrips)} baris transkrip.")
 
     # 2. Analisis lonjakan CPM
-    print("\n[2/5] Menghitung baseline CPM & mendeteksi lonjakan reaksi...")
-    klaster = analisis_lonjakan_cpm(chats, transkrips, jendela_detik=20, pengali_cpm=2.0)
+    print("\n[2/5] Menghitung baseline CPM & mendeteksi lonjakan reaksi (Sliding Window & Peak Finding)...")
+    klaster = analisis_lonjakan_cpm(
+        chats,
+        transkrips,
+        jendela_detik=20,
+        pengali_cpm=2.0,
+        jarak_min_detik=args.jarak_min,
+        buffer_awal_detik=args.buffer_awal,
+        buffer_akhir_detik=args.buffer_akhir
+    )
     print(f"      Teridentifikasi {len(klaster)} klaster momen potensial.")
 
     if not klaster:
@@ -590,7 +562,7 @@ def main():
 
     # 3. Panggil Reasoning Model
     print(f"\n[3/5] Mengirim data teragregasi ke Model {args.model} via Antigravity Agent...")
-    prompt = buat_prompt_analisis(klaster, vtuber_name=args.vtuber, vod_title=args.vod)
+    prompt = buat_prompt_analisis(klaster, vtuber_name=vtuber, vod_title=vod)
     
     t0 = time.time()
     laporan_md = panggil_ai_agentic(prompt, model_name=args.model)
@@ -602,6 +574,13 @@ def main():
     laporan_path.parent.mkdir(parents=True, exist_ok=True)
     laporan_path.write_text(laporan_md, encoding="utf-8")
     print(f"      Laporan lengkap disimpan ke: {laporan_path}")
+
+    # Otomatis simpan salinan ke folder channel VTuber aktif
+    if auto_folder and auto_folder.exists():
+        safe_title = "".join(c if c.isalnum() or c in " ._-" else "_" for c in vod).strip()
+        (auto_folder / f"FULL_{safe_title}_hasil_rangkuman.md").write_text(laporan_md, encoding="utf-8")
+        (auto_folder / "hasil_rangkuman.md").write_text(laporan_md, encoding="utf-8")
+        print(f"      • Rangkuman terarsip di channel: {auto_folder.name}")
 
     # 4. Ekstraksi Timestamp & Simpan ke sections.txt
     print("\n[4/5] Mengonversi hasil rangkuman ke format antrean sections.txt...")
@@ -624,9 +603,36 @@ def main():
         print(f"      • File EDL : {edl_out}")
         print(f"      • File CSV : {csv_out}")
 
+        if auto_folder and auto_folder.exists():
+            safe_title = "".join(c if c.isalnum() or c in " ._-" else "_" for c in vod).strip()
+            shutil.copy2(edl_out, auto_folder / f"FULL_{safe_title}_davinci_markers.edl")
+            shutil.copy2(edl_out, auto_folder / "davinci_markers.edl")
+            shutil.copy2(csv_out, auto_folder / f"FULL_{safe_title}_davinci_markers.csv")
+            shutil.copy2(csv_out, auto_folder / "davinci_markers.csv")
+            print(f"      • Marker terarsip di channel: {auto_folder.name}")
+
         if args.auto_marker and injeksi_marker_ke_resolve:
             sukses, pesan = injeksi_marker_ke_resolve(segmen)
             print(f"      • Injeksi Langsung DaVinci: {pesan}")
+
+    # 6. Pembuatan Paket SEO YouTube Video & Chapters Kumulatif (X/Twitter Radar)
+    print("\n[6/6] Menghasilkan Paket SEO YouTube Video (16:9) & Chapters...")
+    try:
+        from twitter_vtuber_radar import (
+            ekstrak_metadata_vod,
+            ambil_buzz_twitter,
+            muat_segmen_sections_txt,
+            buat_paket_seo_youtube_video
+        )
+        vod_meta = ekstrak_metadata_vod(url)
+        buzz = ambil_buzz_twitter(vod_meta["hashtags"], vtuber_name=vod_meta["uploader"])
+        sections_p = base_dir / args.output_sections
+        segmen_terformat = muat_segmen_sections_txt(sections_p)
+        out_seo = base_dir / "cache_chat" / "youtube_video_seo.md"
+        buat_paket_seo_youtube_video(segmen_terformat, vod_meta, buzz, out_seo)
+        print(f"      • Paket SEO YouTube Video tersimpan di: {out_seo}")
+    except Exception as e:
+        print(f"      [INFO] Pembuatan paket SEO YouTube Video dilewati: {e}")
 
     print("\n✨ SELESAI! Seluruh proses ekstraksi highlight berjalan tanpa membuka browser.")
     print("=" * 60)

@@ -21,6 +21,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT_DIR / "cache_chat" / "davinci_core"))
 
 try:
+    # pyrefly: ignore[missing-import]
     from resolve_bridge import get_current_timeline_context, get_resolve
 except ImportError:
     get_current_timeline_context = None

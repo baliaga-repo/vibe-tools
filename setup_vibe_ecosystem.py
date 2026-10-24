@@ -1066,13 +1066,10 @@ def main():
 
     # 1. Konfigurasi Workspace .agents (idempoten & non-destruktif)
     pasang_agents_md()
-    buat_berkas(".agents/rules/python-clean-architecture.md", KONTEN_RULES_ARCH)
-    buat_berkas(".agents/rules/graphify.md", KONTEN_RULES_GRAPHIFY)
-    buat_berkas(".agents/skills/modular-refactor/SKILL.md", KONTEN_SKILL_MODULAR)
-    buat_berkas(".agents/skills/unit-test-generator/SKILL.md", KONTEN_SKILL_TEST)
     buat_berkas(".agents/workflows/graphify.md", KONTEN_WORKFLOW_GRAPHIFY)
 
     # 2. Skrip Python Otomasi & Panduan Ekosistem AI
+    buat_berkas("vibe_tools/sync_universal.py", baca_skrip_lokal("sync_universal.py"))
     buat_berkas("vibe_tools/graphify_sync.py", baca_skrip_lokal("graphify_sync.py"))
     buat_berkas("vibe_tools/push_to_github.py", baca_skrip_lokal("push_to_github.py") or KONTEN_PUSH_GITHUB)
     buat_berkas("vibe_tools/install_hermes_antigravity.py", baca_skrip_lokal("install_hermes_antigravity.py"))
@@ -1115,6 +1112,14 @@ def main():
 
     # 5. Konfigurasi Root Antigravity IDE (~/.gemini) secara 100% dinamis & portabel
     konfigurasi_root_gemini(api_key)
+
+    # 5b. Sinkronisasi Universal Skills & Rules via NTFS Junction ke ~/.gemini/config
+    try:
+        sys.path.insert(0, os.path.join(BASE_DIR, "vibe_tools"))
+        import sync_universal
+        sync_universal.sinkronisasi_universal()
+    except Exception as e:
+        print(f"[WARNING] Sinkronisasi universal otomatis dilewati: {e}")
 
     # 6. Pasang atau verifikasi Hermes Agent CLI
     pasang_atau_sinkronkan_hermes(api_key)

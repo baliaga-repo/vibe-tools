@@ -53,11 +53,21 @@ python vibe_tools/setup_vibe_ecosystem.py
 2. **`openrouter_mcp.py`** & **`hermes_mcp.py`**  
    - *Fungsi*: Source code server MCP yang otomatis disalin ke `~/.gemini/` dengan path dinamis (bebas hardcode).
 
-3. **`mcp_schemas/`**  
-   - *Fungsi*: Schema JSON bawaan Antigravity untuk `hermes_agent` dan `openrouter` (siap pakai offline).
+3. **`sync_universal.py`** (Universal Junction Linker)  
+   - *Fungsi*: Menghubungkan direktori `vibe_tools/skills/` dan `vibe_tools/rules/` langsung ke Antigravity Global Root (`~/.gemini/config/`) menggunakan Windows NTFS Junction (`mklink /J`). Semua skill & rules otomatis aktif di SEMUA project tanpa copy-paste.
 
-4. **`graphify_SKILL.md`**  
-   - *Fungsi*: Master global skill Graphify untuk direktori `~/.gemini/config/skills/graphify/SKILL.md`.
+4. **[`skills/`](skills/README.md)** (Katalog 15 Skill Universal — [📖 Buka Panduan & Contoh Lengkap](skills/README.md))  
+   - *Fungsi*: Menyimpan seluruh skill rekayasa perangkat lunak teroptimasi (termasuk paket rekayasa Matt Pocock, Graphify, Modular Refactor, Unit Test Generator):
+     - `/grill-me`, `/grill-with-docs`, `/to-spec`, `/to-tickets`, `/implement`
+     - `/code-review`, `/diagnosing-bugs`, `/tdd`, `/codebase-design`, `/handoff`
+     - `/retro`, `/ask-matt`, `/graphify`, `/modular-refactor`, `/unit-test-generator`
+   - *Dokumentasi Lengkap*: Lihat penjelasaan mendalam, skenario penggunaan, dan contoh prompt nyata di [**`skills/README.md`**](skills/README.md).
+
+5. **`rules/`** (Aturan Ekosistem Universal)  
+   - *Fungsi*: Aturan arsitektur bersih (`python-clean-architecture.md`), efisiensi token & CLI guardrails (`token-efficiency.md`), dan Graphify navigation (`graphify.md`).
+
+6. **`mcp_schemas/`**  
+   - *Fungsi*: Schema JSON bawaan Antigravity untuk `hermes_agent` dan `openrouter` (siap pakai offline).
 
 5. **`graphify_sync.py`**  
    - *Fungsi*: Penggabungan utuh antara update Knowledge Graph (Graphify) dan generator peta file AST (`.agents/MAP.md`).

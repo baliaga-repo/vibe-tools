@@ -85,6 +85,8 @@ MODEL_ALIASES = {
     "o3-mini": "openai/o3-mini",
     
     # Standar Emas Coding & Refactoring
+    "opus": "anthropic/claude-opus-4.6",
+    "claude-opus": "anthropic/claude-opus-4.6",
     "claude": "anthropic/claude-3.7-sonnet:thinking",
     "claude-thinking": "anthropic/claude-3.7-sonnet:thinking",
     "claude-3.7": "anthropic/claude-3.7-sonnet",
@@ -214,6 +216,7 @@ def tanya_openrouter(prompt: str, model: str = "deepseek", system_prompt: str = 
     payload = {
         "model": model_id,
         "messages": messages,
+        "max_tokens": 4096,
     }
 
     try:
