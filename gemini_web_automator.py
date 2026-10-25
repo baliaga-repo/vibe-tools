@@ -153,7 +153,10 @@ class GeminiWebAutomator:
                     raise e
 
     def navigasi_ke_gemini(self):
-        """Membuka laman gemini.google.com dan memvalidasi kesiapan halaman."""
+        """
+[ID]: Membuka laman gemini.google.com dan memvalidasi kesiapan halaman.
+[EN]: Open gemini.google.com and validate page readiness.
+"""
         print("[INFO] Membuka https://gemini.google.com/app ...")
         self.page.goto("https://gemini.google.com/app", wait_until="domcontentloaded", timeout=60000)
         time.sleep(3)
