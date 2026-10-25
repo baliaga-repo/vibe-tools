@@ -27,6 +27,11 @@ sys.path.append(str(ROOT_DIR / "vibe_tools"))
 sys.path.append(str(ROOT_DIR / "cache_chat" / "davinci_core"))
 
 try:
+    from gemini_prompt_builder import GeminiWebPromptFacade
+except ImportError:
+    from vibe_tools.gemini_prompt_builder import GeminiWebPromptFacade
+
+try:
     from auto_highlighter_argon import (
         analisis_lonjakan_cpm,
         buat_prompt_analisis,
@@ -40,6 +45,7 @@ except ImportError:
     pass
 
 try:
+    # pyrefly: ignore[missing-import]
     from marker_exporter import ekspor_ke_csv, ekspor_ke_edl, injeksi_marker_ke_resolve
 except ImportError:
     ekspor_ke_csv = None
@@ -103,15 +109,18 @@ class GeminiWebAutomator:
             "--disable-blink-features=AutomationControlled",
             "--start-maximized",
             "--no-default-browser-check",
+            "--enable-clipboard-read-write",
         ]
 
         print(f"[INFO] Membuka peramban dengan profil: {self.user_data_dir}")
+        permissions = ["clipboard-read", "clipboard-write"]
         try:
             # Gunakan Google Chrome asli di sistem jika tersedia agar Google login lebih terpercaya
             self.context = self.playwright.chromium.launch_persistent_context(
                 user_data_dir=self.user_data_dir,
                 headless=self.headless,
                 args=args,
+                permissions=permissions,
                 no_viewport=True,
                 channel="chrome",
             )
@@ -123,6 +132,7 @@ class GeminiWebAutomator:
                     user_data_dir=self.user_data_dir,
                     headless=self.headless,
                     args=args,
+                    permissions=permissions,
                     no_viewport=True,
                 )
                 self.page = self.context.pages[0] if self.context.pages else self.context.new_page()
@@ -135,6 +145,7 @@ class GeminiWebAutomator:
                         user_data_dir=fallback_dir,
                         headless=self.headless,
                         args=args,
+                        permissions=permissions,
                         no_viewport=True,
                     )
                     self.page = self.context.pages[0] if self.context.pages else self.context.new_page()
@@ -563,15 +574,31 @@ class GeminiWebAutomator:
                 pass
 
             # Abaikan jika teks masih kosong, masih berupa prompt user, atau terlalu pendek (< 200 karakter)
-            bukan_prompt = "# ROLE & OBJECTIVE" not in teks_model and "# DATA KLASTER LONJAKAN" not in teks_model
+            bukan_prompt = (
+                "# ROLE & OBJECTIVE" not in teks_model
+                and "# DATA KLASTER LONJAKAN" not in teks_model
+                and "# CANDIDATE CLUSTER DATA" not in teks_model
+            )
             sudah_berisi_laporan = len(teks_model) > 250 and bukan_prompt
+            ada_struktur = "timeline kronologis" in teks_model.lower() and "kandidat klip" in teks_model.lower()
+            ada_hashtag = "hashtag" in teks_model.lower()
 
-            if not ada_tombol_stop and sudah_berisi_laporan:
-                if len(teks_model) == panjang_terakhir:
+            if not ada_tombol_stop and sudah_berisi_laporan and ada_struktur:
+                # Opsi 3A: Auto-scroll ke bawah saat tombol stop hilang agar konten virtual/lazy render muncul penuh
+                try:
+                    self.page.evaluate("""() => {
+                        window.scrollTo(0, document.body.scrollHeight);
+                        const scroller = document.querySelector('chat-window, infinite-scroller, .chat-history, main');
+                        if (scroller) scroller.scrollTop = scroller.scrollHeight;
+                    }""")
+                except Exception:
+                    pass
+
+                # Tunggu teks stabil atau sampai penutup hashtag terdeteksi
+                if ada_hashtag or len(teks_model) == panjang_terakhir:
                     hitung_stabil += 1
-                    # Jika panjang teks model tidak bertambah lagi selama ~6 detik (3x cek), berarti generasi tuntas
-                    if hitung_stabil >= 3:
-                        print(f"      Proses penalaran selesai! ({len(teks_model)} karakter diterima)")
+                    if (ada_hashtag and hitung_stabil >= 2) or hitung_stabil >= 4:
+                        print(f"      Proses penalaran dan pembuatan teks selesai! ({len(teks_model)} karakter, penutup Hashtag terverifikasi)")
                         break
                 else:
                     panjang_terakhir = len(teks_model)
@@ -655,10 +682,36 @@ class GeminiWebAutomator:
         return hasil
 
     def ekstrak_respon_markdown(self) -> str:
-        """Mengambil teks markdown dari elemen respon model terakhir di Gemini Web (bukan prompt user)."""
+        """Mengambil teks markdown dari elemen respon model terakhir di Gemini Web (Hybrid Dual-Check Opsi 2C)."""
         print("[INFO] Mengekstrak hasil respon markdown...")
 
-        # Opsi 0: Cek apakah dokumen dihasilkan di dalam Canvas / Dokumen Artifact viewer Gemini
+        # Pastikan halaman di-scroll ke elemen respons model terakhir
+        try:
+            self.page.evaluate("""() => {
+                const el = document.querySelector('model-response:last-of-type, .model-response-text:last-of-type');
+                if (el) el.scrollIntoView({ behavior: 'instant', block: 'end' });
+            }""")
+            time.sleep(0.5)
+        except Exception:
+            pass
+
+        # Fungsi pembantu validasi respons model
+        def _is_valid_model_response(t: str) -> bool:
+            if not t or len(t) < 150:
+                return False
+            # Tolak jika model mengembalikan respons penolakan standar
+            if any(p in t for p in ["Saya tidak bisa membantu", "hanya model bahasa", "I cannot help", "as a language model"]):
+                return False
+            # Pastikan bukan teks prompt input kita sendiri
+            if (
+                "DATA KLASTER HASIL ANALISIS LONJAKAN" in t
+                or "# DATA KLASTER LONJAKAN" in t
+                or "# CANDIDATE CLUSTER DATA" in t
+            ):
+                return False
+            return True
+
+        # Opsi 0: Cek Canvas / Dokumen Artifact viewer Gemini
         selectors_canvas = [
             'document-canvas',
             'div[data-test-id*="document"]',
@@ -682,79 +735,52 @@ class GeminiWebAutomator:
             except Exception:
                 continue
 
-        # Opsi 0B: Coba gunakan tombol "Ekspor" -> ".md" di header canvas jika tersedia
-        try:
-            btn_ekspor = self.page.locator('button:has-text("Ekspor"), button:has-text("Export"), button[aria-label*="Ekspor"]').first
-            if btn_ekspor.is_visible(timeout=1500):
-                btn_ekspor.click()
-                time.sleep(0.6)
-                item_md = self.page.locator('button:has-text(".md"), div:has-text(".md"), [role="menuitem"]:has-text(".md")').first
-                if item_md.is_visible(timeout=1500):
-                    with self.page.expect_download(timeout=6000) as download_info:
-                        item_md.click()
-                    download = download_info.value
-                    temp_md = ROOT_DIR / "cache_chat" / "hasil_rangkuman.md"
-                    download.save_as(str(temp_md))
-                    teks_unduh = temp_md.read_text(encoding="utf-8")
-                    if teks_unduh and len(teks_unduh) > 250:
-                        print(f"      [OK] Berhasil mengunduh dokumen .md langsung dari tombol Ekspor ({len(teks_unduh)} karakter).")
-                        return teks_unduh
-        except Exception:
-            pass
+        # Opsi A (Utama): Klik tombol "Salin" (Copy) di model-response terakhir
+        selectors_copy = [
+            'model-response:last-of-type button[aria-label*="Copy"]',
+            'model-response:last-of-type button[aria-label*="Salin"]',
+            'model-response button[aria-label*="Copy"]',
+            'model-response button[aria-label*="Salin"]',
+            '.response-container:last-of-type button[aria-label*="Copy"]',
+            '.response-container:last-of-type button[aria-label*="Salin"]',
+            'button[aria-label*="Copy to clipboard"]',
+            'button[aria-label*="Salin ke papan klip"]',
+        ]
+        for sel_copy in selectors_copy:
+            try:
+                tombol_salin = self.page.locator(sel_copy).last
+                if tombol_salin.is_visible(timeout=1000):
+                    tombol_salin.click(force=True)
+                    time.sleep(0.8)
+                    teks_cb = self.page.evaluate("navigator.clipboard.readText()")
+                    if _is_valid_model_response(teks_cb):
+                        print(f"      [OK] Berhasil mengekstrak {len(teks_cb)} karakter via tombol Salin resmi (Clipboard).")
+                        return teks_cb
+            except Exception:
+                continue
 
-        # Fungsi pembantu validasi respons model
-        def _is_valid_model_response(t: str) -> bool:
-            if not t or len(t) < 150:
-                return False
-            # Tolak jika model mengembalikan respons penolakan standar
-            if any(p in t for p in ["Saya tidak bisa membantu", "hanya model bahasa", "I cannot help", "as a language model"]):
-                return False
-            # Pastikan bukan teks prompt input kita sendiri
-            if "DATA KLASTER HASIL ANALISIS LONJAKAN" in t or "# DATA KLASTER LONJAKAN" in t:
-                return False
-            return True
-
-        # Opsi A: Klik tombol "Salin" (Copy) yang berada khusus di dalam blok model-response terakhir
-        try:
-            tombol_salin_model = self.page.locator(
-                'model-response button[aria-label*="Copy"], '
-                'model-response button[aria-label*="Salin"], '
-                '.response-container button[aria-label*="Copy"], '
-                '.response-container button[aria-label*="Salin"]'
-            ).last
-            if tombol_salin_model.is_visible(timeout=2000):
-                tombol_salin_model.click()
-                time.sleep(0.6)
-                teks_cb = self.page.evaluate("navigator.clipboard.readText()")
-                if _is_valid_model_response(teks_cb):
-                    return teks_cb
-        except Exception:
-            pass
-
-        # Opsi B: Ambil langsung dari container pesan model
+        # Opsi B (Fallback): Ambil langsung dari container pesan model
         selectors_respon = [
+            'model-response:last-of-type message-content',
             'model-response message-content',
             '.model-response-text',
             '[data-message-author="model"]',
             'message-content',
         ]
-
         for sel in selectors_respon:
             try:
                 kontainer = self.page.locator(sel).last
                 if kontainer.is_visible(timeout=2000):
                     teks = kontainer.inner_text()
                     if _is_valid_model_response(teks):
+                        print(f"      [OK] Berhasil mengekstrak {len(teks)} karakter langsung dari kontainer model.")
                         return teks
             except Exception:
                 pass
 
-        # Fallback darurat: Cek apakah ada teks valid di body
-        body_teks = self.page.inner_text("body")
-        if _is_valid_model_response(body_teks):
-            return body_teks
-
-        raise RuntimeError("Model Gemini Web tidak mengembalikan teks rangkuman valid (mungkin menolak atau sesi belum siap).")
+        raise RuntimeError(
+            "Model Gemini Web tidak mengembalikan teks rangkuman valid (elemen respon model tidak terdeteksi atau sesi belum siap)."
+        )
 
     def tutup(self):
         """Menutup konteks peramban dengan aman."""
@@ -767,72 +793,29 @@ class GeminiWebAutomator:
             pass
 
 
+def pangkas_laporan_bersih(teks: str) -> str:
+    """Memangkas teks respon agar bersih mulai dari '## 1. Timeline Kronologis' (Opsi 1A)."""
+    if not teks:
+        return ""
+    m = re.search(r"(##\s*1\.\s*Timeline Kronologis.*)", teks, re.DOTALL | re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    return teks.strip()
+
+
 def buat_prompt_gemini_web(
-    klaster_segmen: List[Dict[str, Any]],
+    klaster_segmen: Optional[List[Dict[str, Any]]] = None,
     vtuber_name: str = "VTuber",
     vod_title: str = "VTuber Livestream Highlight",
-    files_attached: bool = True
+    files_attached: bool = True,
 ) -> str:
-    """
-    Menyusun prompt kurasi teks catatan waktu (timestamp) yang anti-penolakan untuk Gemini Web.
-    """
-    baris_data = []
-    for k in klaster_segmen:
-        cuplikan = " ".join(k["cuplikan_chat"][:3])
-        dialog = k["dialog_transkrip"]
-        if len(dialog) > 120:
-            dialog = dialog[:117] + "..."
-        baris_data.append(
-            f"[#{k['nomor']}] {k['mulai_tc']}-{k['selesai_tc']} | Chat:{k['total_chat']} | "
-            f"Reaksi:{k['jumlah_reaksi']} | Chat:\"{cuplikan}\" | Tuturan:\"{dialog}\""
-        )
-
-    data_terstruktur = "\n".join(baris_data)
-
-    catatan_berkas = (
-        "(Catatan transkrip tuturan lengkap terlampir sebagai referensi teks tambahan).\n"
-        if files_attached else ""
+    """Menyusun prompt kurasi teks catatan waktu (timestamp) untuk Gemini Web via Facade Pattern."""
+    return GeminiWebPromptFacade.create_prompt(
+        klaster_segmen=klaster_segmen,
+        vtuber_name=vtuber_name,
+        vod_title=vod_title,
+        files_attached=files_attached,
     )
-
-    return f"""Konteks: Ini adalah analisis kurasi highlight arsip tayangan hiburan/gaming publik yang ramah audiens. Abaikan kata-kata kasar atau pesan spam penonton di riwayat obrolan jika ada.
-
-Tolong buatkan rangkuman highlight dan daftar timestamp YouTube untuk livestream VTuber berikut:
-• Talent: {vtuber_name}
-• Judul VOD: {vod_title}
-{catatan_berkas}
-Berikut adalah data klaster momen potensial (hasil deteksi lonjakan reaksi penonton CPM dan dialog transkrip):
-
-{data_terstruktur}
-
-Tugas:
-1. Susun minimal 10 segmen kronologis dengan format timecode HH:MM:SS (Waktu Mulai) dan waktu selesai di dalam tanda kurung.
-2. Tentukan Top 5 kandidat klip terbaik untuk video highlight / shorts.
-3. Berikan 3-5 kutipan ikonik dan rekomendasi hashtag (tanpa simbol '#').
-
-Aturan:
-- Gunakan Bahasa Indonesia yang menarik dan natural bagi penonton VTuber.
-- Berikan judul momen yang deskriptif dan mencerminkan kejadian atau tuturan dialog (misal: "Kobo Salah Pencet & Panik", jangan gunakan teks mentah).
-- Langsung berikan hasil dalam format Markdown persis seperti struktur berikut (tanpa intro/outro basa-basi):
-
-## 1. Timeline Kronologis (Minimal 10 Segmen)
-- **HH:MM:SS | [Judul Momen Menarik] (Berakhir di HH:MM:SS)**
-  - **Aktivitas:** (Deskripsi tuturan/kejadian dari transkrip)
-  - **Reaksi Chat:** (Pola pesan dominan)
-  - **Jumlah Chat:** (Total pesan unik di jendela waktu)
-  - **Konteks:** (Pemicu lonjakan reaksi penonton)
-
-## 2. Kandidat Klip Terbaik
-- **Top 5 Kandidat Klip (Prioritas Tinggi):**
-  - **Klip #N — HH:MM:SS | [Judul Catchy] (Berakhir di HH:MM:SS)**
-  - **Alasan:** (Potensi viralitas & daya tarik)
-  - **Statistik Intensitas:** (Burst CPM, sentimen penonton)
-  - **Saran Edit:** (Zoom, SFX, subtitle)
-
-## 3. Insight & Kutipan
-- **Insight Superchat:** (Jika ada)
-- **3-5 Kutipan Ikonik:** HH:MM:SS | "[Nama]: Kutipan dari transkrip"
-- **Hashtag:** (Daftar hashtag tanpa simbol '#')
-"""
 
 
 def main():
@@ -944,6 +927,7 @@ def main():
 
         bot.injeksi_prompt(prompt)
         laporan_md = bot.kirim_dan_tunggu_respon(batas_waktu_detik=600)
+        laporan_md = pangkas_laporan_bersih(laporan_md)
 
         # 5. Simpan hasil
         print("\n[6/6] Menyimpan hasil laporan markdown...")

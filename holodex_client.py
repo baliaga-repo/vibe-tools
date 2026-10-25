@@ -99,7 +99,7 @@ def deteksi_caption_dan_chat(video_id: str, durasi_sec: int = 0) -> Dict[str, st
     Mendeteksi ketersediaan subtitle/caption (JP, EN, ID) dan livechat replay YouTube
     secara presisi dari respon watch page player YouTube menggunakan cookies sesi.
     """
-    hasil = {"caption": "-", "livechat": "-"}
+    hasil = {"caption": "-", "livechat": "-", "handle": None}
     if not video_id:
         return hasil
 
@@ -169,6 +169,14 @@ def deteksi_caption_dan_chat(video_id: str, durasi_sec: int = 0) -> Dict[str, st
                 hasil["livechat"] = "✓ Replay"
             else:
                 hasil["livechat"] = "-"
+
+            # 4. Deteksi YouTube Channel Handle (@channel)
+            m_handle = re.search(r'"ownerProfileUrl":\s*"https?://www\.youtube\.com/(@[A-Za-z0-9_.-]+)"', html)
+            if not m_handle:
+                m_handle = re.search(r'"canonicalBaseUrl":\s*"/(?:@)([A-Za-z0-9_.-]+)"', html)
+            if m_handle:
+                raw_h = m_handle.group(1).lstrip("@")
+                hasil["handle"] = f"@{raw_h}"
         else:
             # Fallback jika YouTube mengembalikan status selain 200 (misal 429 rate limit)
             if durasi_sec > 600:
@@ -179,6 +187,15 @@ def deteksi_caption_dan_chat(video_id: str, durasi_sec: int = 0) -> Dict[str, st
             hasil["livechat"] = "✓ Replay"
 
     return hasil
+
+
+def ambil_youtube_channel_handle(video_id_or_url: str) -> Optional[str]:
+    """Mengekstrak handle resmi YouTube channel (@handle) dari halaman watch video secara cepat."""
+    vid = ekstraksi_video_id(video_id_or_url)
+    if not vid:
+        return None
+    det = deteksi_caption_dan_chat(vid)
+    return det.get("handle")
 
 
 def ekstraksi_video_id(url_or_id: str) -> str:
@@ -322,6 +339,8 @@ def ambil_stream_terakhir(
                         info = deteksi_caption_dan_chat(v_id, durasi_sec=durasi)
                         s["caption"] = info.get("caption", "-")
                         s["livechat"] = info.get("livechat", "-")
+                        if info.get("handle"):
+                            s["channel_handle"] = info.get("handle")
                     return s
 
                 with ThreadPoolExecutor(max_workers=6) as executor:

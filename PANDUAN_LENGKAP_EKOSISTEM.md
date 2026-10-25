@@ -14,6 +14,7 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
 6. [OpenRouter MCP & Katalog Model](#6-openrouter-mcp--katalog-model)
 7. [FAQ & Troubleshooting](#7-faq--troubleshooting)
 8. [Katalog 15 Skill Universal & Panduan Penggunaan](#8-katalog-15-skill-universal--panduan-penggunaan)
+9. [Panduan Strategi & Prompt Siap Pakai Gemini 3.8 Flash (High)](#9-panduan-strategi--prompt-siap-pakai-gemini-38-flash-high)
 
 ---
 
@@ -1046,3 +1047,178 @@ flowchart LR
 > Untuk membaca skenario dialog mendalam, apa yang dilakukan AI, dan berkas output yang dihasilkan setiap skill, buka langsung berkas:  
 > 📖 [**`vibe_tools/skills/README.md`**](skills/README.md)
 
+
+
+---
+
+## 9. Panduan Strategi & Prompt Siap Pakai Gemini 3.8 Flash (High)
+
+Dokumen ini adalah referensi praktis saat berpasangan dengan model **Gemini 3.8 Flash (High)** di Antigravity IDE agar terhindar dari *hallucination*, kode terburu-buru (*trigger-happy*), atau error runtime berulang.
+
+### 🧠 Karakteristik Gemini 3.8 Flash (High)
+* **Kelebihan**: Sangat cepat (latensi rendah), jendela konteks sangat besar (mampu membaca banyak file sekaligus), dan gratis/efisien.
+* **Kelemahan Bawaan**: Sering kali ingin langsung menulis kode padahal spesifikasi belum matang, rentan salah indentasi jika memodifikasi file berukuran besar, dan cenderung menebak akar masalah tanpa memeriksa stack trace secara teliti.
+* **Solusi**: Gunakan **"Rem Pengaman" (Safety Lock)** pada prompt, pecah instruksi menjadi tahapan bertiket, dan manfaatkan MCP (seperti OpenRouter R1/Claude) untuk *deep reasoning*.
+
+---
+
+### 📋 4 Skenario Prompt Siap Pakai
+
+#### Skenario 1: Menambahkan/Memodifikasi Banyak Fitur ke GUI
+> Gunakan alur: `/to-spec` -> `/to-tickets` -> `/implement`. Jangan izinkan AI mengedit semua file sekaligus.
+
+##### Tahap 1: Perencanaan & Pemecahan Tiket (Read-Only)
+```markdown
+/to-spec Tolong buatkan rancangan spesifikasi teknis untuk penambahan fitur GUI berikut pada @[file_gui_target.py] :
+1. [Fitur A: misal tombol filter durasi]
+2. [Fitur B: misal export ke CSV custom]
+3. [Fitur C: misal toggle preview audio]
+
+ATURAN KETAT:
+- JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
+- Gunakan Facade Pattern dan arsitektur modular (< 300 baris per file).
+- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas.
+- Buatkan daftar tiket terurut untuk saya tinjau.
+```
+
+##### Tahap 2: Eksekusi Tiket (Pilih Sesuai Kondisi)
+
+* **Opsi A: "AFK Mode / Auto-Chain Tickets" (Rekomendasi saat Ditinggal Makan / Nonton Stream)**  
+  *Mencegah AI berhenti meminta konfirmasi di setiap tiket:*
+  ```markdown
+  /implement Tiket 1 sampai [X] sudah saya setujui. 
+  Saya akan AFK (pergi makan / streaming).
+
+  INSTRUKSI EKSEKUSI PENUH OTOMATIS:
+  1. Eksekusi SEMUA tiket secara berurutan (dari Tiket 1 -> Tiket 2 -> dst) sampai SELESAI semuanya.
+  2. DILARANG berhenti di tengah jalan untuk meminta konfirmasi antar-tiket.
+  3. Setelah setiap tiket selesai:
+     - Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
+     - Langsung lanjut otomatis ke tiket berikutnya tanpa jeda.
+  4. Hanya berhenti jika Anda menemukan error fatal yang benar-benar memblokir jalannya kode.
+  5. Ketika SEMUA tiket selesai, buat rangkuman final dalam 1 pesan saja.
+  ```
+
+* **Opsi B: Menggunakan Slash Command `/goal` (Otonom Penuh)**  
+  *Memanfaatkan mode otonom bawaan Antigravity agar AI terus bekerja mandiri sampai seluruh tujuan tercapai:*
+  ```markdown
+  /goal Selesaikan seluruh tiket rancangan di atas secara berurutan dan mandiri. Jangan berhenti sampai semua tiket terpasang dan lolos syntax gate.
+  ```
+
+* **Opsi C: Eksekusi Manual Bertahap (Saat Standby di Depan Laptop)**  
+  ```markdown
+  /implement Silakan kerjakan Tiket 1 dulu. Jalankan syntax gate, lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
+  ```
+
+---
+
+#### Skenario 2: Mengatasi Error Run / Ngebug Saat Dijalankan
+> Gunakan alur: `/diagnosing-bugs` + MCP `openrouter` (DeepSeek-R1 / Claude Sonnet). Paksa AI mencari *root cause* sebelum menyentuh file produksi.
+
+```markdown
+/diagnosing-bugs Aplikasi mengalami crash/error saat dijalankan.
+Berikut adalah pesan error lengkapnya:
+```text
+[PASTE FULL TRACEBACK / PESAN ERROR DI SINI]
+```
+
+INSTRUKSI INVESTIGASI:
+1. Jangan langsung mengubah kode produksi.
+2. Gunakan MCP openrouter (model deepseek/deepseek-r1-0528) untuk menganalisis Root Cause dan penyebab logisnya secara mendalam.
+3. Tunjukkan baris kode persis yang menjadi sumber masalah dan jelaskan solusinya secara singkat dalam Bahasa Indonesia.
+4. Tunggu konfirmasi saya sebelum menerapkan perbaikan.
+```
+
+---
+
+#### Skenario 3: Merapikan Kodingan & Menghapus Fungsi Mati (*Dead Code*)
+> Gunakan alur: `/code-review` + Skill `graphify`. Manfaatkan knowledge graph untuk memvalidasi tidak adanya pemanggil (*zero callers*).
+
+```markdown
+/code-review Lakukan audit kode mati (dead code / unused functions) pada @[file_target.py] dan modul-modul terkaitnya.
+
+LANGKAH AUDIT:
+1. Gunakan 'graphify query' atau grep untuk melacak referensi pemanggil (callers/xrefs) dari setiap fungsi yang dicurigai mati.
+2. Buat tabel daftar fungsi mati yang ditemukan:
+   - Nama Fungsi & Lokasi File:Baris
+   - Bukti bahwa fungsi tidak pernah dipanggil di mana pun (0 caller)
+3. JANGAN hapus fungsi apa pun dulu! Tampilkan daftarnya ke saya untuk saya konfirmasi mana yang aman dihapus.
+```
+
+---
+
+#### Skenario 4: Merancang Fitur dari Kondisi Blank (Murni Rancangan & Revisi Sampai Puas Baru Eksekusi 1x Jalan)
+> Gunakan alur 3 tahap: **Tahap A (Konsultasi & Draf Awal)** -> **Tahap B (Loop Revisi Sampai Puas)** -> **Tahap C (Eksekusi Sekali Jalan)**.
+
+##### Tahap A: Brainstorming & Grill-Me (Murni Diskusi & Spec)
+```markdown
+MODE KONSULTASI & BRAINSTORMING MURNI.
+
+Kondisi: Saya saat ini blank dan bingung ingin mendesain alur [nama fitur/halaman yang diinginkan].
+Tolong bantu saya:
+1. Berikan 2-3 opsi arsitektur/pendekatan terbaik yang umum dipakai untuk kebutuhan ini.
+2. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
+
+REM PENGAMAN (STRICT):
+- DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
+- Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
+- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
+```
+
+##### Tahap B: Loop Revisi Berulang (Lakukan Terus Sampai Puas)
+Gunakan salah satu template di bawah ini untuk mengoreksi dan memoles draf spesifikasi tanpa menyentuh kode `.py`:
+
+*Opsi 1: Revisi Bagian Tertentu (Feedback Spesifik)*
+```markdown
+REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
+
+Terkait draf spesifikasi sebelumnya, saya ingin merevisi bagian [sebutkan bagian, misal: Validasi Input / State Button]:
+1. [Kekurangan]: Pendekatan ini kurang cocok karena [alasan].
+2. [Ekspektasi Baru]: Tolong ubah alurnya menjadi [alur yang diinginkan].
+3. [Edge Case]: Pastikan jika [kondisi khusus], sistem merespons dengan [respons yang diinginkan].
+
+Tolong perbarui file draf spesifikasi (.md) saja dan tampilkan ringkasan perubahannya. JANGAN koding dulu!
+```
+
+*Opsi 2: Tantang Balik & Eksplorasi Alternatif (Jika Solusi Terlalu Rumit/Ragu)*
+```markdown
+REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
+
+Saya merasa usulan di poin [X] terlalu rumit/berbelit-belit. Tolong bantu:
+1. Berikan 2 alternatif solusi lain yang lebih simpel dan token-efficient.
+2. Jelaskan perbandingan pro/kontra masing-masing secara ringkas.
+3. Tunggu keputusan saya sebelum memasukkannya ke dalam draf spesifikasi (.md).
+```
+
+*Opsi 3: Konsolidasi Draf Final Menyeluruh*
+```markdown
+REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
+
+Tolong konsolidasikan seluruh poin revisi dari diskusi kita tadi ke dalam dokumen draf spesifikasi (.md).
+Pastikan mencakup:
+- Struktur file/arsitektur yang akan diubah.
+- Alur kerja teknis langkah demi langkah.
+- Penanganan error / edge case.
+- Checklist kriteria pengujian/verifikasi.
+
+Tampilkan checklist kesiapan di akhir. Saya akan mereview draf ini sekali lagi sebelum memberikan instruksi eksekusi.
+```
+
+##### Tahap C: Eksekusi 1 Kali Jalan (Setelah Revisi Selesai 100%)
+Kirimkan prompt ini HANYA jika draf spesifikasi sudah sempurna dan siap dikerjakan:
+```markdown
+SETUJU, SILAKAN EKSEKUSI.
+
+/implement Rencana spesifikasi di atas sudah final dan saya setujui.
+Silakan eksekusi seluruh kodingan dalam satu siklus:
+- Terapkan perubahan kode secara presisi sesuai spesifikasi.
+- Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
+- Laporkan ringkasan hasilnya setelah selesai.
+```
+
+---
+
+### 🛡️ 3 "Golden Rules" Anti-Blunder untuk Gemini 3.8 Flash
+1. **Frasa Pengaman Wajib**: Selalu sertakan kalimat `"DILARANG MENYENTUH KODE SEBELUM SAYA KETIK 'LANJUTKAN'"` saat masih berada di fase ide/perencanaan.
+2. **Silent Syntax Gate**: Pastikan AI selalu mengecek sintaks otomatis via `python -m py_compile <file_yang_diubah>` setelah selesai mengedit sebelum menyerahkan kembali ke Anda.
+3. **Offload Logika Kompleks**: Jika menghadapi algoritma matematika rumit, optimasi token, atau arsitektur kelas berat, perintahkan Flash mendelegasikan reasoning ke DeepSeek-R1 atau Claude Sonnet via MCP OpenRouter.

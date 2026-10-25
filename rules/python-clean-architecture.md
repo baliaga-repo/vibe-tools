@@ -31,6 +31,7 @@ Structure code across distinct layers:
   - Classes: `PascalCase`
   - Constants: `UPPER_SNAKE_CASE`
 
-## 4. Token Efficiency During Code Modifications
+## 4. Token Efficiency & Zero-Syntax-Error Gate
 - **Targeted Edits**: Use localized line replacements (`replace_file_content` / inline edits) rather than rewriting entire files.
 - **Focused Context**: When modifying a feature, open and reference only the specific files directly relevant to that task.
+- **Silent Syntax Gate**: After modifying any `.py` file, always run `python -m py_compile <modified_files>` and fix any syntax/indentation issues in the same turn before handing off to the user.
