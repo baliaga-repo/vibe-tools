@@ -1218,6 +1218,61 @@ Silakan eksekusi seluruh kodingan dalam satu siklus:
 
 ---
 
+#### Skenario 5: Fitur / Refaktor Skala Besar (Pipeline Formal: Grill -> Spec -> Tickets -> Implement)
+> Gunakan pipeline formal ini jika fitur/perubahan berskala besar (melibatkan **3+ file**, pembuatan modul/layanan baru, perubahan skema data, atau alur inti yang berisiko). Memecah proyek besar menjadi tiket modular mencegah kehabisan token (context exhaustion) dan meminimalkan bug regresi.
+
+##### Langkah 1: Eksplorasi & Wawancara Mendalam (/grill-me)
+```markdown
+MODE PERENCANAAN FITUR BESAR: DILARANG MENYENTUH/MEMBUAT KODE (.py).
+
+Saya berencana menambahkan fitur/merombak [nama fitur besar, misal: Modul Batch Downloader Berbasis Antrean Database].
+Tolong jalankan sesi /grill-me secara mendalam:
+1. Bedah arsitektur, edge cases, skema data, dan dependensi antar modul.
+2. Ajukan pertanyaan interaktif menggunakan ask_question satu per satu hingga seluruh ketidakjelasan teratasi.
+3. JANGAN buat file kode apa pun sebelum spesifikasi formal disetujui.
+```
+
+##### Langkah 2: Formalisasi Menjadi Dokumen Spesifikasi Teknis (/to-spec)
+Setelah sesi `/grill-me` tuntas, padatkan hasil kesepakatan menjadi cetak biru teknis resmi:
+```markdown
+/to-spec Berdasarkan hasil wawancara /grill-me tadi, tolong buatkan dokumen spesifikasi teknis formal di docs/specs/[nama_fitur].md.
+
+FOKUS DOKUMEN:
+- Batasan ruang lingkup (scope) & modularitas arsitektur (<300 baris per file).
+- Kontrak interface/fungsi, type hint, dan skema struktur data.
+- Penanganan error, logging, dan edge cases.
+- Kriteria verifikasi & pengujian (testing criteria).
+
+REM PENGAMAN: HANYA tulis dokumen spesifikasi (.md). DILARANG MENYENTUH KODE .PY!
+```
+*(Catatan: Anda dapat menggunakan template revisi pada Skenario 4 Tahap B untuk mengoreksi dokumen spek ini sampai benar-benar sempurna).*
+
+##### Langkah 3: Dekomposisi Menjadi Tiket Modular (/to-tickets)
+Setelah dokumen di `docs/specs/[nama_fitur].md` disetujui 100%, pecah menjadi tiket-tiket kecil independen:
+```markdown
+/to-tickets Pecah spesifikasi di docs/specs/[nama_fitur].md menjadi tiket-tiket eksekusi modular berurutan.
+
+SYARAT TIKET:
+- Urutan dependensi yang logis (Tier 1: Core/Data -> Tier 2: Adapter/Service -> Tier 3: UI/Integrasi).
+- Setiap tiket harus terisolasi, fokus pada 1-2 file, dan memiliki kriteria pengujian mandiri.
+- Simpan tiket di folder docs/tickets/[nama_fitur]/.
+- JANGAN mulai koding sebelum saya memilih tiket mana yang dikerjakan lebih dulu.
+```
+
+##### Langkah 4: Eksekusi Tiket Bertahap per Siklus (/implement)
+Eksekusi tiket satu per satu secara terisolasi. Jangan pernah menggabungkan semua tiket dalam satu kali perintah:
+```markdown
+/implement Kerjakan Ticket [Nomor/Nama Tiket, misal: Ticket-01 Core Data Model] dari docs/tickets/[nama_fitur]/.
+
+ATURAN EKSEKUSI:
+- Batasi modifikasi kode hanya pada file yang relevan dengan tiket ini.
+- Patuhi standar clean architecture (<300 baris per modul, komentar/docstring bahasa Indonesia).
+- Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
+- Laporkan ringkasan implementasi dan status checklist tiket setelah selesai sebelum pindah ke tiket berikutnya.
+```
+
+---
+
 ### 🛡️ 3 "Golden Rules" Anti-Blunder untuk Gemini 3.8 Flash
 1. **Frasa Pengaman Wajib**: Selalu sertakan kalimat `"DILARANG MENYENTUH KODE SEBELUM SAYA KETIK 'LANJUTKAN'"` saat masih berada di fase ide/perencanaan.
 2. **Silent Syntax Gate**: Pastikan AI selalu mengecek sintaks otomatis via `python -m py_compile <file_yang_diubah>` setelah selesai mengedit sebelum menyerahkan kembali ke Anda.
