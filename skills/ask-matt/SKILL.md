@@ -12,7 +12,7 @@ Identify the most appropriate skill or workflow for any given task.
 | Project Stage | User Need | Recommended Skill |
 | :--- | :--- | :--- |
 | **Ideation / Ambiguity** | Clarify assumptions, explore choices | `/grill-me` |
-| **Architecture / Domain** | Align glossary, record ADRs | `/grill-with-docs` |
+| **Architecture / Domain** | Align glossary, record ADRs | `/grill-me` |
 | **Planning** | Formalize architecture & interfaces | `/to-spec` |
 | **Task Breakdown** | Slice specs into testable units | `/to-tickets` |
 | **Development** | Execute tickets iteratively | `/implement` |
