@@ -81,6 +81,7 @@ def kelola_status_rea_mcp(aksi: str, target_workspace: Optional[Path] = None) ->
     ws_root = (target_workspace or Path.cwd()).resolve()
     antigravity_cfg = Path.home() / ".gemini" / "config" / "mcp_config.json"
     roo_cfg = ws_root / ".roo" / "mcp.json"
+    zoo_cfg = ws_root / ".zoo" / "mcp.json"
 
     val_to_set: Optional[bool] = None
     if aksi == "enable":
@@ -90,12 +91,21 @@ def kelola_status_rea_mcp(aksi: str, target_workspace: Optional[Path] = None) ->
 
     ag_disabled = _update_mcp_config_file(antigravity_cfg, val_to_set)
     roo_disabled = _update_mcp_config_file(roo_cfg, val_to_set)
+    zoo_disabled = _update_mcp_config_file(zoo_cfg, val_to_set)
+
+    active_ext_cfg = zoo_cfg if zoo_cfg.exists() else roo_cfg
+    ext_disabled = zoo_disabled if zoo_cfg.exists() else roo_disabled
 
     return {
         "antigravity": {
             "path": antigravity_cfg,
             "is_active": (ag_disabled is False) if ag_disabled is not None else None,
             "disabled": ag_disabled
+        },
+        "zoo_code": {
+            "path": active_ext_cfg,
+            "is_active": (ext_disabled is False) if ext_disabled is not None else None,
+            "disabled": ext_disabled
         },
         "roo_code": {
             "path": roo_cfg,
@@ -110,7 +120,7 @@ def cetak_status_dual_cockpit(hasil: Dict[str, Any]) -> None:
     print("================================================================")
     print("  🔧 SAKLAR DUAL-COCKPIT REA MCP (Reverse Engineer Anything)   ")
     print("================================================================")
-    for ide, info in (("Antigravity Global", hasil["antigravity"]), ("Roo Code Workspace", hasil["roo_code"])):
+    for ide, info in (("Antigravity Global", hasil["antigravity"]), ("Zoo Code / Roo Code", hasil["zoo_code"])):
         st = info["is_active"]
         if st is True:
             label = "[AKTIF] (Penuh ~25K Token Tools)"

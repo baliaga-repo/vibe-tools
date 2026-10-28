@@ -1340,19 +1340,19 @@ Output padat akan tersimpan di `scratch/recent_db_knowledge.md` yang siap dibaca
 
 ---
 
-## 11. Arsitektur Hybrid Dual-Cockpit (Antigravity + VS Code Roo Code + Ollama RTX 3060)
+## 11. Arsitektur Hybrid Dual-Cockpit (Antigravity + VS Code Zoo Code / Roo Code + Ollama RTX 3060)
 
 Arsitektur **Dual-Cockpit** menggabungkan dua lingkungan pengembangan AI secara harmonis:
 1. **Cockpit 1 (Antigravity IDE)**: Memanfaatkan context window raksasa untuk perencanaan arsitektur, wawancara `/grill-me`, spesifikasi `/to-spec`, dan audit skala besar.
-2. **Cockpit 2 (VS Code Roo Code)**: Memanfaatkan mode eksekusi khusus, tool use granular, dan integrasi model lokal Ollama (RTX 3060) untuk pencarian kode 100% offline dan hemat biaya.
+2. **Cockpit 2 (VS Code Zoo Code / Roo Code)**: Memanfaatkan mode eksekusi khusus, tool use granular, dan integrasi model lokal Ollama (RTX 3060) untuk pencarian kode 100% offline dan hemat biaya. Zoo Code adalah penerus resmi aktif dari Roo Code yang 100% kompatibel dengan seluruh aturan dan mode kita.
 
 ### 🌐 11.1 Sinergi Fondasi Bersama
 Kedua kokpit berbagi aturan dan pemetaan berkas yang sama tanpa duplikasi:
 - **`.agents/AGENTS.md`**: Aturan utama, bahasa komunikasi, dan pedoman clean architecture.
 - **`.agents/MAP.md`**: Peta berkas kode dan AST yang selalu disinkronkan oleh `vibe_tools/graphify_sync.py`.
-- **`.roo/rules/99-project-custom.md`**: Tempat khusus aturan unik proyek yang dilindungi 100% dari penimpaan saat update.
+- **`.zoo/rules/99-project-custom.md` & `.roo/rules/99-project-custom.md`**: Tempat khusus aturan unik proyek yang dilindungi 100% dari penimpaan saat update.
 
-### 🎭 11.2 7 Custom Modes di `.roomodes`
+### 🎭 11.2 7 Custom Modes di `.roomodes` / `.zoomodes`
 | Mode ID | Peran Utama | Profil API Terpilih |
 | :--- | :--- | :--- |
 | `orchestrator` | Perencanaan & pengarah tiket task | Claude Sonnet 4.5 / Gemini Argon |

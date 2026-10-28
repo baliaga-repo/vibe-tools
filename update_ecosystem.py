@@ -53,7 +53,7 @@ class VibeEcosystemUpdater:
         ".env", "cookies", "openrouter_key.txt", ".git", "__pycache__",
         ".pytest_cache", "graphify-out", "node_modules", "build", "dist"
     )
-    MANAGED_DIRS: Tuple[str, ...] = ("vibe_tools", ".agents", ".roomodes", ".roo")
+    MANAGED_DIRS: Tuple[str, ...] = ("vibe_tools", ".agents", ".roomodes", ".roo", ".zoomodes", ".zoo")
 
     def __init__(self, target_root: Optional[Path] = None, source_dir: Optional[Path] = None):
         self.target_root: Path = (target_root or Path.cwd()).resolve()
@@ -186,12 +186,12 @@ class VibeEcosystemUpdater:
         return True
 
     def sync_roo_hybrid_cockpit(self, setup_ollama: bool = False) -> None:
-        """[ID]: Memperbarui konfigurasi Roo Code via setup_roo_hybrid.py."""
+        """[ID]: Memperbarui konfigurasi Zoo Code / Roo Code via setup_zoo_hybrid.py."""
         try:
-            from vibe_tools.setup_roo_hybrid import pasang_roo_hybrid
-            pasang_roo_hybrid(target_path=str(self.target_root), jalankan_ollama=setup_ollama)
+            from vibe_tools.setup_zoo_hybrid import pasang_zoo_hybrid
+            pasang_zoo_hybrid(target_path=str(self.target_root), setup_ollama=setup_ollama)
         except Exception as e:
-            print(f"[PERINGATAN] Gagal sinkronisasi Roo Code Hybrid: {e}")
+            print(f"[PERINGATAN] Gagal sinkronisasi Zoo Code / Roo Code Hybrid: {e}")
 
     def apply_updates(self, diffs: List[FileDiffManifest], dry_run: bool = False, setup_ollama: bool = False) -> bool:
         """[ID]: Menerapkan pembaruan berkas, backup otomatis, dan sinkronisasi kokpit."""
