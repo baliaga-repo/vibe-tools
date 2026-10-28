@@ -24,6 +24,8 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
 8. [FAQ & Troubleshooting](#8-faq--troubleshooting)
 9. [Katalog 15 Skill Universal & Panduan Penggunaan](#9-katalog-15-skill-universal--panduan-penggunaan)
 10. [Otomasi Sinkronisasi Panduan dari Database](#10-otomasi-sinkronisasi-panduan-dari-database)
+11. [Arsitektur Hybrid Dual-Cockpit (Antigravity + VS Code Roo Code + Ollama RTX 3060)](#11-arsitektur-hybrid-dual-cockpit-antigravity--vs-code-roo-code--ollama-rtx-3060)
+12. [Otomasi Pemeliharaan & Universal Updater Lintas-Proyek](#12-otomasi-pemeliharaan--universal-updater-lintas-proyek)
 
 ---
 
@@ -1334,3 +1336,70 @@ python vibe_tools/doc_db_extractor.py 7
 ```
 
 Output padat akan tersimpan di `scratch/recent_db_knowledge.md` yang siap dibaca oleh AI dalam 50–100 baris untuk melakukan *targeted update* pada Bab 1 s/d Bab N.
+
+
+---
+
+## 11. Arsitektur Hybrid Dual-Cockpit (Antigravity + VS Code Roo Code + Ollama RTX 3060)
+
+Arsitektur **Dual-Cockpit** menggabungkan dua lingkungan pengembangan AI secara harmonis:
+1. **Cockpit 1 (Antigravity IDE)**: Memanfaatkan context window raksasa untuk perencanaan arsitektur, wawancara `/grill-me`, spesifikasi `/to-spec`, dan audit skala besar.
+2. **Cockpit 2 (VS Code Roo Code)**: Memanfaatkan mode eksekusi khusus, tool use granular, dan integrasi model lokal Ollama (RTX 3060) untuk pencarian kode 100% offline dan hemat biaya.
+
+### 🌐 11.1 Sinergi Fondasi Bersama
+Kedua kokpit berbagi aturan dan pemetaan berkas yang sama tanpa duplikasi:
+- **`.agents/AGENTS.md`**: Aturan utama, bahasa komunikasi, dan pedoman clean architecture.
+- **`.agents/MAP.md`**: Peta berkas kode dan AST yang selalu disinkronkan oleh `vibe_tools/graphify_sync.py`.
+- **`.roo/rules/99-project-custom.md`**: Tempat khusus aturan unik proyek yang dilindungi 100% dari penimpaan saat update.
+
+### 🎭 11.2 7 Custom Modes di `.roomodes`
+| Mode ID | Peran Utama | Profil API Terpilih |
+| :--- | :--- | :--- |
+| `orchestrator` | Perencanaan & pengarah tiket task | Claude Sonnet 4.5 / Gemini Argon |
+| `vibe-coder` | Implementasi kode & refaktor cepat | Gemini Flash High (Gratis) |
+| `local-scout-3b` | Pencarian & grepping kode offline | Ollama `qwen2.5-coder:3b-instruct` |
+| `local-scout-7b` | Analisis logika & refaktor offline | Ollama `qwen2.5-coder:7b-instruct-q4_K_M` |
+| `grill-me-spec` | Wawancara arsitektur & to-spec | DeepSeek-R1 / Claude Sonnet |
+| `bug-hunter` | Investigasi crash & analisis log | DeepSeek-R1 / Gemini Argon |
+| `code-reviewer` | Audit standar modularitas & clean arch | Claude Sonnet / Gemini Argon |
+
+### ⚡ 11.3 Pemilih Metode Eksekusi Saat Prompting
+Gunakan shortcut perintah berikut saat memberikan instruksi di chat:
+- `/pakai-rag` : Menggunakan Antigravity / RAG codebase search.
+- `/pakai-3b`  : Mengalihkan pencarian ke model lokal Ollama 3B (0 token API, hemat VRAM).
+- `/pakai-7b`  : Mengalihkan analisis ke model lokal Ollama 7B (penalaran kode offline).
+- `/adu-metode`: Membandingkan hasil penelusuran lokal vs remote cloud.
+
+
+---
+
+## 12. Otomasi Pemeliharaan & Universal Updater Lintas-Proyek
+
+Untuk mencegah *distribution drift* pada proyek-proyek yang menggunakan ekosistem `vibe_tools`, disediakan modul pembaruan universal (`vibe_tools/update_ecosystem.py`) dan saklar proteksi token (`vibe_tools/rea_tool.py`).
+
+### 🚀 12.1 Perintah Pembaruan Ekosistem
+```powershell
+# 1. Cek status berkas & perbedaan tanpa mengubah disk (Dry-Run)
+python vibe_tools/update_ecosystem.py --check
+python vibe_tools/update_ecosystem.py --dry-run
+
+# 2. Dorong (Push) ekosistem dari folder master lokal ke proyek lain (< 2 detik, offline)
+python vibe_tools/update_ecosystem.py --target "D:/Path/Ke/ProjectLain"
+
+# 3. Pulihkan konfigurasi ke kondisi sebelum update jika terjadi kendala (Rollback)
+python vibe_tools/update_ecosystem.py --rollback
+```
+
+### 🔧 12.2 Saklar Toggle REA MCP (Hemat ~25.000 Token/Pesan)
+Server REA MCP memiliki 160–200+ skema tool yang menghabiskan ~25K token konteks jika dibiarkan aktif. Gunakan saklar terpadu lintas-IDE:
+```powershell
+# Cek status aktif/nonaktif di Antigravity Global & Roo Code Workspace
+python vibe_tools/rea_tool.py --status
+
+# Nonaktifkan REA MCP di kedua IDE sekaligus (DEFAULT - Lindungi kuota token)
+python vibe_tools/rea_tool.py --disable
+
+# Aktifkan REA MCP saat butuh rekayasa balik binary, PE, atau APK
+python vibe_tools/rea_tool.py --enable
+```
+

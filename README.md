@@ -94,6 +94,9 @@ python vibe_tools/setup_vibe_ecosystem.py
 11. **`install_rea_mcp.py`**  
     - *Fungsi*: Installer otomatis REA MCP Server ([morluto/rea](https://github.com/morluto/rea)) ke Antigravity IDE. Mendaftarkan 207 tools reverse engineering (ASAR, Electron, APK Android, native binary) dengan profil compact hemat token.
 
+12. **`setup_roo_hybrid.py` & `roo_hybrid/`** ([📖 Panduan Cepat](PANDUAN_ROO_CODE_HYBRID.md))  
+    - *Fungsi*: Installer & updater portabel arsitektur **Hybrid Dual-Cockpit (VS Code Roo Code + Antigravity + Ollama RTX 3060)**. Memasang/memperbarui `.roomodes` (7 mode), `.roo/rules/*`, `.roo/commands/*` (`/pakai-rag`, `/pakai-3b`, `/pakai-7b`, `/adu-metode`, `/grill-me`), dan `.roo/mcp.json` bebas API key ke proyek saat ini maupun proyek lain (`--target "D:/ProjectLain"`).
+
 ---
 
 ### 📄 Dokumentasi & Cheat-Sheet Prompting

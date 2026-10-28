@@ -1091,6 +1091,7 @@ def main():
     buat_berkas("vibe_tools/README_EN.md", baca_skrip_lokal("README_EN.md"))
     buat_berkas("vibe_tools/TUTORIAL_SINKRONISASI_VIBE_TOOLS.md", baca_skrip_lokal("TUTORIAL_SINKRONISASI_VIBE_TOOLS.md"))
     buat_berkas("vibe_tools/patch_continue_autonomous.py", baca_skrip_lokal("patch_continue_autonomous.py"))
+    buat_berkas("vibe_tools/setup_roo_hybrid.py", baca_skrip_lokal("setup_roo_hybrid.py"))
 
     # 2b. Pasang REA MCP (opsional, jika Node.js tersedia)
     import shutil as _shutil
@@ -1118,6 +1119,8 @@ def main():
         sys.path.insert(0, os.path.join(BASE_DIR, "vibe_tools"))
         import sync_universal
         sync_universal.sinkronisasi_universal()
+        import setup_roo_hybrid
+        setup_roo_hybrid.pasang_roo_hybrid(target_path=BASE_DIR, setup_ollama=False)
     except Exception as e:
         print(f"[WARNING] Sinkronisasi universal otomatis dilewati: {e}")
 

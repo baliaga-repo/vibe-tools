@@ -79,6 +79,11 @@ Pastikan direktori dan berkas berikut tersedia lengkap di root proyek ini:
 - `vibe_tools/install_hermes_antigravity.py` (Installer Hermes Agent MCP)
 - `vibe_tools/install_openrouter_mcp.py` (Installer OpenRouter MCP)
 - `vibe_tools/cost_estimator.py` (Kalkulator estimasi token & biaya serta generator opsi dialog interaktif)
+- `vibe_tools/update_ecosystem.py` (Universal Ecosystem Updater Dual-Cockpit)
+- `vibe_tools/setup_roo_hybrid.py` (Installer & Updater Portabel Roo Code Hybrid)
+- `vibe_tools/rea_tool.py` (Saklar Lintas-IDE REA MCP Hemat 25K Token)
+- `.roomodes` (Konfigurasi 7 Custom Modes Roo Code Hybrid)
+- `.roo/rules/99-project-custom.md` (Aturan Kustom Proyek Terproteksi 100%)
 
 ---
 
@@ -285,8 +290,19 @@ Gunakan *template prompt* ringkas ini untuk berinteraksi dengan AI di proyek bar
 ### 5. Sinkronisasi Kode Proyek ke GitHub
 > *"Tolong jalankan `python vibe_tools/push_to_github.py` untuk mengunggah perubahan terbaru ke GitHub secara aman."*
 
-### 6. Sinkronisasi Pembaruan Kotak Perkakas `vibe_tools`
-> *"Tolong bantu sinkronkan submodule `vibe_tools` dengan commit terbaru dari GitHub (https://github.com/baliaga-repo/vibe-tools.git) sesuai panduan di `vibe_tools/TUTORIAL_SINKRONISASI_VIBE_TOOLS.md`."*
+### 6. Pembaruan Universal Ekosistem (Dual-Cockpit)
+> *"Tolong jalankan `python vibe_tools/update_ecosystem.py --check` untuk memeriksa apakah ada pembaruan template universal, atau dorong perubahan dari master lokal via `python vibe_tools/update_ecosystem.py --target 'D:/Path/Ke/ProjectLain'`."*
+
+### 7. Penggunaan Kokpit Roo Code Hybrid (Ollama RTX 3060)
+Gunakan shortcut perintah berikut di chat VS Code Roo Code:
+- `/pakai-rag`   : Memanfaatkan penelusuran codebase context.
+- `/pakai-3b`    : Alihkan pencarian file ke model lokal Ollama 3B (0 token, hemat VRAM).
+- `/pakai-7b`    : Analisis logika mendalam offline dengan Ollama 7B.
+- `/adu-metode`  : Bandingkan hasil penelusuran model lokal vs cloud.
+- `/grill-me`    : Wawancara arsitektur interaktif sebelum menulis kode.
+
+### 8. Melindungi Kuota Token dari REA MCP (~25.000 Token)
+> *"Pastikan server REA dinonaktifkan saat tidak melakukan rekayasa balik biner via `python vibe_tools/rea_tool.py --disable`."*
 
 ---
 
