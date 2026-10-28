@@ -80,8 +80,8 @@ except ImportError:
 # Pemetaan alias cerdas ke model ID resmi OpenRouter
 MODEL_ALIASES = {
     # Penalaran Mendalam & Khusus (Reasoning)
-    "r1": "deepseek/deepseek-r1",
-    "deepseek-r1": "deepseek/deepseek-r1",
+    "r1": "deepseek/deepseek-r1-0528",
+    "deepseek-r1": "deepseek/deepseek-r1-0528",
     "o3-mini": "openai/o3-mini",
     
     # Standar Emas Coding & Refactoring

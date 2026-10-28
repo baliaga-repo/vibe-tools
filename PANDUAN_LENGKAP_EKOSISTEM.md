@@ -6,20 +6,270 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
 
 ## 📑 Daftar Isi
 
-1. [Docstring Translator Bilingual](#1-docstring-translator-bilingual)
-2. [Testing Modal ask_question](#2-testing-modal-ask_question)
-3. [Sinkronisasi Git Submodule vibe_tools](#3-sinkronisasi-git-submodule-vibe_tools)
-4. [REA MCP: Reverse Engineer Anything](#4-rea-mcp-reverse-engineer-anything)
-5. [Hermes Agent x Antigravity IDE](#5-hermes-agent-x-antigravity-ide)
-6. [OpenRouter MCP & Katalog Model](#6-openrouter-mcp--katalog-model)
-7. [FAQ & Troubleshooting](#7-faq--troubleshooting)
-8. [Katalog 15 Skill Universal & Panduan Penggunaan](#8-katalog-15-skill-universal--panduan-penggunaan)
-9. [Panduan Strategi & Prompt Siap Pakai Gemini 3.8 Flash (High)](#9-panduan-strategi--prompt-siap-pakai-gemini-38-flash-high)
+1. [Panduan Strategi & Prompt Siap Pakai: Gemini 3.8 Flash (High) & Gemini 4 Argon (High)](#1-panduan-strategi--prompt-siap-pakai-gemini-38-flash-high--gemini-4-argon-high)
+   * 1.1 [Karakteristik & Sinergi Dual-Engine](#11-karakteristik--sinergi-dual-engine)
+   * 1.2 [5 Skenario Prompt Siap Pakai](#12-5-skenario-prompt-siap-pakai)
+     * [Skenario 1: Menambahkan/Memodifikasi Banyak Fitur ke GUI](#skenario-1-menambahkanmemodifikasi-banyak-fitur-ke-gui)
+     * [Skenario 2: Mengatasi Error Run / Ngebug Saat Dijalankan](#skenario-2-mengatasi-error-run--ngebug-saat-dijalankan)
+     * [Skenario 3: Merapikan Kodingan & Menghapus Fungsi Mati (*Dead Code*)](#skenario-3-merapikan-kodingan--menghapus-fungsi-mati-dead-code)
+     * [Skenario 4: Merancang Fitur dari Kondisi Blank](#skenario-4-merancang-fitur-dari-kondisi-blank-murni-rancangan--revisi-sampai-puas-baru-eksekusi-1x-jalan)
+     * [Skenario 5: Fitur / Refaktor Skala Besar (Pipeline Formal)](#skenario-5-fitur--refaktor-skala-besar-pipeline-formal-grill---spec---tickets---implement)
+   * 1.3 [3 "Golden Rules" Anti-Blunder untuk Gemini 3.8 Flash](#13-3-golden-rules-anti-blunder-untuk-gemini-38-flash)
+2. [Docstring Translator Bilingual](#2-docstring-translator-bilingual)
+3. [Testing Modal ask_question](#3-testing-modal-ask_question)
+4. [Sinkronisasi Git Submodule vibe_tools](#4-sinkronisasi-git-submodule-vibe_tools)
+5. [REA MCP: Reverse Engineer Anything](#5-rea-mcp-reverse-engineer-anything)
+6. [Hermes Agent x Antigravity IDE](#6-hermes-agent-x-antigravity-ide)
+7. [OpenRouter MCP & Katalog Model](#7-openrouter-mcp--katalog-model)
+8. [FAQ & Troubleshooting](#8-faq--troubleshooting)
+9. [Katalog 15 Skill Universal & Panduan Penggunaan](#9-katalog-15-skill-universal--panduan-penggunaan)
+10. [Otomasi Sinkronisasi Panduan dari Database](#10-otomasi-sinkronisasi-panduan-dari-database)
 
 ---
 
 
-## 1. Docstring Translator Bilingual
+## 1. Panduan Strategi & Prompt Siap Pakai: Gemini 3.8 Flash (High) & Gemini 4 Argon (High)
+
+Dokumen ini adalah referensi praktis saat berpasangan dengan model **Gemini 3.8 Flash (High)** maupun **Gemini 4 Argon (High)** di Antigravity IDE agar terhindar dari *hallucination*, kode terburu-buru (*trigger-happy*), atau error runtime berulang.
+
+<a id="11-karakteristik--sinergi-dual-engine"></a>
+### 🧠 Karakteristik & Sinergi Dual-Engine
+
+| Model | Peran Ideal | Keunggulan | Skenario Pemakaian |
+| :--- | :--- | :--- | :--- |
+| **Gemini 3.8 Flash (High)** | **Pelaksana Cepat (*Executor*)** | Latensi kilat, context raksasa, 100% gratis di IDE. | Eksekusi tiket `/implement`, pemindaian berkas, unit test, penulisan docstring. |
+| **Gemini 4 Argon (High)** | **Arsitek & Auditor (*Architect*)** | *Deep Agentic Reasoning*, audit lintas direktori, deteksi root-cause tajam. | Brainstorming Skenario 4, wawancara `/grill-me`, `/to-spec`, audit multi-folder. |
+* **Kelebihan**: Sangat cepat (latensi rendah), jendela konteks sangat besar (mampu membaca banyak file sekaligus), dan gratis/efisien.
+* **Kelemahan Bawaan**: Sering kali ingin langsung menulis kode padahal spesifikasi belum matang, rentan salah indentasi jika memodifikasi file berukuran besar, dan cenderung menebak akar masalah tanpa memeriksa stack trace secara teliti.
+* **Solusi**: Gunakan **"Rem Pengaman" (Safety Lock)** pada prompt, pecah instruksi menjadi tahapan bertiket, dan manfaatkan MCP (seperti OpenRouter R1/Claude) untuk *deep reasoning*.
+
+---
+
+<a id="12-5-skenario-prompt-siap-pakai"></a>
+### 📋 5 Skenario Prompt Siap Pakai
+
+<a id="skenario-1-menambahkanmemodifikasi-banyak-fitur-ke-gui"></a>
+#### Skenario 1: Menambahkan/Memodifikasi Banyak Fitur ke GUI
+> Gunakan alur: `/to-spec` -> `/to-tickets` -> `/implement`. Jangan izinkan AI mengedit semua file sekaligus.
+
+##### Tahap 1: Perencanaan & Pemecahan Tiket (Read-Only)
+```markdown
+/to-spec Tolong buatkan rancangan spesifikasi teknis untuk penambahan fitur GUI berikut pada @[file_gui_target.py] :
+1. [Fitur A: misal tombol filter durasi]
+2. [Fitur B: misal export ke CSV custom]
+3. [Fitur C: misal toggle preview audio]
+
+ATURAN KETAT:
+- JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
+- Gunakan Facade Pattern dan arsitektur modular (< 300 baris per file).
+- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas.
+- Buatkan daftar tiket terurut untuk saya tinjau.
+```
+
+##### Tahap 2: Eksekusi Tiket (Pilih Sesuai Kondisi)
+
+* **Opsi A: "AFK Mode / Auto-Chain Tickets" (Rekomendasi saat Ditinggal Makan / Nonton Stream)**  
+  *Mencegah AI berhenti meminta konfirmasi di setiap tiket:*
+  ```markdown
+  /implement Tiket 1 sampai [X] sudah saya setujui. 
+  Saya akan AFK (pergi makan / streaming).
+
+  INSTRUKSI EKSEKUSI PENUH OTOMATIS:
+  1. Eksekusi SEMUA tiket secara berurutan (dari Tiket 1 -> Tiket 2 -> dst) sampai SELESAI semuanya.
+  2. DILARANG berhenti di tengah jalan untuk meminta konfirmasi antar-tiket.
+  3. Setelah setiap tiket selesai:
+     - Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
+     - Langsung lanjut otomatis ke tiket berikutnya tanpa jeda.
+  4. Hanya berhenti jika Anda menemukan error fatal yang benar-benar memblokir jalannya kode.
+  5. Ketika SEMUA tiket selesai, buat rangkuman final dalam 1 pesan saja.
+  ```
+
+* **Opsi B: Menggunakan Slash Command `/goal` (Otonom Penuh)**  
+  *Memanfaatkan mode otonom bawaan Antigravity agar AI terus bekerja mandiri sampai seluruh tujuan tercapai:*
+  ```markdown
+  /goal Selesaikan seluruh tiket rancangan di atas secara berurutan dan mandiri. Jangan berhenti sampai semua tiket terpasang dan lolos syntax gate.
+  ```
+
+* **Opsi C: Eksekusi Manual Bertahap (Saat Standby di Depan Laptop)**  
+  ```markdown
+  /implement Silakan kerjakan Tiket 1 dulu. Jalankan syntax gate, lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
+  ```
+
+---
+
+<a id="skenario-2-mengatasi-error-run--ngebug-saat-dijalankan"></a>
+#### Skenario 2: Mengatasi Error Run / Ngebug Saat Dijalankan
+> Gunakan alur: `/diagnosing-bugs` + MCP `openrouter` (DeepSeek-R1 / Claude Sonnet). Paksa AI mencari *root cause* sebelum menyentuh file produksi.
+
+```markdown
+/diagnosing-bugs Aplikasi mengalami crash/error saat dijalankan.
+Berikut adalah pesan error lengkapnya:
+
+[PASTE FULL TRACEBACK / PESAN ERROR DI SINI]
+
+INSTRUKSI INVESTIGASI:
+1. Jangan langsung mengubah kode produksi.
+2. Gunakan MCP openrouter (model deepseek/deepseek-r1-0528) untuk menganalisis Root Cause dan penyebab logisnya secara mendalam.
+3. Tunjukkan baris kode persis yang menjadi sumber masalah dan jelaskan solusinya secara singkat dalam Bahasa Indonesia.
+4. Tunggu konfirmasi saya sebelum menerapkan perbaikan.
+```
+
+---
+
+<a id="skenario-3-merapikan-kodingan--menghapus-fungsi-mati-dead-code"></a>
+#### Skenario 3: Merapikan Kodingan & Menghapus Fungsi Mati (*Dead Code*)
+> Gunakan alur: `/code-review` + Skill `graphify`. Manfaatkan knowledge graph untuk memvalidasi tidak adanya pemanggil (*zero callers*).
+
+```markdown
+/code-review Lakukan audit kode mati (dead code / unused functions) pada @[file_target.py] dan modul-modul terkaitnya.
+
+LANGKAH AUDIT:
+1. Gunakan 'graphify query' atau grep untuk melacak referensi pemanggil (callers/xrefs) dari setiap fungsi yang dicurigai mati.
+2. Buat tabel daftar fungsi mati yang ditemukan:
+   - Nama Fungsi & Lokasi File:Baris
+   - Bukti bahwa fungsi tidak pernah dipanggil di mana pun (0 caller)
+3. JANGAN hapus fungsi apa pun dulu! Tampilkan daftarnya ke saya untuk saya konfirmasi mana yang aman dihapus.
+```
+
+---
+
+<a id="skenario-4-merancang-fitur-dari-kondisi-blank-murni-rancangan--revisi-sampai-puas-baru-eksekusi-1x-jalan"></a>
+#### Skenario 4: Merancang Fitur dari Kondisi Blank (Murni Rancangan & Revisi Sampai Puas Baru Eksekusi 1x Jalan)
+> Gunakan alur 3 tahap: **Tahap A (Konsultasi & Draf Awal)** -> **Tahap B (Loop Revisi Sampai Puas)** -> **Tahap C (Eksekusi Sekali Jalan)**.
+
+##### Tahap A: Brainstorming & Grill-Me (Murni Diskusi & Spec)
+```markdown
+MODE KONSULTASI & BRAINSTORMING MURNI.
+
+Kondisi: Saya saat ini blank dan bingung ingin mendesain alur [nama fitur/halaman yang diinginkan].
+Tolong bantu saya:
+1. Berikan 2-3 opsi arsitektur/pendekatan terbaik yang umum dipakai untuk kebutuhan ini.
+2. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
+
+REM PENGAMAN (STRICT):
+- DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
+- Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
+- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
+```
+
+##### Tahap B: Loop Revisi Berulang (Lakukan Terus Sampai Puas)
+Gunakan salah satu template di bawah ini untuk mengoreksi dan memoles draf spesifikasi tanpa menyentuh kode `.py`:
+
+*Opsi 1: Revisi Bagian Tertentu (Feedback Spesifik)*
+```markdown
+REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
+
+Terkait draf spesifikasi sebelumnya, saya ingin merevisi bagian [sebutkan bagian, misal: Validasi Input / State Button]:
+1. [Kekurangan]: Pendekatan ini kurang cocok karena [alasan].
+2. [Ekspektasi Baru]: Tolong ubah alurnya menjadi [alur yang diinginkan].
+3. [Edge Case]: Pastikan jika [kondisi khusus], sistem merespons dengan [respons yang diinginkan].
+
+Tolong perbarui file draf spesifikasi (.md) saja dan tampilkan ringkasan perubahannya. JANGAN koding dulu!
+```
+
+*Opsi 2: Tantang Balik & Eksplorasi Alternatif (Jika Solusi Terlalu Rumit/Ragu)*
+```markdown
+REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
+
+Saya merasa usulan di poin [X] terlalu rumit/berbelit-belit. Tolong bantu:
+1. Berikan 2 alternatif solusi lain yang lebih simpel dan token-efficient.
+2. Jelaskan perbandingan pro/kontra masing-masing secara ringkas.
+3. Tunggu keputusan saya sebelum memasukkannya ke dalam draf spesifikasi (.md).
+```
+
+*Opsi 3: Konsolidasi Draf Final Menyeluruh*
+```markdown
+REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
+
+Tolong konsolidasikan seluruh poin revisi dari diskusi kita tadi ke dalam dokumen draf spesifikasi (.md).
+Pastikan mencakup:
+- Struktur file/arsitektur yang akan diubah.
+- Alur kerja teknis langkah demi langkah.
+- Penanganan error / edge case.
+- Checklist kriteria pengujian/verifikasi.
+
+Tampilkan checklist kesiapan di akhir. Saya akan mereview draf ini sekali lagi sebelum memberikan instruksi eksekusi.
+```
+
+##### Tahap C: Eksekusi 1 Kali Jalan (Setelah Revisi Selesai 100%)
+Kirimkan prompt ini HANYA jika draf spesifikasi sudah sempurna dan siap dikerjakan:
+```markdown
+SETUJU, SILAKAN EKSEKUSI.
+
+/implement Rencana spesifikasi di atas sudah final dan saya setujui.
+Silakan eksekusi seluruh kodingan dalam satu siklus:
+- Terapkan perubahan kode secara presisi sesuai spesifikasi.
+- Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
+- Laporkan ringkasan hasilnya setelah selesai.
+```
+
+---
+
+<a id="skenario-5-fitur--refaktor-skala-besar-pipeline-formal-grill---spec---tickets---implement"></a>
+#### Skenario 5: Fitur / Refaktor Skala Besar (Pipeline Formal: Grill -> Spec -> Tickets -> Implement)
+> Gunakan pipeline formal ini jika fitur/perubahan berskala besar (melibatkan **3+ file**, pembuatan modul/layanan baru, perubahan skema data, atau alur inti yang berisiko). Memecah proyek besar menjadi tiket modular mencegah kehabisan token (context exhaustion) dan meminimalkan bug regresi.
+
+##### Langkah 1: Eksplorasi & Wawancara Mendalam (/grill-me)
+```markdown
+MODE PERENCANAAN FITUR BESAR: DILARANG MENYENTUH/MEMBUAT KODE (.py).
+
+Saya berencana menambahkan fitur/merombak [nama fitur besar, misal: Modul Batch Downloader Berbasis Antrean Database].
+Tolong jalankan sesi /grill-me secara mendalam:
+1. Bedah arsitektur, edge cases, skema data, dan dependensi antar modul.
+2. Ajukan pertanyaan interaktif menggunakan ask_question satu per satu hingga seluruh ketidakjelasan teratasi.
+3. JANGAN buat file kode apa pun sebelum spesifikasi formal disetujui.
+```
+
+##### Langkah 2: Formalisasi Menjadi Dokumen Spesifikasi Teknis (/to-spec)
+Setelah sesi `/grill-me` tuntas, padatkan hasil kesepakatan menjadi cetak biru teknis resmi:
+```markdown
+/to-spec Berdasarkan hasil wawancara /grill-me tadi, tolong buatkan dokumen spesifikasi teknis formal di docs/specs/[nama_fitur].md.
+
+FOKUS DOKUMEN:
+- Batasan ruang lingkup (scope) & modularitas arsitektur (<300 baris per file).
+- Kontrak interface/fungsi, type hint, dan skema struktur data.
+- Penanganan error, logging, dan edge cases.
+- Kriteria verifikasi & pengujian (testing criteria).
+
+REM PENGAMAN: HANYA tulis dokumen spesifikasi (.md). DILARANG MENYENTUH KODE .PY!
+```
+*(Catatan: Anda dapat menggunakan template revisi pada Skenario 4 Tahap B untuk mengoreksi dokumen spek ini sampai benar-benar sempurna).*
+
+##### Langkah 3: Dekomposisi Menjadi Tiket Modular (/to-tickets)
+Setelah dokumen di `docs/specs/[nama_fitur].md` disetujui 100%, pecah menjadi tiket-tiket kecil independen:
+```markdown
+/to-tickets Pecah spesifikasi di docs/specs/[nama_fitur].md menjadi tiket-tiket eksekusi modular berurutan.
+
+SYARAT TIKET:
+- Urutan dependensi yang logis (Tier 1: Core/Data -> Tier 2: Adapter/Service -> Tier 3: UI/Integrasi).
+- Setiap tiket harus terisolasi, fokus pada 1-2 file, dan memiliki kriteria pengujian mandiri.
+- Simpan tiket di folder docs/tickets/[nama_fitur]/.
+- JANGAN mulai koding sebelum saya memilih tiket mana yang dikerjakan lebih dulu.
+```
+
+##### Langkah 4: Eksekusi Tiket Bertahap per Siklus (/implement)
+Eksekusi tiket satu per satu secara terisolasi. Jangan pernah menggabungkan semua tiket dalam satu kali perintah:
+```markdown
+/implement Kerjakan Ticket [Nomor/Nama Tiket, misal: Ticket-01 Core Data Model] dari docs/tickets/[nama_fitur]/.
+
+ATURAN EKSEKUSI:
+- Batasi modifikasi kode hanya pada file yang relevan dengan tiket ini.
+- Patuhi standar clean architecture (<300 baris per modul, komentar/docstring bahasa Indonesia).
+- Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
+- Laporkan ringkasan implementasi dan status checklist tiket setelah selesai sebelum pindah ke tiket berikutnya.
+```
+
+---
+
+<a id="13-3-golden-rules-anti-blunder-untuk-gemini-38-flash"></a>
+### 🛡️ 3 "Golden Rules" Anti-Blunder untuk Gemini 3.8 Flash
+1. **Frasa Pengaman Wajib**: Selalu sertakan kalimat `"DILARANG MENYENTUH KODE SEBELUM SAYA KETIK 'LANJUTKAN'"` saat masih berada di fase ide/perencanaan.
+2. **Silent Syntax Gate**: Pastikan AI selalu mengecek sintaks otomatis via `python -m py_compile <file_yang_diubah>` setelah selesai mengedit sebelum menyerahkan kembali ke Anda.
+3. **Offload Logika Kompleks**: Jika menghadapi algoritma matematika rumit, optimasi token, atau arsitektur kelas berat, perintahkan Flash mendelegasikan reasoning ke DeepSeek-R1 atau Claude Sonnet via MCP OpenRouter.
+
+---
+
+## 2. Docstring Translator Bilingual
 
 Dokumen ini menjelaskan cara penggunaan, konfigurasi API Key, penanganan limit kuota (rate limiting), serta arsitektur auto-fallback pada modul `docstring_translator.py`.
 
@@ -152,7 +402,7 @@ Untuk menjaga agar repositori publik Anda selalu memiliki docstring bilingual se
 
 ---
 
-## 2. Testing Modal ask_question
+## 3. Testing Modal ask_question
 
 Dokumen ini berisi panduan praktis dan contoh prompt siap pakai untuk menguji fitur **Interactive Model Selector & Modal Dialog (`ask_question`)** di Antigravity IDE.
 
@@ -247,7 +497,7 @@ sequenceDiagram
 
 ---
 
-## 3. Sinkronisasi Git Submodule vibe_tools
+## 4. Sinkronisasi Git Submodule vibe_tools
 
 Dokumen ini menjelaskan alur lengkap untuk **mengambil pembaruan (Pull)** dari repositori induk [baliaga-repo/vibe-tools](https://github.com/baliaga-repo/vibe-tools.git) ke dalam proyek kerja Anda, serta **mengirimkan kontribusi lokal (Push)** kembali ke GitHub.
 
@@ -382,7 +632,7 @@ git submodule update --init --recursive
 
 ---
 
-## 4. REA MCP: Reverse Engineer Anything
+## 5. REA MCP: Reverse Engineer Anything
 
 REA (*Reverse Engineer Anything*) adalah MCP server berbasis Node.js yang memberikan kemampuan **reverse engineering mendalam** kepada AI Agent. Dibangun oleh [morluto/rea](https://github.com/morluto/rea) dan tersedia di npm sebagai `rea-agents`.
 
@@ -538,7 +788,7 @@ python vibe_tools/install_rea_mcp.py
 
 ---
 
-## 5. Hermes Agent x Antigravity IDE
+## 6. Hermes Agent x Antigravity IDE
 
 Panduan ini digunakan untuk memasang **Hermes Agent** di PC lain yang menggunakan **Antigravity IDE** agar berfungsi sebagai **Background Worker MCP** untuk menghemat kuota token Claude / GPT.
 
@@ -784,7 +1034,7 @@ hermes model
 | :--- | :--- | :--- | :--- |
 | **Default (Sangat Hemat & Cerdas)** | `anthropic/claude-3.5-haiku` | `deepseek/deepseek-chat` | ~$0.80/M token Thinker + ~$0.14/M token Worker. Keseimbangan terbaik kecepatan dan akurasi. |
 | **Heavy Architecture / Refactor Rumit** | `anthropic/claude-3.5-sonnet` | `deepseek/deepseek-chat` | Analisis logika terdalam dengan Claude Sonnet, eksekusi kode panjang tetap murah via DeepSeek. |
-| **Pure Reasoning Murah** | `deepseek/deepseek-r1` | `deepseek/deepseek-chat` | Keduanya dari DeepSeek. Penalaran CoT (Chain-of-Thought) sangat kuat dengan biaya super minimal. |
+| **Pure Reasoning Murah** | `deepseek/deepseek-r1-0528` | `deepseek/deepseek-chat` | Keduanya dari DeepSeek. Penalaran CoT (Chain-of-Thought) sangat kuat dengan biaya super minimal. |
 | **Eksperimen / Zero Cost** | `deepseek/deepseek-chat` | `meta-llama/llama-3.3-70b-instruct:free` | Eksekusi terminal dan pengujian berkas tanpa biaya token worker. |
 
 ---
@@ -797,14 +1047,14 @@ hermes model
 | `deepseek/deepseek-chat` (DeepSeek-V3) | Sangat Murah ($0.14 / 1M token) | Sangat cerdas dalam bash/python command, scripting, dan koding. |
 | `anthropic/claude-3.5-haiku` | Ekonomis (~$0.80 / 1M token) | Sangat cepat dan presisi untuk membuat technical execution plan. |
 | `anthropic/claude-3.5-sonnet` | Standar (~$3.00 / 1M token) | Kemampuan arsitektur dan debugging kode paling canggih di dunia. |
-| `deepseek/deepseek-r1` | Murah (~$0.55 / 1M token) | Penalaran mendalam (*Chain of Thought*) untuk masalah logika yang sangat rumit. |
+| `deepseek/deepseek-r1-0528` | Murah (~$0.55 / 1M token) | Penalaran mendalam (*Chain of Thought*) untuk masalah logika yang sangat rumit. |
 | `google/gemini-2.5-flash` | Sangat Murah | Kecepatan kilat, context window 1M token (bisa membaca file log raksasa). |
 
 
 
 ---
 
-## 6. OpenRouter MCP & Katalog Model
+## 7. OpenRouter MCP & Katalog Model
 
 Dokumen ini berisi panduan komprehensif integrasi **OpenRouter MCP Server** di Antigravity IDE, mulai dari **prompt pemasangan mandiri di laptop/PC baru**, langkah instalasi manual, panduan penggunaan alias cerdas, hingga katalog lengkap model AI terbaik untuk *vibe coding*.
 
@@ -920,7 +1170,7 @@ Server MCP OpenRouter telah dilengkapi dengan **Sistem Alias Cerdas**. Anda **ti
 
 | Kategori & Kegunaan | Nama Panggilan (Alias) | Model ID Lengkap | Biaya per 1 Juta Token (Input / Output) | Kapan Harus Digunakan? |
 | :--- | :---: | :--- | :---: | :--- |
-| 🧠 **Penalaran Super (Reasoning)** | **`r1`** | `deepseek/deepseek-r1` | $0.55 / $2.19 | Algoritma matematika, logika regex rumit, pelacakan bug misterius, pemikiran mendalam (CoT). |
+| 🧠 **Penalaran Super (Reasoning)** | **`r1`** | `deepseek/deepseek-r1-0528` *(resmi per Okt 2026)* | $0.55 / $2.19 | Algoritma matematika, logika regex rumit, pelacakan bug misterius, pemikiran mendalam (CoT). |
 | 🧠 **Penalaran Cepat** | **`o3-mini`** | `openai/o3-mini` | $1.10 / $4.40 | Masalah sains/coding yang butuh penalaran logis ala OpenAI. |
 | 💻 **Standar Emas Coding** | **`claude`** atau **`sonnet`** | `anthropic/claude-sonnet-4.5` | $3.00 / $15.00 | Refactoring arsitektur besar, pembuatan kode modular bersih, zero halusinasi sintaks. |
 | 💻 **Spesialis Coding Super Cepat** | **`qwen`**, **`qwen-coder`**, **`qwen-2.5-coder`** | `qwen/qwen-2.5-coder-32b-instruct` | **$0.07 / $1.00** | Model spesialis coding terbaik di kelasnya: super murah, kilat, dan akurat untuk Python, JS, Regex. |
@@ -995,11 +1245,13 @@ Untuk teks panjang, Bahasa Indonesia dapat memakan **40% – 50% lebih banyak to
    Skrip `openrouter_mcp.py` sudah dilengkapi konfigurasi otomatis UTF-8 untuk stdout dan stderr agar aman dari error encoding terminal Windows.
 3. **Penyimpanan Saldo & Keamanan Key:**
    Simpan API Key di file lokal `openrouter_key.txt` (termasuk di `.gitignore`), bukan di-hardcode ke repositori publik.
+4. **Error OpenRouter API Status 404 (`deepseek/deepseek-r1 is no longer available`):**
+   OpenRouter telah menghentikan penyajian slug model lama `deepseek/deepseek-r1`. Perbarui alias model ke versi resmi terkini: `deepseek/deepseek-r1-0528` pada file `~/.gemini/openrouter_mcp.py` dan `vibe_tools/install_openrouter_mcp.py`, lalu lakukan *reload window* atau restart MCP server di Antigravity IDE.
 
 
 ---
 
-## 7. FAQ & Troubleshooting
+## 8. FAQ & Troubleshooting
 
 ### Q: Saya pemula di ekosistem vibe_tools, mulai dari mana?
 **A**: Baca panduan ini secara linear dari Bab 1 hingga Bab 6. Setiap bab berdiri sendiri namun saling terhubung dalam satu workflow koding cerdas hemat token.
@@ -1009,7 +1261,7 @@ Untuk teks panjang, Bahasa Indonesia dapat memakan **40% – 50% lebih banyak to
 
 ---
 
-## 8. Katalog 15 Skill Universal & Panduan Penggunaan
+## 9. Katalog 15 Skill Universal & Panduan Penggunaan
 
 Folder `vibe_tools/skills` telah dirombak menjadi **Single Source of Truth** universal yang otomatis dihubungkan ke `~/.gemini/config/skills` via Windows NTFS Junction (`sync_universal.py`).
 
@@ -1041,6 +1293,7 @@ flowchart LR
 | **`/graphify`** | Peta dependensi kode AST & GraphRAG lokal | `"/graphify petakan dependensi fungsi di folder gui"` |
 | **`/handoff`** | Kompresi konteks percakapan untuk ganti chat/model | `"/handoff rangkum sesi kerja ini ke dokumen handoff"` |
 | **`/retro`** | Retrospeksi & penyempurnaan rules guardrails | `"/retro evaluasi proses pengerjaan fitur tadi"` |
+| **`agent-security`** | Proteksi kredensial, cookies YouTube, sensor token API & isolasi git | `"Audit keamanan file cookie dan isolasi git"` |
 
 > [!TIP]
 > **Panduan Lengkap & Contoh Nyata**:  
@@ -1051,229 +1304,33 @@ flowchart LR
 
 ---
 
-## 9. Panduan Strategi & Prompt Siap Pakai Gemini 3.8 Flash (High)
+## 10. Otomasi Sinkronisasi Panduan dari Database
 
-Dokumen ini adalah referensi praktis saat berpasangan dengan model **Gemini 3.8 Flash (High)** di Antigravity IDE agar terhindar dari *hallucination*, kode terburu-buru (*trigger-happy*), atau error runtime berulang.
+Modul `doc_db_extractor.py` dirancang untuk memecahkan masalah pembaruan panduan secara berkala menggunakan data riwayat percakapan nyata dari database Antigravity IDE (`monitor/monitor_cache.db`).
 
-### 🧠 Karakteristik Gemini 3.8 Flash (High)
-* **Kelebihan**: Sangat cepat (latensi rendah), jendela konteks sangat besar (mampu membaca banyak file sekaligus), dan gratis/efisien.
-* **Kelemahan Bawaan**: Sering kali ingin langsung menulis kode padahal spesifikasi belum matang, rentan salah indentasi jika memodifikasi file berukuran besar, dan cenderung menebak akar masalah tanpa memeriksa stack trace secara teliti.
-* **Solusi**: Gunakan **"Rem Pengaman" (Safety Lock)** pada prompt, pecah instruksi menjadi tahapan bertiket, dan manfaatkan MCP (seperti OpenRouter R1/Claude) untuk *deep reasoning*.
+### 🎯 1. Latar Belakang & Alur Kerja
+Ketika ekosistem berkembang pesat melalui puluhan percakapan vibe coding setiap hari:
+* Pengembang sering lupa mendokumentasikan modul, flag, atau aturan baru yang disepakati di dalam sesi obrolan.
+* Menyalin log mentah secara manual menghabiskan token dan rentan merusak struktur dokumen 1.200+ baris.
 
----
-
-### 📋 4 Skenario Prompt Siap Pakai
-
-#### Skenario 1: Menambahkan/Memodifikasi Banyak Fitur ke GUI
-> Gunakan alur: `/to-spec` -> `/to-tickets` -> `/implement`. Jangan izinkan AI mengedit semua file sekaligus.
-
-##### Tahap 1: Perencanaan & Pemecahan Tiket (Read-Only)
-```markdown
-/to-spec Tolong buatkan rancangan spesifikasi teknis untuk penambahan fitur GUI berikut pada @[file_gui_target.py] :
-1. [Fitur A: misal tombol filter durasi]
-2. [Fitur B: misal export ke CSV custom]
-3. [Fitur C: misal toggle preview audio]
-
-ATURAN KETAT:
-- JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
-- Gunakan Facade Pattern dan arsitektur modular (< 300 baris per file).
-- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas.
-- Buatkan daftar tiket terurut untuk saya tinjau.
+Modul ini bekerja dalam alur **Hybrid Pre-Aggregation**:
+```mermaid
+flowchart LR
+    A["Transkrip Antigravity IDE\n(~/.gemini/antigravity/brain)"] --> B["Parser Multi-Dir\n(monitor/parser.py)"]
+    B --> C["Tabel SQLite turn_cache_v2\n(monitor_cache.db)"]
+    C --> D["Ekstraktor Terfilter\n(vibe_tools/doc_db_extractor.py)"]
+    D --> E["Ringkasan Padat\n(scratch/recent_db_knowledge.md)"]
+    E --> F["Targeted Edit AI\n(PANDUAN_LENGKAP_EKOSISTEM.md)"]
 ```
 
-##### Tahap 2: Eksekusi Tiket (Pilih Sesuai Kondisi)
+### 🚀 2. Perintah CLI Siap Pakai
+Untuk mengekstrak data percakapan kemarin dan hari ini:
+```powershell
+# Ekstrak percakapan 2 hari terakhir (kemarin & hari ini)
+python vibe_tools/doc_db_extractor.py 2
 
-* **Opsi A: "AFK Mode / Auto-Chain Tickets" (Rekomendasi saat Ditinggal Makan / Nonton Stream)**  
-  *Mencegah AI berhenti meminta konfirmasi di setiap tiket:*
-  ```markdown
-  /implement Tiket 1 sampai [X] sudah saya setujui. 
-  Saya akan AFK (pergi makan / streaming).
-
-  INSTRUKSI EKSEKUSI PENUH OTOMATIS:
-  1. Eksekusi SEMUA tiket secara berurutan (dari Tiket 1 -> Tiket 2 -> dst) sampai SELESAI semuanya.
-  2. DILARANG berhenti di tengah jalan untuk meminta konfirmasi antar-tiket.
-  3. Setelah setiap tiket selesai:
-     - Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
-     - Langsung lanjut otomatis ke tiket berikutnya tanpa jeda.
-  4. Hanya berhenti jika Anda menemukan error fatal yang benar-benar memblokir jalannya kode.
-  5. Ketika SEMUA tiket selesai, buat rangkuman final dalam 1 pesan saja.
-  ```
-
-* **Opsi B: Menggunakan Slash Command `/goal` (Otonom Penuh)**  
-  *Memanfaatkan mode otonom bawaan Antigravity agar AI terus bekerja mandiri sampai seluruh tujuan tercapai:*
-  ```markdown
-  /goal Selesaikan seluruh tiket rancangan di atas secara berurutan dan mandiri. Jangan berhenti sampai semua tiket terpasang dan lolos syntax gate.
-  ```
-
-* **Opsi C: Eksekusi Manual Bertahap (Saat Standby di Depan Laptop)**  
-  ```markdown
-  /implement Silakan kerjakan Tiket 1 dulu. Jalankan syntax gate, lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
-  ```
-
----
-
-#### Skenario 2: Mengatasi Error Run / Ngebug Saat Dijalankan
-> Gunakan alur: `/diagnosing-bugs` + MCP `openrouter` (DeepSeek-R1 / Claude Sonnet). Paksa AI mencari *root cause* sebelum menyentuh file produksi.
-
-```markdown
-/diagnosing-bugs Aplikasi mengalami crash/error saat dijalankan.
-Berikut adalah pesan error lengkapnya:
-```text
-[PASTE FULL TRACEBACK / PESAN ERROR DI SINI]
+# Ekstrak percakapan 7 hari terakhir (mingguan)
+python vibe_tools/doc_db_extractor.py 7
 ```
 
-INSTRUKSI INVESTIGASI:
-1. Jangan langsung mengubah kode produksi.
-2. Gunakan MCP openrouter (model deepseek/deepseek-r1-0528) untuk menganalisis Root Cause dan penyebab logisnya secara mendalam.
-3. Tunjukkan baris kode persis yang menjadi sumber masalah dan jelaskan solusinya secara singkat dalam Bahasa Indonesia.
-4. Tunggu konfirmasi saya sebelum menerapkan perbaikan.
-```
-
----
-
-#### Skenario 3: Merapikan Kodingan & Menghapus Fungsi Mati (*Dead Code*)
-> Gunakan alur: `/code-review` + Skill `graphify`. Manfaatkan knowledge graph untuk memvalidasi tidak adanya pemanggil (*zero callers*).
-
-```markdown
-/code-review Lakukan audit kode mati (dead code / unused functions) pada @[file_target.py] dan modul-modul terkaitnya.
-
-LANGKAH AUDIT:
-1. Gunakan 'graphify query' atau grep untuk melacak referensi pemanggil (callers/xrefs) dari setiap fungsi yang dicurigai mati.
-2. Buat tabel daftar fungsi mati yang ditemukan:
-   - Nama Fungsi & Lokasi File:Baris
-   - Bukti bahwa fungsi tidak pernah dipanggil di mana pun (0 caller)
-3. JANGAN hapus fungsi apa pun dulu! Tampilkan daftarnya ke saya untuk saya konfirmasi mana yang aman dihapus.
-```
-
----
-
-#### Skenario 4: Merancang Fitur dari Kondisi Blank (Murni Rancangan & Revisi Sampai Puas Baru Eksekusi 1x Jalan)
-> Gunakan alur 3 tahap: **Tahap A (Konsultasi & Draf Awal)** -> **Tahap B (Loop Revisi Sampai Puas)** -> **Tahap C (Eksekusi Sekali Jalan)**.
-
-##### Tahap A: Brainstorming & Grill-Me (Murni Diskusi & Spec)
-```markdown
-MODE KONSULTASI & BRAINSTORMING MURNI.
-
-Kondisi: Saya saat ini blank dan bingung ingin mendesain alur [nama fitur/halaman yang diinginkan].
-Tolong bantu saya:
-1. Berikan 2-3 opsi arsitektur/pendekatan terbaik yang umum dipakai untuk kebutuhan ini.
-2. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
-
-REM PENGAMAN (STRICT):
-- DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
-- Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
-- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
-```
-
-##### Tahap B: Loop Revisi Berulang (Lakukan Terus Sampai Puas)
-Gunakan salah satu template di bawah ini untuk mengoreksi dan memoles draf spesifikasi tanpa menyentuh kode `.py`:
-
-*Opsi 1: Revisi Bagian Tertentu (Feedback Spesifik)*
-```markdown
-REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
-
-Terkait draf spesifikasi sebelumnya, saya ingin merevisi bagian [sebutkan bagian, misal: Validasi Input / State Button]:
-1. [Kekurangan]: Pendekatan ini kurang cocok karena [alasan].
-2. [Ekspektasi Baru]: Tolong ubah alurnya menjadi [alur yang diinginkan].
-3. [Edge Case]: Pastikan jika [kondisi khusus], sistem merespons dengan [respons yang diinginkan].
-
-Tolong perbarui file draf spesifikasi (.md) saja dan tampilkan ringkasan perubahannya. JANGAN koding dulu!
-```
-
-*Opsi 2: Tantang Balik & Eksplorasi Alternatif (Jika Solusi Terlalu Rumit/Ragu)*
-```markdown
-REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
-
-Saya merasa usulan di poin [X] terlalu rumit/berbelit-belit. Tolong bantu:
-1. Berikan 2 alternatif solusi lain yang lebih simpel dan token-efficient.
-2. Jelaskan perbandingan pro/kontra masing-masing secara ringkas.
-3. Tunggu keputusan saya sebelum memasukkannya ke dalam draf spesifikasi (.md).
-```
-
-*Opsi 3: Konsolidasi Draf Final Menyeluruh*
-```markdown
-REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
-
-Tolong konsolidasikan seluruh poin revisi dari diskusi kita tadi ke dalam dokumen draf spesifikasi (.md).
-Pastikan mencakup:
-- Struktur file/arsitektur yang akan diubah.
-- Alur kerja teknis langkah demi langkah.
-- Penanganan error / edge case.
-- Checklist kriteria pengujian/verifikasi.
-
-Tampilkan checklist kesiapan di akhir. Saya akan mereview draf ini sekali lagi sebelum memberikan instruksi eksekusi.
-```
-
-##### Tahap C: Eksekusi 1 Kali Jalan (Setelah Revisi Selesai 100%)
-Kirimkan prompt ini HANYA jika draf spesifikasi sudah sempurna dan siap dikerjakan:
-```markdown
-SETUJU, SILAKAN EKSEKUSI.
-
-/implement Rencana spesifikasi di atas sudah final dan saya setujui.
-Silakan eksekusi seluruh kodingan dalam satu siklus:
-- Terapkan perubahan kode secara presisi sesuai spesifikasi.
-- Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
-- Laporkan ringkasan hasilnya setelah selesai.
-```
-
----
-
-#### Skenario 5: Fitur / Refaktor Skala Besar (Pipeline Formal: Grill -> Spec -> Tickets -> Implement)
-> Gunakan pipeline formal ini jika fitur/perubahan berskala besar (melibatkan **3+ file**, pembuatan modul/layanan baru, perubahan skema data, atau alur inti yang berisiko). Memecah proyek besar menjadi tiket modular mencegah kehabisan token (context exhaustion) dan meminimalkan bug regresi.
-
-##### Langkah 1: Eksplorasi & Wawancara Mendalam (/grill-me)
-```markdown
-MODE PERENCANAAN FITUR BESAR: DILARANG MENYENTUH/MEMBUAT KODE (.py).
-
-Saya berencana menambahkan fitur/merombak [nama fitur besar, misal: Modul Batch Downloader Berbasis Antrean Database].
-Tolong jalankan sesi /grill-me secara mendalam:
-1. Bedah arsitektur, edge cases, skema data, dan dependensi antar modul.
-2. Ajukan pertanyaan interaktif menggunakan ask_question satu per satu hingga seluruh ketidakjelasan teratasi.
-3. JANGAN buat file kode apa pun sebelum spesifikasi formal disetujui.
-```
-
-##### Langkah 2: Formalisasi Menjadi Dokumen Spesifikasi Teknis (/to-spec)
-Setelah sesi `/grill-me` tuntas, padatkan hasil kesepakatan menjadi cetak biru teknis resmi:
-```markdown
-/to-spec Berdasarkan hasil wawancara /grill-me tadi, tolong buatkan dokumen spesifikasi teknis formal di docs/specs/[nama_fitur].md.
-
-FOKUS DOKUMEN:
-- Batasan ruang lingkup (scope) & modularitas arsitektur (<300 baris per file).
-- Kontrak interface/fungsi, type hint, dan skema struktur data.
-- Penanganan error, logging, dan edge cases.
-- Kriteria verifikasi & pengujian (testing criteria).
-
-REM PENGAMAN: HANYA tulis dokumen spesifikasi (.md). DILARANG MENYENTUH KODE .PY!
-```
-*(Catatan: Anda dapat menggunakan template revisi pada Skenario 4 Tahap B untuk mengoreksi dokumen spek ini sampai benar-benar sempurna).*
-
-##### Langkah 3: Dekomposisi Menjadi Tiket Modular (/to-tickets)
-Setelah dokumen di `docs/specs/[nama_fitur].md` disetujui 100%, pecah menjadi tiket-tiket kecil independen:
-```markdown
-/to-tickets Pecah spesifikasi di docs/specs/[nama_fitur].md menjadi tiket-tiket eksekusi modular berurutan.
-
-SYARAT TIKET:
-- Urutan dependensi yang logis (Tier 1: Core/Data -> Tier 2: Adapter/Service -> Tier 3: UI/Integrasi).
-- Setiap tiket harus terisolasi, fokus pada 1-2 file, dan memiliki kriteria pengujian mandiri.
-- Simpan tiket di folder docs/tickets/[nama_fitur]/.
-- JANGAN mulai koding sebelum saya memilih tiket mana yang dikerjakan lebih dulu.
-```
-
-##### Langkah 4: Eksekusi Tiket Bertahap per Siklus (/implement)
-Eksekusi tiket satu per satu secara terisolasi. Jangan pernah menggabungkan semua tiket dalam satu kali perintah:
-```markdown
-/implement Kerjakan Ticket [Nomor/Nama Tiket, misal: Ticket-01 Core Data Model] dari docs/tickets/[nama_fitur]/.
-
-ATURAN EKSEKUSI:
-- Batasi modifikasi kode hanya pada file yang relevan dengan tiket ini.
-- Patuhi standar clean architecture (<300 baris per modul, komentar/docstring bahasa Indonesia).
-- Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
-- Laporkan ringkasan implementasi dan status checklist tiket setelah selesai sebelum pindah ke tiket berikutnya.
-```
-
----
-
-### 🛡️ 3 "Golden Rules" Anti-Blunder untuk Gemini 3.8 Flash
-1. **Frasa Pengaman Wajib**: Selalu sertakan kalimat `"DILARANG MENYENTUH KODE SEBELUM SAYA KETIK 'LANJUTKAN'"` saat masih berada di fase ide/perencanaan.
-2. **Silent Syntax Gate**: Pastikan AI selalu mengecek sintaks otomatis via `python -m py_compile <file_yang_diubah>` setelah selesai mengedit sebelum menyerahkan kembali ke Anda.
-3. **Offload Logika Kompleks**: Jika menghadapi algoritma matematika rumit, optimasi token, atau arsitektur kelas berat, perintahkan Flash mendelegasikan reasoning ke DeepSeek-R1 atau Claude Sonnet via MCP OpenRouter.
+Output padat akan tersimpan di `scratch/recent_db_knowledge.md` yang siap dibaca oleh AI dalam 50–100 baris untuk melakukan *targeted update* pada Bab 1 s/d Bab N.

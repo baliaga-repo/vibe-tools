@@ -23,8 +23,14 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
 
 # Tambahkan path ke modul terkait
 ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(ROOT_DIR))
 sys.path.append(str(ROOT_DIR / "vibe_tools"))
 sys.path.append(str(ROOT_DIR / "cache_chat" / "davinci_core"))
+
+try:
+    from core.chat_peak_detector import ekspor_livechat_timeline_csv
+except ImportError:
+    ekspor_livechat_timeline_csv = None
 
 try:
     from gemini_prompt_builder import GeminiWebPromptFacade
@@ -586,6 +592,23 @@ class GeminiWebAutomator:
             ada_struktur = "timeline kronologis" in teks_model.lower() and "kandidat klip" in teks_model.lower()
             ada_hashtag = "hashtag" in teks_model.lower()
 
+            # Deteksi cepat jika model menolak (Safety Refusal) saat tombol stop sudah hilang
+            frasa_refusal_cepat = [
+                "against my guidelines", "go against", "against our guidelines",
+                "safety guidelines", "tidak bisa membantu", "hanya model bahasa", "cannot help"
+            ]
+            teks_lower = teks_model.lower()
+            terdeteksi_refusal = (
+                not ada_tombol_stop
+                and len(teks_model) > 20
+                and len(teks_model) < 400
+                and any(f in teks_lower for f in frasa_refusal_cepat)
+            )
+
+            if terdeteksi_refusal:
+                print(f"      [WARNING] Terdeteksi respon penolakan keselamatan model ({len(teks_model)} karakter).")
+                break
+
             if not ada_tombol_stop and sudah_berisi_laporan and ada_struktur:
                 # Opsi 3A: Auto-scroll ke bawah saat tombol stop hilang agar konten virtual/lazy render muncul penuh
                 try:
@@ -700,10 +723,7 @@ class GeminiWebAutomator:
 
         # Fungsi pembantu validasi respons model
         def _is_valid_model_response(t: str) -> bool:
-            if not t or len(t) < 150:
-                return False
-            # Tolak jika model mengembalikan respons penolakan standar
-            if any(p in t for p in ["Saya tidak bisa membantu", "hanya model bahasa", "I cannot help", "as a language model"]):
+            if not t or len(t) < 25:
                 return False
             # Pastikan bukan teks prompt input kita sendiri
             if (
@@ -910,16 +930,30 @@ def main():
         bot.navigasi_ke_gemini()
         bot.pilih_model_argon_jika_ada()
 
-        # 3. Lampirkan berkas sumber livechat.csv & transkrip.csv dari folder talent
+        # 3. Bentuk linimasa livechat teragregasi dan lampirkan bersama transkrip
         berkas_terlampir = False
         target_lampiran = []
         if chat_file and Path(chat_file).exists():
-            target_lampiran.append(chat_file)
+            folder_cache = base_dir / "cache_chat"
+            folder_cache.mkdir(parents=True, exist_ok=True)
+            stem_nama = Path(chat_file).stem
+            timeline_path = folder_cache / f"{stem_nama}_timeline.csv"
+            print(f"[INFO] Menyusun linimasa chat kronologis teragregasi (30s) bebas pemicu filter...")
+            if ekspor_livechat_timeline_csv:
+                try:
+                    ekspor_livechat_timeline_csv(chats, str(timeline_path), durasi_jendela_detik=30)
+                    target_lampiran.append(str(timeline_path))
+                    print(f"      [OK] Berkas linimasa chat aman disiapkan: {timeline_path.name}")
+                except Exception as e_tl:
+                    print(f"      [WARNING] Gagal membuat linimasa teragregasi: {e_tl}. Menggunakan chat asli...")
+                    target_lampiran.append(chat_file)
+            else:
+                target_lampiran.append(chat_file)
         if transkrip_file and Path(transkrip_file).exists():
             target_lampiran.append(transkrip_file)
 
         if target_lampiran:
-            print(f"\n[4/6] Melampirkan {len(target_lampiran)} berkas sumber asli ke Gemini Web:")
+            print(f"\n[4/6] Melampirkan {len(target_lampiran)} berkas sumber aman ke Gemini Web:")
             berkas_terlampir = bot.lampirkan_berkas(target_lampiran)
         else:
             print("\n[4/6] Tidak ada berkas lampiran yang ditemukan, menggunakan data klaster prompt...")
