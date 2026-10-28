@@ -48,6 +48,8 @@ def buat_berkas(rel_path: str, isi: str):
 [ID]: Menulis berkas jika belum ada, mencegah penimpaan file atau setup spesialis yang sudah ada.
 [EN]: Writes the file if it does not exist, preventing overwriting or disrupting existing specialized setups.
 """
+    if not isi or not isi.strip():
+        return
     target = os.path.join(BASE_DIR, rel_path)
     os.makedirs(os.path.dirname(target), exist_ok=True)
     if not os.path.exists(target):
@@ -1074,22 +1076,21 @@ def main():
     buat_berkas("vibe_tools/push_to_github.py", baca_skrip_lokal("push_to_github.py") or KONTEN_PUSH_GITHUB)
     buat_berkas("vibe_tools/install_hermes_antigravity.py", baca_skrip_lokal("install_hermes_antigravity.py"))
     buat_berkas("vibe_tools/install_openrouter_mcp.py", baca_skrip_lokal("install_openrouter_mcp.py"))
-    buat_berkas("vibe_tools/PANDUAN_HERMES_ANTIGRAVITY.md", baca_skrip_lokal("PANDUAN_HERMES_ANTIGRAVITY.md"))
-    buat_berkas("vibe_tools/OPENROUTER_MCP_GUIDE.md", baca_skrip_lokal("OPENROUTER_MCP_GUIDE.md"))
-    buat_berkas("vibe_tools/Prompt_AI.md", baca_skrip_lokal("Prompt_AI.md"))
+    buat_berkas("vibe_tools/update_ecosystem.py", baca_skrip_lokal("update_ecosystem.py"))
+    buat_berkas("vibe_tools/bootstrap_update.ps1", baca_skrip_lokal("bootstrap_update.ps1"))
+    buat_berkas("vibe_tools/rea_tool.py", baca_skrip_lokal("rea_tool.py"))
+    buat_berkas("vibe_tools/PANDUAN_LENGKAP_EKOSISTEM.md", baca_skrip_lokal("PANDUAN_LENGKAP_EKOSISTEM.md"))
+    buat_berkas("vibe_tools/PANDUAN_ROO_CODE_HYBRID.md", baca_skrip_lokal("PANDUAN_ROO_CODE_HYBRID.md"))
     buat_berkas("vibe_tools/PANDUAN_SETUP_VIBE_CODING_BARU.md", baca_skrip_lokal("PANDUAN_SETUP_VIBE_CODING_BARU.md"))
-    buat_berkas("vibe_tools/TUTORIAL_TESTING_ASK_QUESTION.md", baca_skrip_lokal("TUTORIAL_TESTING_ASK_QUESTION.md"))
+    buat_berkas("vibe_tools/Prompt_AI.md", baca_skrip_lokal("Prompt_AI.md"))
     buat_berkas("vibe_tools/graphify_SKILL.md", baca_skrip_lokal("graphify_SKILL.md"))
     buat_berkas("vibe_tools/openrouter_mcp.py", baca_skrip_lokal("openrouter_mcp.py"))
     buat_berkas("vibe_tools/hermes_mcp.py", baca_skrip_lokal("hermes_mcp.py"))
     buat_berkas("vibe_tools/cost_estimator.py", baca_skrip_lokal("cost_estimator.py"))
     buat_berkas("vibe_tools/docstring_translator.py", baca_skrip_lokal("docstring_translator.py"))
-    buat_berkas("vibe_tools/TUTORIAL_DOCSTRING_TRANSLATOR.md", baca_skrip_lokal("TUTORIAL_DOCSTRING_TRANSLATOR.md"))
     buat_berkas("vibe_tools/install_rea_mcp.py", baca_skrip_lokal("install_rea_mcp.py"))
-    buat_berkas("vibe_tools/PANDUAN_REA_MCP.md", baca_skrip_lokal("PANDUAN_REA_MCP.md"))
     buat_berkas("vibe_tools/README.md", baca_skrip_lokal("README.md"))
     buat_berkas("vibe_tools/README_EN.md", baca_skrip_lokal("README_EN.md"))
-    buat_berkas("vibe_tools/TUTORIAL_SINKRONISASI_VIBE_TOOLS.md", baca_skrip_lokal("TUTORIAL_SINKRONISASI_VIBE_TOOLS.md"))
     buat_berkas("vibe_tools/patch_continue_autonomous.py", baca_skrip_lokal("patch_continue_autonomous.py"))
     buat_berkas("vibe_tools/setup_roo_hybrid.py", baca_skrip_lokal("setup_roo_hybrid.py"))
 
