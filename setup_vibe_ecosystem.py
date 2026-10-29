@@ -148,7 +148,7 @@ KONTEN_AGENTS_MD = """# Custom Agent Rules
 KONTEN_RULES_ARCH = """---
 trigger: always_on
 description: Standar arsitektur bersih, batasan panjang berkas, dan efisiensi token.
-globs: ["*.py"]
+globs: "*.py"
 ---
 
 # Standar Clean Architecture & Efisiensi Token

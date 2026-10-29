@@ -141,7 +141,7 @@ Isi dengan panduan guardrails agent (dalam Bahasa Inggris padat agar hemat token
 ---
 trigger: always_on
 description: Standar arsitektur bersih, batasan panjang berkas, dan efisiensi token.
-globs: ["*.py"]
+globs: "*.py"
 ---
 
 # Standar Clean Architecture & Efisiensi Token
