@@ -19,10 +19,28 @@ if sys.stdout and hasattr(sys.stdout, "reconfigure"):
 if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-try:
-    import requests
-except ImportError:
-    requests = None
+import json
+import urllib.request
+import urllib.error
+
+
+def _http_post_json(url: str, headers: Dict[str, str], payload: Dict[str, Any], timeout: int = 20) -> Tuple[int, Dict[str, Any], str]:
+    """Helper HTTP POST mandiri menggunakan urllib standard library (0 dependensi eksternal)."""
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            raw = resp.read().decode("utf-8", errors="replace")
+            try:
+                return resp.status, json.loads(raw), raw
+            except Exception:
+                return resp.status, {}, raw
+    except urllib.error.HTTPError as e:
+        raw = e.read().decode("utf-8", errors="replace")
+        try:
+            return e.code, json.loads(raw), raw
+        except Exception:
+            return e.code, {}, raw
 
 
 def ambil_semua_api_keys() -> Dict[str, str]:
@@ -70,27 +88,12 @@ def ambil_semua_api_keys() -> Dict[str, str]:
     return keys
 
 
-def ambil_api_key() -> Tuple[str, str]:
-    """
-    [ID]: Kompatibilitas mundur: mengambil pasangan engine default dan API key pertamanya.
-    [EN]: Backward compatibility: retrieves default engine pair and its primary API key.
-    """
-    keys = ambil_semua_api_keys()
-    if "gemini" in keys:
-        return "gemini", keys["gemini"]
-    if "openrouter" in keys:
-        return "openrouter", keys["openrouter"]
-    return "", ""
-
-
 def terjemahkan_ke_inggris(teks_id: str, engine_or_state: Union[str, Dict[str, Any]], api_key: Optional[str] = None) -> Optional[str]:
     """
     [ID]: Menerjemahkan docstring Bahasa Indonesia ke Bahasa Inggris teknis ringkas, mendukung auto-fallback.
     [EN]: Translates Indonesian docstring into concise technical English, supporting auto-fallback.
     """
-    if not requests:
-        print("[WARNING] Pustaka 'requests' belum terpasang. Jalankan: pip install requests")
-        return None
+
 
     # Normalisasi argumen untuk mendukung format lama (engine: str, api_key: str) dan format baru (engine_state: dict)
     if isinstance(engine_or_state, dict):
@@ -134,13 +137,12 @@ def terjemahkan_ke_inggris(teks_id: str, engine_or_state: Union[str, Dict[str, A
                 ],
                 "temperature": 0.2
             }
-            res = requests.post(url, headers=headers, json=payload, timeout=20)
-            if res.status_code == 200:
-                data = res.json()
+            status_code, data, raw_text = _http_post_json(url, headers=headers, payload=payload, timeout=20)
+            if status_code == 200:
                 return data["choices"][0]["message"]["content"].strip()
             else:
-                print(f"[ERROR OpenRouter] Status {res.status_code}: {res.text[:100]}")
-                if engine_state.get("allow_fallback") and "gemini" in keys and res.status_code in (429, 503):
+                print(f"[ERROR OpenRouter] Status {status_code}: {raw_text[:100]}")
+                if engine_state.get("allow_fallback") and "gemini" in keys and status_code in (429, 503):
                     print("      ⚠️ OpenRouter limit/overload. Beralih otomatis (fallback) ke GEMINI...")
                     engine_state["current"] = "gemini"
                     return terjemahkan_ke_inggris(teks_id, engine_state)
@@ -153,14 +155,13 @@ def terjemahkan_ke_inggris(teks_id: str, engine_or_state: Union[str, Dict[str, A
                     {"parts": [{"text": f"{prompt_sistem}\n\nIndonesian text:\n{teks_id}"}]}
                 ]
             }
-            res = requests.post(url, headers=headers, json=payload, timeout=20)
-            if res.status_code == 200:
-                data = res.json()
+            status_code, data, raw_text = _http_post_json(url, headers=headers, payload=payload, timeout=20)
+            if status_code == 200:
                 return data["candidates"][0]["content"]["parts"][0]["text"].strip()
             else:
-                print(f"[ERROR Gemini] Status {res.status_code}: {res.text[:100]}")
-                if engine_state.get("allow_fallback") and "openrouter" in keys and res.status_code in (429, 503):
-                    print(f"      ⚠️ Gemini kuota penuh/overload (HTTP {res.status_code}). Beralih otomatis ke OPENROUTER (DeepSeek)...")
+                print(f"[ERROR Gemini] Status {status_code}: {raw_text[:100]}")
+                if engine_state.get("allow_fallback") and "openrouter" in keys and status_code in (429, 503):
+                    print(f"      ⚠️ Gemini kuota penuh/overload (HTTP {status_code}). Beralih otomatis ke OPENROUTER (DeepSeek)...")
                     engine_state["current"] = "openrouter"
                     return terjemahkan_ke_inggris(teks_id, engine_state)
 

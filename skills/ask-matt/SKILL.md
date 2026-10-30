@@ -13,6 +13,7 @@ Identify the most appropriate skill or workflow for any given task.
 | :--- | :--- | :--- |
 | **Ideation / Ambiguity** | Clarify assumptions, explore choices | `/grill-me` |
 | **Architecture / Domain** | Align glossary, record ADRs | `/grill-me` |
+| **Design / Anti-Bloat** | Prevent over-engineering, stdlib reuse | `/ponytail` |
 | **Planning** | Formalize architecture & interfaces | `/to-spec` |
 | **Task Breakdown** | Slice specs into testable units | `/to-tickets` |
 | **Development** | Execute tickets iteratively | `/implement` |

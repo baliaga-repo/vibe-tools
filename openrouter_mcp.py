@@ -11,7 +11,9 @@ using a smart alias system (r1, claude, sonnet, deepseek, v3, gpt4o, qwen, free,
 import os
 import sys
 from pathlib import Path
-import requests
+import json
+import urllib.request
+import urllib.error
 
 # Konfigurasi encoding UTF-8 agar kompatibel dengan terminal Windows
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
@@ -31,6 +33,32 @@ except ImportError:
         raise RuntimeError(f"Gagal memuat modul MCP: {err}")
 
 # Pemetaan alias cerdas ke model ID resmi OpenRouter
+
+def _http_json(url: str, headers: dict = None, payload: dict = None, timeout: int = 90) -> tuple[int, dict, str]:
+    """Helper HTTP mandiri menggunakan standard library urllib (tanpa ketergantungan requests)."""
+    headers = headers or {}
+    data = json.dumps(payload).encode("utf-8") if payload is not None else None
+    req = urllib.request.Request(url, data=data, headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            status = resp.status
+            raw = resp.read().decode("utf-8", errors="replace")
+            try:
+                return status, json.loads(raw), raw
+            except Exception:
+                return status, {}, raw
+    except urllib.error.HTTPError as e:
+        status = e.code
+        raw = e.read().decode("utf-8", errors="replace")
+        try:
+            return status, json.loads(raw), raw
+        except Exception:
+            return status, {}, raw
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Kesalahan koneksi jaringan: {e.reason}")
+    except Exception as e:
+        raise RuntimeError(str(e))
+
 MODEL_ALIASES = {
     # Penalaran Mendalam & Khusus (Reasoning)
     "r1": "deepseek/deepseek-r1-0528",
@@ -132,9 +160,9 @@ Returns (is_exceeded, current_daily_usage).
 """
     try:
         headers = {"Authorization": f"Bearer {api_key}"}
-        res = requests.get("https://openrouter.ai/api/v1/auth/key", headers=headers, timeout=5)
-        if res.status_code == 200:
-            auth_data = res.json().get("data", {})
+        status, data_json, _ = _http_json("https://openrouter.ai/api/v1/auth/key", headers=headers, timeout=5)
+        if status == 200:
+            auth_data = data_json.get("data", {})
             daily_usage = float(auth_data.get("usage_daily", 0.0) or 0.0)
             if daily_usage >= DAILY_LIMIT_USD:
                 return True, daily_usage
@@ -196,10 +224,9 @@ Includes a daily spending limit safeguard of $1/day.
     }
 
     try:
-        response = requests.post(endpoint, headers=headers, json=payload, timeout=90)
+        status_code, res_json, raw_text = _http_json(endpoint, headers=headers, payload=payload, timeout=90)
         
-        if response.status_code == 200:
-            res_json = response.json()
+        if status_code == 200:
             choices = res_json.get("choices", [])
             if choices and "message" in choices[0]:
                 content = choices[0]["message"].get("content", "")
@@ -213,15 +240,12 @@ Includes a daily spending limit safeguard of $1/day.
                 return content + tokens_info
             return "⚠️ Respons dari OpenRouter tidak memiliki pesan teks yang valid."
         else:
-            try:
-                err_detail = response.json().get("error", {}).get("message", response.text)
-            except Exception:
-                err_detail = response.text
-            return f"❌ Error OpenRouter API (Status {response.status_code}): {err_detail}"
+            err_detail = res_json.get("error", {}).get("message", raw_text) if isinstance(res_json, dict) else raw_text
+            return f"❌ Error OpenRouter API (Status {status_code}): {err_detail}"
 
-    except requests.exceptions.Timeout:
+    except TimeoutError:
         return "❌ Request timeout: Model membutuhkan waktu terlalu lama untuk merespons (lebih dari 90 detik)."
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         return f"❌ Terjadi kesalahan jaringan saat menghubungi OpenRouter: {str(e)}"
 
 
@@ -273,11 +297,11 @@ def cek_koneksi_openrouter() -> str:
 
     try:
         # Cek informasi API Key
-        auth_res = requests.get("https://openrouter.ai/api/v1/auth/key", headers=headers, timeout=15)
-        if auth_res.status_code != 200:
-            return f"❌ Validasi API Key Gagal (Status {auth_res.status_code}): {auth_res.text}"
+        auth_status, auth_json, auth_raw = _http_json("https://openrouter.ai/api/v1/auth/key", headers=headers, timeout=15)
+        if auth_status != 200:
+            return f"❌ Validasi API Key Gagal (Status {auth_status}): {auth_raw}"
 
-        auth_data = auth_res.json().get("data", {})
+        auth_data = auth_json.get("data", {})
         label = auth_data.get("label", "Tanpa Label")
         usage_total = auth_data.get("usage", 0.0)
         usage_daily = auth_data.get("usage_daily", 0.0) or 0.0
@@ -292,9 +316,9 @@ def cek_koneksi_openrouter() -> str:
         # Cek informasi Saldo / Kredit
         credit_info = ""
         try:
-            credits_res = requests.get("https://openrouter.ai/api/v1/credits", headers=headers, timeout=15)
-            if credits_res.status_code == 200:
-                credit_data = credits_res.json().get("data", {})
+            c_status, credit_json, _ = _http_json("https://openrouter.ai/api/v1/credits", headers=headers, timeout=15)
+            if c_status == 200:
+                credit_data = credit_json.get("data", {})
                 total_credits = credit_data.get("total_credits", 0.0)
                 total_usage = credit_data.get("total_usage", 0.0)
                 remaining = max(0.0, total_credits - total_usage)
@@ -328,7 +352,7 @@ def cek_koneksi_openrouter() -> str:
         hasil += "\n🎉 Server MCP OpenRouter siap digunakan dengan perlindungan batas limit harian!"
         return hasil
 
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         return f"❌ Gagal terhubung ke OpenRouter API: {str(e)}"
 
 

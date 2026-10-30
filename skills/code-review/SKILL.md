@@ -1,13 +1,13 @@
 ---
 name: code-review
-description: "Rigorous two-axis code review checking code smells, architectural compliance (clean architecture, <300 line limit, type hinting, Indonesian docstrings), and specification alignment."
+description: "Rigorous three-axis code review checking code smells, architectural compliance (clean architecture, <300 line limit, type hinting, Indonesian docstrings), specification alignment, and Ponytail anti-over-engineering."
 ---
 
 # Skill: Code Review
 
-Perform a strict two-axis code review on recent modifications and pull requests.
+Perform a strict three-axis code review on recent modifications and pull requests.
 
-## Two-Axis Review Matrix
+## Three-Axis Review Matrix
 
 ### Axis 1: Architectural Compliance & Code Smells
 - **File Length**: Does any file exceed 300 lines? Flag for modularization if so.
@@ -20,5 +20,10 @@ Perform a strict two-axis code review on recent modifications and pull requests.
 - **Scope Verification**: Did the changes alter functionality outside the ticket scope?
 - **Regressions**: Are existing unit tests passing without modifications to test assertions?
 - **Token Efficiency**: Were diffs localized and clean without large whitespace churn?
+
+### Axis 3: Ponytail Anti-Over-Engineering Audit
+- **Standard Library Reuse**: Did the code reinvent something already in Python's standard library (`pathlib`, `itertools`, `collections`, `urllib`)?
+- **Premature Abstraction**: Were unnecessary classes, wrappers, or new files created for small utilities while the target file is under 250 lines?
+- **Unneeded Dependencies**: Were external libraries added when native capabilities or existing packages suffice?
 
 Output review findings grouped by: `[CRITICAL / BLOCKING]`, `[WARNING]`, and `[SUGGESTION]`.

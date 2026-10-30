@@ -8,9 +8,11 @@ globs: "*.py"
 
 This guide establishes coding standards for Python files within the workspace to ensure code remains tidy, maintainable, modular, and token-efficient for AI pair programming.
 
-## 1. File Size Constraints & Modularity
-- **Maximum File Limit (Soft Limit 250 - 300 Lines)**: 
-  A single Python module file should not exceed 300 lines. As code approaches this threshold, separate helper functions or domain sub-logic into dedicated sub-modules within a sub-package.
+## 1. File Size Constraints, Ponytail Threshold & Modularity
+- **Under 250 Lines (Ponytail Anti-Over-Engineering Zone)**:
+  Never prematurely split files, create single-use classes, or introduce wrapper layers for small features while the target file is under 250 lines. Prefer Python's standard library and plain functions inside the existing module.
+- **Approaching 250 - 300 Lines (Modular Refactor Zone)**: 
+  A single Python module file should not exceed 300 lines. As code approaches this threshold (250–300 lines), separate helper functions or domain sub-logic into dedicated sub-modules within a sub-package using the **Facade Pattern** (re-exporting relocated symbols in the legacy file for backwards compatibility).
 - **Avoid God Files**:
   Never accumulate all concerns (UI, video processing, APIs, text utilities, and DaVinci automation) inside a single gigantic script.
 - **Separation of Static Data**:

@@ -1,19 +1,10 @@
-"""
-[ID]: Installer Otomatis: Hermes Agent + Antigravity MCP Worker Bridge.
-Skrip ini mengotomatiskan seluruh proses instalasi di PC baru:
-1. Clone repositori resmi NousResearch/hermes-agent.
-2. Install dependensi & CLI hermes ke environment Python.
-3. Konfigurasi kredensial OpenRouter di Hermes (~/AppData/Local/hermes/.env).
-4. Buat script bridge hermes_mcp.py di folder global Antigravity (~/.gemini).
-5. Konfigurasi mcp_config.json Antigravity agar Hermes langsung aktif sebagai MCP tool.
+"""[ID]: Installer Otomatis: Hermes Agent + Antigravity MCP Worker Bridge.
+Mengotomatiskan clone Hermes Agent, instalasi CLI, pengaturan OpenRouter API,
+dan penyalinan bridge hermes_mcp.py ke ~/.gemini/ secara ringkas.
 
 [EN]: Automatic Installer: Hermes Agent + Antigravity MCP Worker Bridge.
-This script automates the entire installation process on a new PC:
-1. Clone the official NousResearch/hermes-agent repository.
-2. Install Hermes dependencies & CLI into the Python environment.
-3. Configure OpenRouter credentials in Hermes (~/AppData/Local/hermes/.env).
-4. Create the hermes_mcp.py bridge script in the global Antigravity folder (~/.gemini).
-5. Configure Antigravity's mcp_config.json to activate Hermes as the MCP tool.
+Automates cloning Hermes Agent, CLI installation, OpenRouter API setup,
+and copying hermes_mcp.py bridge to ~/.gemini/ concisely.
 """
 
 import os
@@ -24,8 +15,8 @@ import subprocess
 from pathlib import Path
 
 # Pastikan UTF-8 di Windows
-if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
 def print_step(msg: str):
@@ -43,7 +34,7 @@ def print_err(msg: str):
 def run_cmd(cmd, cwd=None):
     res = subprocess.run(cmd, cwd=cwd, shell=True, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if res.returncode != 0:
-        print_err(f"Gagal menjalankan perintah: {cmd}")
+        print_err(f"Gagal: {cmd}")
         print_err(res.stderr.strip() or res.stdout.strip())
         return False, res.stderr
     return True, res.stdout
@@ -54,377 +45,111 @@ def main():
     print("   INSTALLER OTOMATIS: HERMES AGENT x ANTIGRAVITY IDE")
     print("=" * 70)
 
-    # 1. Tentukan Direktori Kerja
     user_home = Path.home()
     local_app_data = Path(os.environ.get("LOCALAPPDATA", user_home / "AppData" / "Local"))
     gemini_dir = user_home / ".gemini"
     gemini_config_dir = gemini_dir / "config"
+    default_install_dir = Path("C:/hermes_env")
 
-    # Direktori clone hermes-agent (default C:\hermes_env jika drive C ada, atau di User profile)
-    default_install_dir = Path("C:/hermes_env") if Path("C:/").exists() else (user_home / "hermes_env")
-    install_input = input(f"Tentukan folder instalasi [Default: {default_install_dir}]: ").strip()
-    target_env_dir = Path(install_input) if install_input else default_install_dir
-    target_repo_dir = target_env_dir / "hermes-agent"
+    # 1. Tentukan Direktori Instalasi
+    print_step("Memeriksa direktori instalasi Hermes Agent...")
+    inp = input(f"Tentukan folder instalasi [default: {default_install_dir}]: ").strip()
+    target_base = Path(inp) if inp else default_install_dir
+    target_repo_dir = target_base / "hermes-agent"
+    target_base.mkdir(parents=True, exist_ok=True)
+    print_ok(f"Target folder: {target_repo_dir}")
 
-    # API Key OpenRouter
-    openrouter_key = input("Masukkan OpenRouter API Key (sk-or-v1-...): ").strip()
-    while not openrouter_key.startswith("sk-or-v1-"):
-        print("Format key tampaknya tidak valid! Harus berawalan 'sk-or-v1-'.")
-        openrouter_key = input("Masukkan OpenRouter API Key kembali: ").strip()
-
-    # 2. Clone Repository
-    print_step("Menyiapkan repository hermes-agent...")
-    target_env_dir.mkdir(parents=True, exist_ok=True)
-
+    # 2. Clone atau Update Hermes Agent
+    print_step("Mengunduh / memperbarui repositori Hermes Agent dari GitHub...")
     if not target_repo_dir.exists():
-        print(f"  Cloning dari GitHub ke {target_repo_dir}...")
         ok, _ = run_cmd(f'git clone https://github.com/NousResearch/hermes-agent.git "{target_repo_dir}"')
         if not ok:
-            print_err("Gagal clone git. Pastikan Git sudah terpasang di sistem.")
-            sys.exit(1)
-        print_ok("Clone berhasil.")
+            print_err("Gagal clone repositori Hermes Agent.")
+            return
+        print_ok("Clone repositori selesai.")
     else:
-        print_ok(f"Folder {target_repo_dir} sudah ada, melewati clone.")
+        run_cmd("git pull origin main", cwd=str(target_repo_dir))
+        print_ok("Repositori lokal sudah ada dan diperbarui.")
 
-    # 3. Install Dependensi & Paket hermes-agent
-    print_step("Memasang package hermes-agent & dependensi Python...")
-    python_exe = sys.executable
-    ok, _ = run_cmd(f'"{python_exe}" -m pip install -e .', cwd=target_repo_dir)
-    if not ok:
-        print_err("Gagal install paket hermes-agent. Periksa log.")
-        sys.exit(1)
-    print_ok("Package hermes-agent berhasil terpasang.")
+    # 3. Install Dependensi & CLI Hermes
+    print_step("Menginstal paket dan dependensi Hermes Agent...")
+    pip_cmd = (
+        f'"{sys.executable}" -m pip install -q -e "{target_repo_dir}"'
+    )
+    ok_pip, _ = run_cmd(pip_cmd)
+    if not ok_pip:
+        print_err("Gagal menginstal paket hermes-agent.")
+        return
 
-    # Dependensi krusial yang dilewati pip pada Python < 3.14 (karena environment marker >= '3.14' di pyproject.toml)
-    print_step("Memasang dependensi inti Hermes untuk Python < 3.14 (ruamel.yaml, psutil, rich, dll)...")
-    hermes_deps = [
-        "ruamel.yaml",
-        "psutil",
-        "rich",
-        "tomli-w",
-        "fire",
-        "tenacity",
-        "jinja2",
-        "markdown",
-        "tzdata",
-        "prompt_toolkit",
-        "croniter",
-        "pathspec",
-        "snowballstemmer",
-        "mcp",
-    ]
-    ok_deps, _ = run_cmd(f'"{python_exe}" -m pip install {" ".join(hermes_deps)}')
-    if not ok_deps:
-        print_err("Peringatan: Beberapa dependensi tambahan gagal dipasang, memeriksa ulang...")
-    else:
-        print_ok("Seluruh dependensi inti (ruamel.yaml, psutil, rich, dll) berhasil terpasang.")
+    # Dependensi esensial untuk Python < 3.14
+    dep_list = "ruamel.yaml psutil rich tomli-w fire tenacity jinja2 markdown tzdata prompt_toolkit croniter pathspec snowballstemmer mcp"
+    run_cmd(f'"{sys.executable}" -m pip install -q {dep_list}')
+    print_ok("Seluruh dependensi Python terpasang.")
 
-    # Cek letak hermes.exe
-    hermes_exe = shutil.which("hermes")
-    if not hermes_exe:
-        # Cari di folder Scripts dari interpreter Python saat ini
-        scripts_dir = Path(python_exe).parent / "Scripts" / "hermes.exe"
-        if scripts_dir.exists():
-            hermes_exe = str(scripts_dir)
-        else:
-            hermes_exe = "hermes"  # fallback ke PATH
-    print_ok(f"Executable Hermes terdeteksi di: {hermes_exe}")
+    # 4. Konfigurasi OpenRouter API Key
+    print_step("Konfigurasi kredensial OpenRouter untuk Hermes...")
+    hermes_env_dir = local_app_data / "hermes"
+    hermes_env_dir.mkdir(parents=True, exist_ok=True)
+    hermes_env_file = hermes_env_dir / ".env"
 
-    # 4. Konfigurasi Kredensial & Model Default Hermes
-    print_step("Menyimpan konfigurasi API Key ke Hermes...")
-    hermes_data_dir = local_app_data / "hermes"
-    hermes_data_dir.mkdir(parents=True, exist_ok=True)
-    hermes_env_file = hermes_data_dir / ".env"
+    existing_key = ""
+    openrouter_key_file = gemini_dir / "openrouter_key.txt"
+    if openrouter_key_file.exists():
+        existing_key = openrouter_key_file.read_text(encoding="utf-8").strip()
 
-    env_lines = []
-    if hermes_env_file.exists():
-        with open(hermes_env_file, "r", encoding="utf-8") as f:
-            env_lines = [l for l in f.readlines() if not l.startswith("OPENROUTER_API_KEY=")]
+    if not existing_key or existing_key == "TEMPEL_API_KEY_DISINI":
+        existing_key = input("Masukkan OpenRouter API Key (sk-or-v1-...) [Enter untuk isi nanti]: ").strip()
 
-    env_lines.append(f"OPENROUTER_API_KEY={openrouter_key}\n")
-    with open(hermes_env_file, "w", encoding="utf-8") as f:
-        f.writelines(env_lines)
-    print_ok(f"API key berhasil disimpan di {hermes_env_file}")
+    if existing_key and existing_key != "TEMPEL_API_KEY_DISINI":
+        hermes_env_file.write_text(f"OPENROUTER_API_KEY={existing_key}\n", encoding="utf-8")
+        print_ok(f"API Key disimpan ke: {hermes_env_file}")
 
-    # Set default model via hermes config set agar tidak kosong (mencegah error HTTP 400: No models provided)
-    print_step("Mengatur model default Hermes ke 'deepseek/deepseek-chat' via OpenRouter...")
-    ok_model, _ = run_cmd(f'"{hermes_exe}" config set model "deepseek/deepseek-chat"')
-    if ok_model:
-        print_ok("Model default berhasil diatur ke 'deepseek/deepseek-chat'.")
-    else:
-        print_err("Gagal mengatur model default secara otomatis. Anda bisa jalankan: hermes config set model deepseek/deepseek-chat")
+    # Atur model default
+    hermes_exe = shutil.which("hermes") or str(Path(sys.executable).parent / "Scripts" / "hermes.exe")
+    run_cmd(f'"{hermes_exe}" config set model "deepseek/deepseek-chat"')
+    print_ok("Model default Hermes diatur ke: deepseek/deepseek-chat")
 
-    # 5. Buat Script Bridge hermes_mcp.py untuk Antigravity
-    print_step("Membuat script bridge hermes_mcp.py untuk Antigravity IDE...")
+    # 5. Salin hermes_mcp.py ke ~/.gemini
+    print_step("Memasang skrip bridge hermes_mcp.py...")
     gemini_dir.mkdir(parents=True, exist_ok=True)
     gemini_config_dir.mkdir(parents=True, exist_ok=True)
+    hermes_mcp_dest = gemini_dir / "hermes_mcp.py"
+    src_bridge = Path(__file__).resolve().parent / "hermes_mcp.py"
 
-    hermes_mcp_file = gemini_dir / "hermes_mcp.py"
-    local_hermes_mcp = Path(__file__).parent / "hermes_mcp.py"
-
-    if local_hermes_mcp.exists():
-        bridge_code = local_hermes_mcp.read_text(encoding="utf-8")
+    if src_bridge.exists():
+        shutil.copy2(src_bridge, hermes_mcp_dest)
+        print_ok(f"Bridge script disalin dari: {src_bridge} -> {hermes_mcp_dest}")
     else:
-        hermes_exe_escaped = hermes_exe.replace("\\", "\\\\")
-        repo_dir_escaped = str(target_repo_dir).replace("\\", "\\\\")
-        bridge_code = f'''r"""
-Hermes Agent Worker MCP Server untuk Antigravity IDE & Continue.
-Menghubungkan Antigravity & Continue dengan Hermes Agent lokal
-sebagai worker mandiri untuk eksekusi perintah, riset file, web search, dan scripting
-tanpa membebani token context model utama (Claude / GPT).
-"""
-import sys
-import os
-import json
-import shutil
-import subprocess
-from pathlib import Path
+        print_err(f"Berkas sumber {src_bridge} tidak ditemukan.")
+        return
 
-# Setup encoding
-if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
-    try:
-        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-    except Exception:
-        pass
-if sys.stderr and hasattr(sys.stderr, 'reconfigure'):
-    try:
-        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-    except Exception:
-        pass
-
-# Kompatibilitas mcp
-try:
-    from mcp.server.mcpserver import MCPServer
-except ImportError:
-    try:
-        from mcp.server.fastmcp import FastMCP as MCPServer
-    except ImportError:
-        from mcp.server import FastMCP as MCPServer
-
-mcp = MCPServer("Hermes-Worker")
-
-
-def temukan_hermes_exe() -> str:
-    exe = shutil.which("hermes") or shutil.which("hermes.exe")
-    if exe:
-        return exe
-    script_candidate = Path(sys.executable).parent / "Scripts" / "hermes.exe"
-    if script_candidate.exists():
-        return str(script_candidate)
-    local_app_data = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
-    for candidate in local_app_data.glob("Programs/Python/*/Scripts/hermes.exe"):
-        return str(candidate)
-    return r"{hermes_exe_escaped}"
-
-
-def temukan_hermes_repo() -> str:
-    candidates = [
-        Path(r"{repo_dir_escaped}"),
-        Path("C:/hermes_env/hermes-agent"),
-        Path("D:/hermes_env/hermes-agent"),
-        Path("E:/hermes_env/hermes-agent"),
-        Path.home() / "hermes_env" / "hermes-agent",
-        Path.home() / ".hermes" / "hermes-agent",
-    ]
-    for c in candidates:
-        if c.exists():
-            return str(c)
-    return str(Path.home())
-
-HERMES_EXE = temukan_hermes_exe()
-HERMES_REPO = temukan_hermes_repo()
-
-# Konfigurasi Persistent Model Duo-Hermes
-SETTINGS_FILE = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "hermes" / "duo_settings.json"
-
-def muat_duo_settings() -> dict:
-    default_settings = {{
-        "thinker": "anthropic/claude-3.5-haiku",
-        "worker": "deepseek/deepseek-chat",
-        "solo": "deepseek/deepseek-chat"
-    }}
-    if SETTINGS_FILE.exists():
-        try:
-            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                default_settings.update(data)
-        except Exception:
-            pass
-    return default_settings
-
-def simpan_duo_settings(settings: dict) -> bool:
-    try:
-        SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
-        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-            json.dump(settings, f, indent=2, ensure_ascii=False)
-        return True
-    except Exception:
-        return False
-
-DEFAULT_HERMES_MODEL = muat_duo_settings().get("solo", "deepseek/deepseek-chat")
-
-
-@mcp.tool(
-    name="atur_model_hermes",
-    description="Ubah konfigurasi model Hermes secara langsung dari chat percakapan."
-)
-def atur_model_hermes(model_thinker: str = "", model_worker: str = "", model_solo: str = "") -> str:
-    settings = muat_duo_settings()
-    diubah = []
-    if model_thinker and model_thinker.strip():
-        settings["thinker"] = model_thinker.strip()
-        diubah.append(f"Thinker -> `{{settings['thinker']}}`")
-    if model_worker and model_worker.strip():
-        settings["worker"] = model_worker.strip()
-        diubah.append(f"Worker  -> `{{settings['worker']}}`")
-    if model_solo and model_solo.strip():
-        settings["solo"] = model_solo.strip()
-        diubah.append(f"Solo    -> `{{settings['solo']}}`")
-    if not diubah:
-        return f"Tidak ada model yang diubah.\\nThinker: `{{settings['thinker']}}`\\nWorker: `{{settings['worker']}}`\\nSolo: `{{settings['solo']}}`"
-    simpan_duo_settings(settings)
-    return "✅ Konfigurasi model Hermes berhasil disimpan:\\n" + "\\n".join(f"- {{d}}" for d in diubah)
-
-
-@mcp.tool(
-    name="lihat_model_hermes",
-    description="Tampilkan model Hermes yang aktif saat ini."
-)
-def lihat_model_hermes() -> str:
-    settings = muat_duo_settings()
-    return (
-        f"📋 Konfigurasi Model Hermes Aktif:\\n"
-        f"- Thinker (Perancang/Arsitek) : `{{settings['thinker']}}`\\n"
-        f"- Worker (Eksekutor Kode)     : `{{settings['worker']}}`\\n"
-        f"- Solo (Worker Tunggal)       : `{{settings['solo']}}`\\n"
-        f"File pengaturan: `{{SETTINGS_FILE}}`"
-    )
-
-
-@mcp.tool(
-    name="delegasikan_ke_hermes",
-    description="Kirim tugas ke Hermes Agent lokal (background worker mandiri)."
-)
-def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = "") -> str:
-    target_cwd = ""
-    if direktori_kerja and Path(direktori_kerja).exists():
-        target_cwd = direktori_kerja
-    else:
-        current_dir = os.getcwd()
-        if current_dir and not current_dir.lower().endswith("system32") and Path(current_dir).exists():
-            target_cwd = current_dir
-        elif Path(HERMES_REPO).exists():
-            target_cwd = HERMES_REPO
-        else:
-            target_cwd = str(Path.home())
-
-    model_aktif = model.strip() if model and model.strip() else muat_duo_settings().get("solo", "deepseek/deepseek-chat")
-    instruksi_tugas = f"{{tugas}}\\n\\n(Berikan ringkasan padat langsung ke temuan/eksekusi agar hemat token.)"
-
-    cmd = [HERMES_EXE, "-z", instruksi_tugas]
-    if model_aktif:
-        cmd.extend(["-m", model_aktif])
-
-    try:
-        res = subprocess.run(cmd, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
-        out = res.stdout.strip()
-        err = res.stderr.strip()
-        if res.returncode != 0:
-            return f"Hermes Error (code {{res.returncode}}):\\n{{err or out}}"
-        return out or err or "Tugas selesai dijalankan oleh Hermes Agent."
-    except subprocess.TimeoutExpired:
-        return "Hermes Timeout: Tugas membutuhkan waktu lebih dari 5 menit."
-    except Exception as e:
-        return f"Gagal menjalankan Hermes Agent: {{str(e)}}"
-
-
-@mcp.tool(
-    name="delegasikan_duo_hermes",
-    description="Pipeline kolaborasi dua model AI otonom (Thinker + Worker) di background."
-)
-def delegasikan_duo_hermes(tugas: str, direktori_kerja: str = "", model_thinker: str = "", model_worker: str = "") -> str:
-    settings = muat_duo_settings()
-    active_thinker = model_thinker.strip() if model_thinker else settings.get("thinker", "anthropic/claude-3.5-haiku")
-    active_worker = model_worker.strip() if model_worker else settings.get("worker", "deepseek/deepseek-chat")
-
-    target_cwd = ""
-    if direktori_kerja and Path(direktori_kerja).exists():
-        target_cwd = direktori_kerja
-    else:
-        current_dir = os.getcwd()
-        if current_dir and not current_dir.lower().endswith("system32") and Path(current_dir).exists():
-            target_cwd = current_dir
-        elif Path(HERMES_REPO).exists():
-            target_cwd = HERMES_REPO
-        else:
-            target_cwd = str(Path.home())
-
-    # Fase 1: Thinking
-    prompt_thinker = f"{{tugas}}\\n\\nBuat rencana teknis presisi untuk dieksekusi koding."
-    cmd_thinker = [HERMES_EXE, "-z", prompt_thinker, "-m", active_thinker]
-    try:
-        res_t = subprocess.run(cmd_thinker, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300)
-        plan = res_t.stdout.strip()
-        if res_t.returncode != 0 or not plan:
-            return f"Duo-Hermes Gagal di Tahap Thinking ({{active_thinker}}): {{res_t.stderr.strip() or plan}}"
-    except Exception as e:
-        return f"Error eksekusi Thinker ({{active_thinker}}): {{str(e)}}"
-
-    # Fase 2: Eksekusi Worker
-    prompt_worker = f"Eksekusi rencana berikut:\\n{{plan}}\\nLaporkan ringkasan hasil."
-    cmd_worker = [HERMES_EXE, "-z", prompt_worker, "--yolo", "-m", active_worker]
-    try:
-        res_w = subprocess.run(cmd_worker, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=360)
-        out_w = res_w.stdout.strip()
-        if res_w.returncode != 0:
-            return f"Duo-Hermes Berhasil Berpikir, tapi Gagal Eksekusi Worker: {{res_w.stderr.strip() or out_w}}"
-        return f"=== HASIL DUO-HERMES ({{active_thinker}} + {{active_worker}}) ===\\n\\n[THINKER Plan]:\\n{{plan}}\\n\\n[WORKER Execution]:\\n{{out_w or 'Selesai.'}}"
-    except Exception as e:
-        return f"Error eksekusi Worker ({{active_worker}}): {{str(e)}}"
-
-
-if __name__ == "__main__":
-    mcp.run()
-'''
-
-    with open(hermes_mcp_file, "w", encoding="utf-8") as f:
-        f.write(bridge_code)
-    print_ok(f"Bridge script tersimpan di: {hermes_mcp_file}")
-
-    # 6. Daftarkan ke mcp_config.json Antigravity
-    print_step("Memperbarui konfigurasi MCP Antigravity IDE...")
+    # 6. Daftarkan ke mcp_config.json
+    print_step("Mendaftarkan server hermes_agent ke mcp_config.json Antigravity...")
     mcp_config_path = gemini_config_dir / "mcp_config.json"
     config_data = {"mcpServers": {}}
-
     if mcp_config_path.exists():
         try:
-            with open(mcp_config_path, "r", encoding="utf-8") as f:
-                config_data = json.load(f)
+            config_data = json.loads(mcp_config_path.read_text(encoding="utf-8"))
         except Exception:
             config_data = {"mcpServers": {}}
 
     if "mcpServers" not in config_data:
         config_data["mcpServers"] = {}
 
+    python_exe = sys.executable.replace("\\", "/")
     config_data["mcpServers"]["hermes_agent"] = {
-        "command": python_exe.replace("\\", "/"),
-        "args": [str(hermes_mcp_file).replace("\\", "/")],
+        "command": python_exe,
+        "args": [str(hermes_mcp_dest).replace("\\", "/")],
         "disabled": False
     }
 
-    with open(mcp_config_path, "w", encoding="utf-8") as f:
-        json.dump(config_data, f, indent=2)
+    mcp_config_path.write_text(json.dumps(config_data, indent=2), encoding="utf-8")
     print_ok(f"Server hermes_agent terdaftar di: {mcp_config_path}")
 
-    # 7. Selesai & Pengujian
     print("\n" + "=" * 70)
-    print("   INSTALASI BERHASIL 100%!")
+    print("   [SELESAI] HERMES AGENT BERHASIL DIPASANG!")
     print("=" * 70)
-    print("Antigravity IDE Anda sekarang sudah memiliki worker Hermes Agent mandiri.")
-    print("Tutup dan buka kembali Antigravity IDE untuk memuat MCP server baru.")
-    print("Anda sekarang bisa langsung meminta Antigravity:")
-    print('  -> "Tolong delegasikan ke Hermes untuk meriset kode..."')
-    print("=" * 70 + "\n")
+    print("Restart Antigravity IDE Anda untuk memuat MCP server baru.")
 
 
 if __name__ == "__main__":

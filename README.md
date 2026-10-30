@@ -59,7 +59,7 @@ python vibe_tools/setup_vibe_ecosystem.py
 4. **[`skills/`](skills/README.md)** (Katalog 15 Skill Universal — [📖 Buka Panduan & Contoh Lengkap](skills/README.md))  
    - *Fungsi*: Menyimpan seluruh skill rekayasa perangkat lunak teroptimasi (termasuk paket rekayasa Matt Pocock, Graphify, Modular Refactor, Unit Test Generator):
      - `/grill-me`, `/grill-with-docs`, `/to-spec`, `/to-tickets`, `/implement`
-     - `/code-review`, `/diagnosing-bugs`, `/tdd`, `/codebase-design`, `/handoff`
+     - `/code-review`, `/diagnosing-bugs`, `/tdd`, `/ponytail`, `/handoff`
      - `/retro`, `/ask-matt`, `/graphify`, `/modular-refactor`, `/unit-test-generator`
    - *Dokumentasi Lengkap*: Lihat penjelasaan mendalam, skenario penggunaan, dan contoh prompt nyata di [**`skills/README.md`**](skills/README.md).
 

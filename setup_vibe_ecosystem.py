@@ -1,103 +1,53 @@
+"""[ID]: Skrip Otomasi Pemasangan Ekosistem Vibe Coding Universal & Lean (<250 baris).
+Memasang aturan .agents, sinkronisasi junction universal skills/rules,
+mcp bridge (openrouter & hermes), zoo hybrid dual-cockpit, dan peta AST awal.
+
+[EN]: Universal & Lean Vibe Coding Ecosystem Auto-Setup Script (<250 lines).
+Installs .agents rules, universal skills/rules junction sync,
+mcp bridges (openrouter & hermes), zoo hybrid dual-cockpit, and initial AST map.
 """
-[ID]: Skrip Otomasi Pemasangan Ekosistem Vibe Coding Cerdas, Ramping & Hemat Token.
-Menghasilkan seluruh folder .agents, rules, skills, workflows, graphify_map.py,
-graphify_update.py, push_github.py, dan MAP.md secara instan dalam 1 detik.
 
-Cara Penggunaan di Proyek Baru:
-    1. Salin berkas 'setup_vibe_ecosystem.py' ke folder proyek baru Anda.
-    2. Jalankan perintah terminal:
-           python setup_vibe_ecosystem.py
-    3. Ekosistem langsung siap dipakai tanpa perlu membuang kuota token AI!
-
-[EN]: Smart, Lean & Token-Efficient Vibe Coding Ecosystem Auto-Setup Script.
-Instantly generates all .agents, rules, skills, workflows folders along with graphify_map.py,
-graphify_update.py, push_github.py, and MAP.md files in just 1 second.
-
-Usage for New Projects:
-    1. Copy 'setup_vibe_ecosystem.py' to your new project folder.
-    2. Run terminal command:
-           python setup_vibe_ecosystem.py
-    3. The ecosystem is immediately ready without wasting AI token quota!
-"""
 import os
-import subprocess
 import sys
+import json
+import shutil
+import subprocess
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-if os.path.basename(BASE_DIR) == "vibe_tools":
-    BASE_DIR = os.path.dirname(BASE_DIR)
+BASE_DIR = Path(__file__).resolve().parent
+if BASE_DIR.name == "vibe_tools":
+    BASE_DIR = BASE_DIR.parent
 
-
-def baca_skrip_lokal(nama_file: str) -> str:
-    """
-[ID]: Membaca isi skrip dari folder lokal vibe_tools jika tersedia.
-[EN]: Reads the script content from the local vibe_tools folder if available.
-"""
-    lokal = os.path.join(os.path.dirname(os.path.abspath(__file__)), nama_file)
-    if os.path.exists(lokal):
-        try:
-            with open(lokal, "r", encoding="utf-8") as f:
-                return f.read()
-        except Exception:
-            pass
-    return ""
-
-
-def buat_berkas(rel_path: str, isi: str):
-    """
-[ID]: Menulis berkas jika belum ada, mencegah penimpaan file atau setup spesialis yang sudah ada.
-[EN]: Writes the file if it does not exist, preventing overwriting or disrupting existing specialized setups.
-"""
-    if not isi or not isi.strip():
-        return
-    target = os.path.join(BASE_DIR, rel_path)
-    os.makedirs(os.path.dirname(target), exist_ok=True)
-    if not os.path.exists(target):
-        with open(target, "w", encoding="utf-8", newline="\n") as f:
-            f.write(isi.strip() + "\n")
-        print(f"[BUAT] {rel_path}")
-    else:
-        print(f"[LEWATI] {rel_path} (sudah ada, konfigurasi spesialis proyek dipertahankan)")
+VT_DIR = BASE_DIR / "vibe_tools"
 
 
 def pasang_agents_md():
-    """
-[ID]: Memasang atau menggabungkan aturan .agents/AGENTS.md secara non-destruktif.
-    Jika file sudah ada dengan aturan kustom/spesialis, aturan lama 100% dipertahankan!
+    """Memasang atau menggabungkan aturan .agents/AGENTS.md secara non-destruktif."""
+    target = BASE_DIR / ".agents" / "AGENTS.md"
+    target.parent.mkdir(parents=True, exist_ok=True)
 
-[EN]: Installs or merges the .agents/AGENTS.md rules non-destructively.
-    If the file already exists with custom/specialized rules, the old rules are 100% preserved!
-"""
-    target = os.path.join(BASE_DIR, ".agents", "AGENTS.md")
-    os.makedirs(os.path.dirname(target), exist_ok=True)
-    if not os.path.exists(target):
-        with open(target, "w", encoding="utf-8", newline="\n") as f:
-            f.write(KONTEN_AGENTS_MD.strip() + "\n")
+    guardrails = (
+        "\n\n---\n\n## Vibe Coding, Token Efficiency & Ponytail Guardrails (Universal)\n"
+        "- **Ponytail Threshold (< 250 Lines)**: Never prematurely split files or create single-use classes while target file is < 250 lines. Prefer Python stdlib.\n"
+        "- **Clean Architecture Seam (250-300 Lines)**: Split growing logic into dedicated sub-packages using the Facade Pattern.\n"
+        "- **Token Efficiency**: Sliced reading (StartLine/EndLine max 100 lines). Prioritize .agents/MAP.md -> grep_search.\n"
+        "- **RTK Emulation & CLI Guardrails**: Quiet flags (pip -q, git status -s, pytest -q). Redirect heavy logs to temp logs.\n"
+        "- **Direct Unicode Symbols**: Avoid LaTeX math ($...). Use plain text or Unicode (->, *, •).\n"
+    )
+
+    if not target.exists():
+        target.write_text("# Custom Agent Rules for Workspace\n" + guardrails, encoding="utf-8")
         print("[BUAT] .agents/AGENTS.md")
     else:
-        with open(target, "r", encoding="utf-8") as f:
-            isi_lama = f.read()
-        if "RTK Emulation" in isi_lama or "Token Efficiency" in isi_lama:
-            print("[LEWATI] .agents/AGENTS.md (aturan spesialis & guardrails sudah lengkap)")
+        txt = target.read_text(encoding="utf-8")
+        if "Ponytail Threshold" not in txt and "Token Efficiency" not in txt:
+            target.write_text(txt + guardrails, encoding="utf-8")
+            print("[GABUNG] .agents/AGENTS.md (aturan lama dipertahankan, guardrails universal ditambahkan)")
         else:
-            guardrails_tambah = (
-                "\n\n---\n\n## Vibe Coding & Token Efficiency Guardrails (Auto-Appended)\n"
-                "- **Token Efficiency**: Never load whole large files; use sliced viewing (StartLine/EndLine, max 100 lines) focused on target functions.\n"
-                "- **Exploration Order**: .agents/MAP.md -> grep_search -> sliced view_file. Use graphify-out/wiki only for cross-module relationships.\n"
-                "- **RTK Emulation & CLI Guardrails**: Drastically prevent terminal stdout token bloat:\n"
-                "  - Enforce quiet/summary flags where available (pip -q, git status -s, git diff --stat, pytest -q).\n"
-                "  - Redirect verbose outputs to temp logs and inspect tails only (> scratch/tmp.log 2>&1; Get-Content ... -Tail 10).\n"
-                "  - Prefer boolean/sentinel checks (Test-Path, (Get-ChildItem).Count, exit code) over dumping object listings.\n"
-                "  - Never view files via shell commands (cat, type, Get-Content); strictly use native sliced view_file.\n"
-                "  - Always compress remaining CLI output via pipes (Select -First 20, Select-String).\n"
-                "- **Universal No Monolithizing**: STRICTLY FORBIDDEN to create monolithic scripts exceeding 300 lines. Separate concerns across dedicated packages.\n"
-                "- **Direct Unicode Symbols**: NEVER use LaTeX math notation. Always use direct Unicode symbols (e.g. ->, •).\n"
-            )
-            with open(target, "a", encoding="utf-8", newline="\n") as f:
-                f.write(guardrails_tambah)
-            print("[GABUNG] .agents/AGENTS.md (aturan spesialis lama dipertahankan 100%, guardrails hemat token ditambahkan di bawah)")
+            print("[LEWATI] .agents/AGENTS.md (aturan guardrails sudah lengkap)")
 
 
+<<<<<<< HEAD
 # ==============================================================================
 # KONTEN BERKAS .agents DAN ATURAN
 # ==============================================================================
@@ -909,238 +859,95 @@ def konfigurasi_root_gemini(api_key: str):
 
     print("\n[INFO] Mengonfigurasi Root Antigravity IDE (~/.gemini)...")
 
+=======
+def sinkronkan_mcp_servers():
+    """Menyalin skrip server MCP dan mengonfigurasi mcp_config.json global."""
+>>>>>>> d678d3d (Pembaruan modul vibe_tools: 2026-10-30 17:44:57)
     user_home = Path.home()
     gemini_dir = user_home / ".gemini"
     gemini_config_dir = gemini_dir / "config"
-    antigravity_mcp_dir = gemini_dir / "antigravity-ide" / "mcp"
-    skills_dir = gemini_config_dir / "skills" / "graphify"
-
     gemini_dir.mkdir(parents=True, exist_ok=True)
     gemini_config_dir.mkdir(parents=True, exist_ok=True)
-    skills_dir.mkdir(parents=True, exist_ok=True)
-    (antigravity_mcp_dir / "hermes_agent").mkdir(parents=True, exist_ok=True)
-    (antigravity_mcp_dir / "openrouter").mkdir(parents=True, exist_ok=True)
 
-    vibe_tools_dir = Path(BASE_DIR) / "vibe_tools"
-
-    # 1. Pasang MCP server scripts
-    for script_name in ["openrouter_mcp.py", "hermes_mcp.py"]:
-        src = vibe_tools_dir / script_name
-        dest = gemini_dir / script_name
+    # 1. Salin skrip MCP jika ada di vibe_tools
+    for s_name in ["openrouter_mcp.py", "hermes_mcp.py", "rea_tool.py"]:
+        src = VT_DIR / s_name
+        dst = gemini_dir / s_name
         if src.exists():
-            shutil.copy2(src, dest)
-            print(f"[SALIN] {script_name} -> {dest}")
+            shutil.copy2(src, dst)
+            print(f"[SYNC MCP] {s_name} -> ~/.gemini/")
 
-    # 2. Pasang MCP Tool Schemas
-    schema_map = {
-        "hermes_agent/delegasikan_ke_hermes.json": KONTEN_SCHEMA_HERMES,
-        "openrouter/tanya_openrouter.json": KONTEN_SCHEMA_TANYA_OR,
-        "openrouter/daftar_model_rekomendasi.json": KONTEN_SCHEMA_DAFTAR_OR,
-        "openrouter/cek_koneksi_openrouter.json": KONTEN_SCHEMA_CEK_OR,
-    }
-    for rel_path, default_konten in schema_map.items():
-        src = vibe_tools_dir / "mcp_schemas" / rel_path
-        dest = antigravity_mcp_dir / rel_path
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        if src.exists():
-            shutil.copy2(src, dest)
-        elif not dest.exists():
-            dest.write_text(default_konten.strip(), encoding="utf-8")
-        print(f"[SCHEMA] {dest.name} aktif di IDE.")
+    # 2. Siapkan openrouter_key.txt jika belum ada
+    key_file = gemini_dir / "openrouter_key.txt"
+    if not key_file.exists():
+        key_file.write_text("TEMPEL_API_KEY_DISINI\n", encoding="utf-8")
 
-    # 3. Pasang Global Skill Graphify
-    skill_dest = skills_dir / "SKILL.md"
-    skill_src = vibe_tools_dir / "graphify_SKILL.md"
-    if skill_src.exists():
-        shutil.copy2(skill_src, skill_dest)
-        print(f"[SKILL] Global /graphify skill terpasang di {skill_dest}")
-
-    # 4. Daftarkan ke mcp_config.json dengan path Python dinamis
-    mcp_config_file = gemini_config_dir / "mcp_config.json"
+    # 3. Konfigurasi mcp_config.json
+    mcp_cfg = gemini_config_dir / "mcp_config.json"
     cfg = {"mcpServers": {}}
-    if mcp_config_file.exists():
+    if mcp_cfg.exists():
         try:
-            cfg = json.loads(mcp_config_file.read_text(encoding="utf-8"))
-            if "mcpServers" not in cfg:
-                cfg["mcpServers"] = {}
+            cfg = json.loads(mcp_cfg.read_text(encoding="utf-8"))
         except Exception:
             cfg = {"mcpServers": {}}
 
-    python_bin = sys.executable.replace("\\", "/")
-    or_script_path = (gemini_dir / "openrouter_mcp.py").as_posix()
-    hermes_script_path = (gemini_dir / "hermes_mcp.py").as_posix()
+    py_exe = sys.executable.replace("\\", "/")
+    or_script = str(gemini_dir / "openrouter_mcp.py").replace("\\", "/")
+    hermes_script = str(gemini_dir / "hermes_mcp.py").replace("\\", "/")
 
-    cfg["mcpServers"]["openrouter"] = {
-        "command": python_bin,
-        "args": [or_script_path],
-        "env": {
-            "OPENROUTER_API_KEY": api_key or "TEMPEL_API_KEY_DISINI",
-            "OPENROUTER_DAILY_LIMIT": "1.00"
-        },
-        "disabled": False
-    }
+    if "openrouter" not in cfg["mcpServers"]:
+        cfg["mcpServers"]["openrouter"] = {"command": py_exe, "args": [or_script]}
+    if "hermes_agent" not in cfg["mcpServers"]:
+        cfg["mcpServers"]["hermes_agent"] = {"command": py_exe, "args": [hermes_script], "disabled": False}
 
-    cfg["mcpServers"]["hermes_agent"] = {
-        "command": python_bin,
-        "args": [hermes_script_path],
-        "disabled": False
-    }
-
-    mcp_config_file.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"[OK] mcp_config.json berhasil dikonfigurasi (OpenRouter & Hermes Agent aktif).")
-
-
-def pasang_atau_sinkronkan_hermes(api_key: str):
-    """
-[ID]: Memeriksa ketersediaan Hermes Agent CLI.
-    Jika belum ada, otomatis clone repositori resmi dan pasang via pip install -e .
-    Mengonfigurasi default model ke 'deepseek/deepseek-chat' dan kredensial API.
-
-[EN]: Checks the availability of the Hermes Agent CLI.
-If not present, automatically clones the official repository and installs via `pip install -e .`.
-Configures the default model to 'deepseek/deepseek-chat' and sets up API credentials.
-"""
-    import shutil
-    from pathlib import Path
-
-    print("\n[INFO] Memeriksa status instalasi Hermes Agent CLI...")
-
-    hermes_bin = shutil.which("hermes") or shutil.which("hermes.exe")
-    if not hermes_bin:
-        script_candidate = Path(sys.executable).parent / "Scripts" / "hermes.exe"
-        if script_candidate.exists():
-            hermes_bin = str(script_candidate)
-
-    if not hermes_bin:
-        print("[AUTO-SETUP] Hermes Agent belum terpasang. Memasang otomatis...")
-        user_home = Path.home()
-        target_dir = Path("C:/hermes_env") if Path("C:/").exists() else (user_home / "hermes_env")
-        repo_dir = target_dir / "hermes-agent"
-        target_dir.mkdir(parents=True, exist_ok=True)
-
-        if not repo_dir.exists():
-            print(f"  Cloning repositori NousResearch/hermes-agent ke {repo_dir}...")
-            try:
-                subprocess.run(f'git clone https://github.com/NousResearch/hermes-agent.git "{repo_dir}"', shell=True, check=True)
-                print("  [OK] Clone berhasil.")
-            except Exception as e:
-                print(f"  [WARNING] Gagal clone hermes-agent: {e}. Lewati pemasangan CLI.")
-                return
-
-        if repo_dir.exists():
-            print("  Memasang package hermes-agent via pip...")
-            try:
-                subprocess.run([sys.executable, "-m", "pip", "install", "-e", "."], cwd=str(repo_dir), check=True)
-                print("  [OK] Package hermes-agent berhasil dipasang.")
-                hermes_bin = shutil.which("hermes") or str(Path(sys.executable).parent / "Scripts" / "hermes.exe")
-            except Exception as e:
-                print(f"  [WARNING] Gagal pip install hermes: {e}")
-
-    if hermes_bin:
-        print(f"[OK] Hermes Agent CLI siap: {hermes_bin}")
-        try:
-            subprocess.run([hermes_bin, "config", "set", "model", "deepseek/deepseek-chat"], check=True, capture_output=True)
-            print("[OK] Model default Hermes disetel ke 'deepseek/deepseek-chat'.")
-        except Exception:
-            pass
-
-    if api_key:
-        local_app_data = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
-        hermes_env_file = local_app_data / "hermes" / ".env"
-        hermes_env_file.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            hermes_env_file.write_text(f"OPENROUTER_API_KEY={api_key}\n", encoding="utf-8")
-        except Exception:
-            pass
+    mcp_cfg.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    print(f"[OK] mcp_config.json tersinkronisasi.")
 
 
 def main():
-    from pathlib import Path
     print("=" * 65)
-    print("  MEMASANG EKOSISTEM VIBE CODING & AGENT CUSTOMIZATION")
+    print("  MEMASANG EKOSISTEM VIBE CODING & AGENT CUSTOMIZATION (LEAN)")
     print("=" * 65)
     print(f"Target Direktori: {BASE_DIR}")
     print(f"Python Runtime   : {sys.executable}\n")
 
-    user_home = Path.home()
-    gemini_dir = user_home / ".gemini"
-    gemini_config_dir = gemini_dir / "config"
-
-    # 1. Konfigurasi Workspace .agents (idempoten & non-destruktif)
+    # 1. Konfigurasi Workspace .agents
     pasang_agents_md()
-    buat_berkas(".agents/workflows/graphify.md", KONTEN_WORKFLOW_GRAPHIFY)
 
-    # 2. Skrip Python Otomasi & Panduan Ekosistem AI
-    buat_berkas("vibe_tools/sync_universal.py", baca_skrip_lokal("sync_universal.py"))
-    buat_berkas("vibe_tools/graphify_sync.py", baca_skrip_lokal("graphify_sync.py"))
-    buat_berkas("vibe_tools/push_to_github.py", baca_skrip_lokal("push_to_github.py") or KONTEN_PUSH_GITHUB)
-    buat_berkas("vibe_tools/install_hermes_antigravity.py", baca_skrip_lokal("install_hermes_antigravity.py"))
-    buat_berkas("vibe_tools/install_openrouter_mcp.py", baca_skrip_lokal("install_openrouter_mcp.py"))
-    buat_berkas("vibe_tools/update_ecosystem.py", baca_skrip_lokal("update_ecosystem.py"))
-    buat_berkas("vibe_tools/bootstrap_update.ps1", baca_skrip_lokal("bootstrap_update.ps1"))
-    buat_berkas("vibe_tools/rea_tool.py", baca_skrip_lokal("rea_tool.py"))
-    buat_berkas("vibe_tools/PANDUAN_LENGKAP_EKOSISTEM.md", baca_skrip_lokal("PANDUAN_LENGKAP_EKOSISTEM.md"))
-    buat_berkas("vibe_tools/PANDUAN_ROO_CODE_HYBRID.md", baca_skrip_lokal("PANDUAN_ROO_CODE_HYBRID.md"))
-    buat_berkas("vibe_tools/PANDUAN_SETUP_VIBE_CODING_BARU.md", baca_skrip_lokal("PANDUAN_SETUP_VIBE_CODING_BARU.md"))
-    buat_berkas("vibe_tools/Prompt_AI.md", baca_skrip_lokal("Prompt_AI.md"))
-    buat_berkas("vibe_tools/graphify_SKILL.md", baca_skrip_lokal("graphify_SKILL.md"))
-    buat_berkas("vibe_tools/openrouter_mcp.py", baca_skrip_lokal("openrouter_mcp.py"))
-    buat_berkas("vibe_tools/hermes_mcp.py", baca_skrip_lokal("hermes_mcp.py"))
-    buat_berkas("vibe_tools/cost_estimator.py", baca_skrip_lokal("cost_estimator.py"))
-    buat_berkas("vibe_tools/docstring_translator.py", baca_skrip_lokal("docstring_translator.py"))
-    buat_berkas("vibe_tools/install_rea_mcp.py", baca_skrip_lokal("install_rea_mcp.py"))
-    buat_berkas("vibe_tools/README.md", baca_skrip_lokal("README.md"))
-    buat_berkas("vibe_tools/README_EN.md", baca_skrip_lokal("README_EN.md"))
-    buat_berkas("vibe_tools/patch_continue_autonomous.py", baca_skrip_lokal("patch_continue_autonomous.py"))
-    buat_berkas("vibe_tools/setup_roo_hybrid.py", baca_skrip_lokal("setup_roo_hybrid.py"))
+    # 2. Sinkronkan MCP Global
+    sinkronkan_mcp_servers()
 
-    # 2b. Pasang REA MCP (opsional, jika Node.js tersedia)
-    import shutil as _shutil
-    if _shutil.which("npx") or _shutil.which("node"):
-        print("\n[INFO] Node.js terdeteksi - mencoba memasang REA MCP (Reverse Engineer Anything)...")
-        _rea_installer = os.path.join(BASE_DIR, "vibe_tools", "install_rea_mcp.py")
-        if os.path.exists(_rea_installer):
-            subprocess.run([sys.executable, _rea_installer], cwd=BASE_DIR)
-        else:
-            print("[SKIP] vibe_tools/install_rea_mcp.py belum ada di folder ini - skip REA MCP.")
-    else:
-        print("[SKIP] Node.js tidak ditemukan di PATH - skip pemasangan REA MCP.")
-
-    # 3. Auto-Install seluruh dependensi Python yang belum terpasang
-    pasang_dependensi_python()
-
-    # 4. Sinkronisasi API Key OpenRouter dari berbagai sumber lokal
-    api_key = sinkronkan_openrouter_api_key(gemini_dir, gemini_config_dir)
-
-    # 5. Konfigurasi Root Antigravity IDE (~/.gemini) secara 100% dinamis & portabel
-    konfigurasi_root_gemini(api_key)
-
-    # 5b. Sinkronisasi Universal Skills & Rules via NTFS Junction ke ~/.gemini/config
+    # 3. Sinkronisasi Universal Skills & Rules via NTFS Junction ke ~/.gemini/config
     try:
-        sys.path.insert(0, os.path.join(BASE_DIR, "vibe_tools"))
+        sys.path.insert(0, str(VT_DIR))
         import sync_universal
         sync_universal.sinkronisasi_universal()
-        import setup_roo_hybrid
-        setup_roo_hybrid.pasang_roo_hybrid(target_path=BASE_DIR, setup_ollama=False)
     except Exception as e:
-        print(f"[WARNING] Sinkronisasi universal otomatis dilewati: {e}")
+        print(f"[WARNING] sync_universal dilewati: {e}")
 
-    # 6. Pasang atau verifikasi Hermes Agent CLI
-    pasang_atau_sinkronkan_hermes(api_key)
-
-    # 7. Jalankan pemetaan awal .agents/MAP.md
-    print("\n[INFO] Membangun peta berkas awal (.agents/MAP.md)...")
+    # 4. Sinkronisasi Zoo Code Hybrid Dual-Cockpit
     try:
-        sys.path.insert(0, os.path.join(BASE_DIR, "vibe_tools"))
-        import graphify_sync
-        r = graphify_sync.perbarui_peta(BASE_DIR)
-        print(f"[OK] Peta awal terbentuk dengan {len(r.get('baru', []))} entri berkas.")
+        import setup_zoo_hybrid
+        setup_zoo_hybrid.pasang_zoo_hybrid(target_path=BASE_DIR, setup_ollama=False)
     except Exception as e:
-        print(f"[WARNING] Belum dapat memetakan berkas secara otomatis: {e}")
+        try:
+            import setup_roo_hybrid
+            setup_roo_hybrid.pasang_roo_hybrid(target_path=BASE_DIR, setup_ollama=False)
+        except Exception as err:
+            print(f"[WARNING] setup_zoo_hybrid dilewati: {err}")
+
+    # 5. Jalankan pemetaan awal .agents/MAP.md
+    print("\n[INFO] Membangun/memperbarui peta berkas (.agents/MAP.md)...")
+    try:
+        import graphify_sync
+        r = graphify_sync.perbarui_peta(str(BASE_DIR))
+        print(f"[OK] Peta berkas siap ({len(r.get('baru', []))} entri diperbarui).")
+    except Exception as e:
+        print(f"[WARNING] Peta berkas dilewati: {e}")
 
     print("\n" + "=" * 65)
     print("  [SELESAI] SELURUH EKOSISTEM VIBE CODING SIAP DIGUNAKAN 100%!")
-    print("  (Restart Antigravity IDE sekali agar semua tool MCP terdeteksi)")
+    print("  (Restart Antigravity IDE atau Zoo Code sekali untuk memuat MCP)")
     print("=" * 65)
 
 

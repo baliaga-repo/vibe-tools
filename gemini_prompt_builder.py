@@ -36,10 +36,10 @@ class GeminiWebPromptBuilder:
         baris_data: List[str] = []
         for k in klaster_segmen:
             raw_chat = k.get("cuplikan_chat", [])
-            cuplikan = " ".join(raw_chat[:5]) if isinstance(raw_chat, (list, tuple)) else str(raw_chat)
+            cuplikan = " ".join(raw_chat[:3]) if isinstance(raw_chat, (list, tuple)) else str(raw_chat)
             dialog = str(k.get("dialog_transkrip", "") or "")
-            if len(dialog) > 160:
-                dialog = dialog[:157] + "..."
+            if len(dialog) > 120:
+                dialog = dialog[:117] + "..."
             baris_data.append(
                 f"[#{k.get('nomor', 0)}] {k.get('mulai_tc', '00:00:00')}-{k.get('selesai_tc', '00:00:00')} | "
                 f"Chat:{k.get('total_chat', 0)} | Reaksi:{k.get('jumlah_reaksi', 0)} | "
@@ -50,18 +50,17 @@ class GeminiWebPromptBuilder:
     def build(self, klaster_segmen: Optional[List[Dict[str, Any]]] = None) -> str:
         """Menyusun teks prompt lengkap siap diinjeksikan ke sesi Chromium Gemini Web."""
         data_terstruktur = self.format_cluster_data(klaster_segmen)
-
         lampiran_note = (
-            "(Clean chronological livechat timeline & speech transcript files are attached as primary reference data).\n"
+            "(Complete livechat & speech transcript files are attached as primary reference data).\n"
             if self.config.files_attached
-            else "(No external files attached. Analyze the candidate cluster data provided below).\n"
+            else "(No external files attached. Analyze the potential cluster data provided below).\n"
         )
 
         return f"""# ROLE & OBJECTIVE
 Expert VTuber Highlight Editor & Lead Content Strategist. Map streamer-audience interactions from livestream chat timeline and transcript dialogue into captivating YouTube highlights.
 OUTPUT LANGUAGE: STRICTLY INDONESIAN.
 
-# ARCHIVE DOMAIN & RULES
+# AUDIENCE SAFETY & ANTI-HALLUCINATION RULES
 1. CONTEXT: Public gaming and entertainment broadcast archive. The attached files contain pre-processed chronological audience reaction timeline (livechat_timeline.csv) and streamer speech dialogue (transkrip.csv).
 2. ZERO HALLUCINATION: All timestamps, statements, and quotes MUST strictly originate from the provided timeline or attached transcript. Never invent dialogue or external facts. If missing, state: "Data tidak tersedia".
 3. TIME RESOLUTION: Every segment must have a valid YouTube Start Timecode (HH:MM:SS) and End Timecode in parentheses.
@@ -119,8 +118,7 @@ class GeminiWebPromptFacade:
             min_segments=min_segments,
             top_clips_count=top_clips_count,
         )
-        builder = GeminiWebPromptBuilder(config=cfg)
-        return builder.build(klaster_segmen=klaster_segmen)
+        return GeminiWebPromptBuilder(config=cfg).build(klaster_segmen=klaster_segmen)
 
 
 def buat_prompt_gemini_web(

@@ -19,8 +19,8 @@
    - [06. /implement (Eksekutor Tiket Disiplin)](#06-implement-eksekutor-tiket-disiplin)
    - [07. /tdd (Test-Driven Development)](#07-tdd-test-driven-development)
    - [08. /diagnosing-bugs (Pelacak Bug Ilmiah)](#08-diagnosing-bugs-pelacak-bug-ilmiah)
-   - [09. /code-review (Penilai Kode 2-Sumbu)](#09-code-review-penilai-kode-2-sumbu)
-   - [10. /codebase-design (Pencegah God-Object)](#10-codebase-design-pencegah-god-object)
+   - [09. /code-review (Penilai Kode 3-Sumbu)](#09-code-review-penilai-kode-3-sumbu)
+   - [10. /ponytail (Anti-Over-Engineering & Deep Modules)](#10-ponytail-anti-over-engineering--deep-modules)
    - [11. /modular-refactor (Pemecah Modul Monolit)](#11-modular-refactor-pemecah-modul-monolit)
    - [12. /unit-test-generator (Generator Unit Test Pytest)](#12-unit-test-generator-generator-unit-test-pytest)
    - [13. /graphify (Peta Pengetahuan AST & GraphRAG)](#13-graphify-peta-pengetahuan-ast--graphrag)
@@ -192,34 +192,36 @@ flowchart LR
 
 ---
 
-### 09. `/code-review` (Penilai Kode 2-Sumbu)
+### 09. `/code-review` (Penilai Kode 3-Sumbu)
 * **Berkas Definisi**: [code-review/SKILL.md](file:///d:/mobog/Videos/Youtube%20Download/vibe_tools/skills/code-review/SKILL.md)
-* **Tujuan**: Melakukan audit kode mendalam pada dua sumbu: kepatuhan arsitektur (panjang berkas <300 baris, docstrings, type hinting) dan kesesuaian fungsional terhadap tiket.
+* **Tujuan**: Melakukan audit kode mendalam pada tiga sumbu: kepatuhan arsitektur (<300 baris, docstrings, type hinting), kesesuaian fungsional terhadap tiket, dan audit anti-over-engineering Ponytail (stdlib reuse, cegah class/file prematur).
 * **Kapan Digunakan**:
   - Sebelum melakukan commit atau menyelesaikan tiket kerja.
-  - Untuk mendeteksi *code smells* atau regresi sedini mungkin.
+  - Untuk mendeteksi *code smells*, abstraksi berlebihan, atau regresi sedini mungkin.
 * **Contoh Prompt Pengguna**:
   > *"/code-review tolong tinjau perubahan terakhir pada file gui/tabs/tab_subtitles.py."*
 * **Apa yang Dilakukan AI**:
-  - Memeriksa batas panjang modul.
-  - Memeriksa potensi kebocoran abstraksi (misal GUI memanggil langsung subprocess tanpa layer bridge).
+  - Memeriksa batas panjang modul dan layering.
+  - Memeriksa apakah ada penulisan ulang standard library atau pembuatan class pembungkus yang tidak perlu.
   - Memberikan laporan review dengan label: `[CRITICAL]`, `[WARNING]`, dan `[SUGGESTION]`.
-* **Output**: Laporan audit mutu kode.
+* **Output**: Laporan audit mutu kode 3-sumbu.
 
 ---
 
-### 10. `/codebase-design` (Pencegah God-Object)
-* **Berkas Definisi**: [codebase-design/SKILL.md](file:///d:/mobog/Videos/Youtube%20Download/vibe_tools/skills/codebase-design/SKILL.md)
-* **Tujuan**: Menerapkan prinsip *Deep Modules* (antarmuka sederhana dengan kapabilitas mendalam) dan membasmi file raksasa (*God Object*).
+### 10. `/ponytail` (Anti-Over-Engineering & Deep Modules)
+* **Berkas Definisi**: [ponytail/SKILL.md](file:///d:/mobog/Videos/Youtube%20Download/vibe_tools/skills/ponytail/SKILL.md)
+* **Tujuan**: Mencegah AI menulis kode bertele-tele (*over-engineering*) melalui 7 Tangga Keputusan (YAGNI, utamakan standard library Python, dilarang buat file baru jika <250 baris), sekaligus mempertahankan prinsip *Deep Modules*.
 * **Kapan Digunakan**:
-  - Saat merancang modul baru agar strukturnya rapi sejak awal.
-  - Mencegah penumpukan kode konfigurasi dan data statis di dalam file logika.
+  - Saat Anda ingin AI menyederhanakan kode yang terlalu rumit.
+  - Secara otomatis aktif pada mode `full` saat menjalankan `/to-spec` dan `/implement`.
 * **Contoh Prompt Pengguna**:
-  > *"/codebase-design bagaimana cara memisahkan modul bridge DaVinci Resolve agar antarmuka publiknya bersih tapi implementasi SDK-nya tersembunyi?"*
+  - `"/ponytail sederhanakan fungsi pemotong audio ini agar pakai bawaan Python saja"`
+  - `"/ponytail ultra pangkas semua class wrapper yang tidak perlu"`
 * **Apa yang Dilakukan AI**:
-  - Mengidentifikasi batasan alami (*seams*).
-  - Merancang Facade pattern dan modul konfigurasi terpisah.
-* **Output**: Rancangan diagram kelas/modul dan kontrak antarmuka yang elegan.
+  - Menjalankan 7 Tangga Keputusan Ponytail (lite/full/ultra).
+  - Mengeliminasi dependensi eksternal tak perlu dan menggunakan pustaka bawaan Python.
+  - Memastikan kode tetap berada di file asal jika ukuran file masih < 250 baris.
+* **Output**: Implementasi kode yang bersih, ringkas, dan bebas abstraksi berlebih.
 
 ---
 
@@ -309,8 +311,8 @@ flowchart LR
 | **`/implement`** | Eksekutor tiket disiplin | `"/implement kerjakan tiket nomor 1"` |
 | **`/tdd`** | Siklus Red-Green-Refactor | `"/tdd buat fungsi hitung durasi dengan pytest"` |
 | **`/diagnosing-bugs`**| Pelacak bug via tes gagal | `"/diagnosing-bugs telusuri penyebab KeyError di line 40"` |
-| **`/code-review`** | Audit kepatuhan & arsitektur | `"/code-review audit perubahan pada tab_subtitles.py"` |
-| **`/codebase-design`**| Desain modul anti god-object | `"/codebase-design rancang pemisahan bridge DaVinci"` |
+| **`/code-review`** | Audit kepatuhan 3-sumbu & Ponytail | `"/code-review audit perubahan pada tab_subtitles.py"` |
+| **`/ponytail`** | Anti-over-engineering & stdlib-first | `"/ponytail pangkas kode wrapper yang berlebihan"` |
 | **`/modular-refactor`**| Pemecah file >300 baris | `"/modular-refactor pecah download_srt_json_v2.py"` |
 | **`/unit-test-generator`**| Generator tes isolasi mock | `"/unit-test-generator buat tes untuk resolve_bridge.py"`|
 | **`/graphify`** | Analisis peta dependensi AST | `"/graphify petakan dependensi fungsi di folder gui"` |

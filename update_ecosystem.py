@@ -103,23 +103,6 @@ class VibeEcosystemUpdater:
                             manifest[rel.as_posix()] = self.hitung_sha256(f)
         return manifest
 
-    def fetch_remote_manifest(self) -> Dict[str, str]:
-        """[ID]: Mengambil manifest dari branch main GitHub."""
-        manifest: Dict[str, str] = {}
-        try:
-            req = urllib.request.Request(self.GITHUB_TREE_API, headers={"User-Agent": "Vibe-Tools/2.0"})
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                for item in data.get("tree", []):
-                    if item.get("type") == "blob":
-                        p = item.get("path", "")
-                        if any(p.startswith(d) for d in self.MANAGED_DIRS) and not self.is_blacklisted(Path(p)):
-                            manifest[p] = item.get("sha", "")
-        except Exception as e:
-            print(f"[PERINGATAN] Gagal ke GitHub API ({e}), beralih ke manifest lokal.")
-            return self.build_local_manifest()
-        return manifest
-
     def analyze_workspace(self, source_manifest: Dict[str, str]) -> List[FileDiffManifest]:
         """[ID]: Membandingkan berkas target terhadap manifest sumber."""
         diffs: List[FileDiffManifest] = []

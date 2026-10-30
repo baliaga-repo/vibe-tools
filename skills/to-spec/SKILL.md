@@ -12,7 +12,7 @@ Convert loose user requirements or concept notes into a hardened technical speci
 2. **Interface Contracts**: Precise function signatures, type annotations, and schemas (avoiding `Any`).
 3. **Data Flow & State Transitions**: Step-by-step lifecycle of input to output.
 4. **Boundary & Error Matrix**: Explicit behavior for edge cases (missing files, network timeouts, invalid inputs).
-5. **Architectural Guardrails**: Hard constraints (file line limits < 300, no god objects, token budgets).
+5. **Architectural Guardrails**: Hard constraints (Ponytail Decision Ladder check: YAGNI, codebase reuse, stdlib-first; file line limits < 300, no god objects, token budgets).
 6. **Acceptance Criteria**: Verifiable assertions and test cases.
 
 Output the specification directly into the planning artifact or `docs/specs/<feature>.md`.
