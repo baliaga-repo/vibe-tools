@@ -218,6 +218,7 @@ class VibeEcosystemUpdater:
 def main():
     """[ID]: Titik masuk CLI Universal Updater Dual-Cockpit."""
     parser = argparse.ArgumentParser(description="Vibe Tools Universal Updater (Dual-Cockpit)")
+    parser.add_argument("--pull", action="store_true", help="Tarik pembaruan submodule dari GitHub sebelum update")
     parser.add_argument("--check", action="store_true", help="Pengecekan versi tanpa modifikasi")
     parser.add_argument("--dry-run", action="store_true", help="Simulasi pembaruan tanpa menyentuh disk")
     parser.add_argument("--target", default="", help="Path direktori proyek tujuan (Offline Push)")
@@ -225,6 +226,12 @@ def main():
     parser.add_argument("--rollback", nargs="?", const="", help="Pulihkan konfigurasi dari backup")
 
     args = parser.parse_args()
+    if args.pull:
+        skrip_pull = Path(__file__).resolve().parent / "pull_from_github.py"
+        if skrip_pull.is_file():
+            import subprocess
+            subprocess.run([sys.executable, str(skrip_pull), "--no-sync"])
+
     target = Path(args.target).resolve() if args.target else Path.cwd().resolve()
     updater = VibeEcosystemUpdater(target_root=target)
 
