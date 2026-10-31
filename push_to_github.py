@@ -16,8 +16,7 @@ from pathlib import Path
 # Memastikan output terminal Windows menggunakan encoding UTF-8
 if sys.platform.startswith("win"):
     try:
-        sys.stdout.reconfigure(encoding="utf-8")
-        sys.stderr.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8"); sys.stderr.reconfigure(encoding="utf-8")
     except Exception:
         pass
 
@@ -46,12 +45,11 @@ def siapkan_lingkungan_git(repo_dir: Path) -> dict:
     git_item = repo_dir / ".git"
     if git_item.is_file():
         try:
-            konten = git_item.read_text(encoding="utf-8").strip()
-            if konten.startswith("gitdir:"):
-                gitdir_path = (repo_dir / konten.split(":", 1)[1].strip()).resolve()
-                if gitdir_path.exists():
-                    env["GIT_DIR"] = str(gitdir_path)
-                    env["GIT_WORK_TREE"] = str(repo_dir.resolve())
+            k = git_item.read_text(encoding="utf-8").strip()
+            if k.startswith("gitdir:"):
+                g_path = (repo_dir / k.split(":", 1)[1].strip()).resolve()
+                if g_path.exists():
+                    env["GIT_DIR"], env["GIT_WORK_TREE"] = str(g_path), str(repo_dir.resolve())
         except Exception:
             pass
     return env
@@ -101,22 +99,41 @@ def bersihkan_desktop_ini(repo_dir: Path = REPO_DIR) -> int:
 
 def cek_prasyarat(repo_dir: Path = REPO_DIR) -> None:
     """Memverifikasi Git terpasang dan target adalah repositori Git yang sah."""
-    kode, _, _ = jalankan_perintah("git --version", repo_dir=repo_dir)
-    if kode != 0:
+    if jalankan_perintah("git --version", repo_dir=repo_dir)[0] != 0:
         print("[GAGAL] Git tidak terdeteksi di sistem PATH."); sys.exit(1)
-    kode, out, _ = jalankan_perintah("git rev-parse --is-inside-work-tree", repo_dir=repo_dir)
-    if kode != 0 or out != "true":
+    k, out, _ = jalankan_perintah("git rev-parse --is-inside-work-tree", repo_dir=repo_dir)
+    if k != 0 or out != "true":
         print(f"[GAGAL] Target ({repo_dir}) bukan repositori Git."); sys.exit(1)
     bersihkan_desktop_ini(repo_dir)
 
 
 def dapatkan_branch_aktif(repo_dir: Path = REPO_DIR) -> str:
-    """Mengambil nama branch git aktif."""
+    """Mengambil nama branch git aktif dengan deteksi cerdas saat detached HEAD atau rebase."""
     kode, out, _ = jalankan_perintah("git branch --show-current", repo_dir=repo_dir)
-    if kode == 0 and out:
+    if kode == 0 and out and out != "HEAD":
         return out
-    kode, out, _ = jalankan_perintah("git rev-parse --abbrev-ref HEAD", repo_dir=repo_dir)
-    return out if kode == 0 and out else "main"
+
+    # 1. Cek apakah sedang proses rebase (ambil branch asli dari file head-name)
+    git_dir = repo_dir / ".git"
+    if git_dir.is_file():
+        try:
+            k = git_dir.read_text(encoding="utf-8").strip()
+            if k.startswith("gitdir:"):
+                git_dir = (repo_dir / k.split(":", 1)[1].strip()).resolve()
+        except Exception:
+            pass
+    for r_dir in ("rebase-merge", "rebase-apply"):
+        head_file = git_dir / r_dir / "head-name"
+        if head_file.exists():
+            try:
+                ref = head_file.read_text(encoding="utf-8").strip()
+                if ref.startswith("refs/heads/"):
+                    return ref.replace("refs/heads/", "")
+            except Exception:
+                pass
+
+    kode, out, _ = jalankan_perintah("git rev-parse --abbrev-ref origin/HEAD", repo_dir=repo_dir)
+    return out.split("/", 1)[1].strip() if kode == 0 and out and "/" in out and not out.endswith("/HEAD") else "main"
 
 
 def dapatkan_remote_info(nama_remote: str = "origin", repo_dir: Path = REPO_DIR) -> str:
@@ -128,9 +145,7 @@ def dapatkan_remote_info(nama_remote: str = "origin", repo_dir: Path = REPO_DIR)
 def dapatkan_daftar_perubahan(repo_dir: Path = REPO_DIR):
     """Mengambil daftar berkas yang mengalami perubahan."""
     kode, out, _ = jalankan_perintah("git status --porcelain", repo_dir=repo_dir)
-    if kode != 0 or not out:
-        return []
-    return [(b[:2].strip(), b[3:].strip().strip('"')) for b in out.splitlines() if len(b) >= 4]
+    return [(b[:2].strip(), b[3:].strip().strip('"')) for b in out.splitlines() if len(b) >= 4] if (kode == 0 and out) else []
 
 
 def cek_file_berukuran_besar(daftar_perubahan, repo_dir: Path = REPO_DIR):
@@ -257,8 +272,16 @@ def proses_git_push(pesan_commit: str = None, auto_confirm: bool = True, lakukan
     if not auto_confirm and not tanya_konfirmasi(f"\nKirim commit vibe_tools ke GitHub branch '{branch}'?", default_ya=True):
         print("[BATAL] Push dibatalkan."); return True
 
-    print(f"\n[3/3] Mengirim ke GitHub: git push -u origin {branch} ...")
-    kode, out, err = jalankan_perintah(f"git push -u origin {branch}")
+    # Deteksi apakah saat ini detached HEAD agar push refspec tepat sasaran
+    kode, cur_b, _ = jalankan_perintah("git branch --show-current", repo_dir=repo_dir)
+    is_detached = (kode != 0 or not cur_b or cur_b == "HEAD")
+
+    if is_detached:
+        print(f"\n[3/3] Mengirim ke GitHub (detached HEAD): git push origin HEAD:refs/heads/{branch} ...")
+        kode, out, err = jalankan_perintah(f"git push origin HEAD:refs/heads/{branch}", repo_dir=repo_dir)
+    else:
+        print(f"\n[3/3] Mengirim ke GitHub: git push -u origin {branch} ...")
+        kode, out, err = jalankan_perintah(f"git push -u origin {branch}", repo_dir=repo_dir)
     if kode == 0:
         cetak_garis("=")
         print("     BERHASIL! vibe_tools TELAH DI-PUSH KE GITHUB")
@@ -282,7 +305,7 @@ def main():
         tampilkan_ringkasan(b, dapatkan_remote_info(), dapatkan_daftar_perubahan(), cek_unpushed_commits(b))
         return
 
-    if not proses_git_push(pesan_commit=args.message, auto_confirm=not args.interactive, lakukan_pull=not args.no_pull):
+    if not proses_git_push(args.message, not args.interactive, not args.no_pull):
         sys.exit(1)
 
 
