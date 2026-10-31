@@ -273,15 +273,15 @@ def proses_git_push(pesan_commit: str = None, auto_confirm: bool = True, lakukan
         print("[BATAL] Push dibatalkan."); return True
 
     # Deteksi apakah saat ini detached HEAD agar push refspec tepat sasaran
-    kode, cur_b, _ = jalankan_perintah("git branch --show-current", repo_dir=repo_dir)
+    kode, cur_b, _ = jalankan_perintah("git branch --show-current")
     is_detached = (kode != 0 or not cur_b or cur_b == "HEAD")
 
     if is_detached:
         print(f"\n[3/3] Mengirim ke GitHub (detached HEAD): git push origin HEAD:refs/heads/{branch} ...")
-        kode, out, err = jalankan_perintah(f"git push origin HEAD:refs/heads/{branch}", repo_dir=repo_dir)
+        kode, out, err = jalankan_perintah(f"git push origin HEAD:refs/heads/{branch}")
     else:
         print(f"\n[3/3] Mengirim ke GitHub: git push -u origin {branch} ...")
-        kode, out, err = jalankan_perintah(f"git push -u origin {branch}", repo_dir=repo_dir)
+        kode, out, err = jalankan_perintah(f"git push -u origin {branch}")
     if kode == 0:
         cetak_garis("=")
         print("     BERHASIL! vibe_tools TELAH DI-PUSH KE GITHUB")
