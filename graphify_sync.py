@@ -6,7 +6,8 @@ Penggunaan:
     python graphify_sync.py                # Full pipeline (graph -> wiki -> MAP.md -> verifikasi -> rapikan)
     python graphify_sync.py --map-only     # Hanya perbarui peta .agents/MAP.md (sangat cepat, tanpa graphify)
     python graphify_sync.py --graph-only   # Hanya perbarui graphify & ekspor wiki
-    python graphify_sync.py --no-pause     # Tanpa jeda tekan Enter di akhir
+    python graphify_sync.py --pause        # Tahan jendela terminal dengan jeda Enter di akhir
+    python graphify_sync.py --no-pause     # Langsung keluar tanpa jeda meskipun terjadi error
 
 [EN]: Integrated Knowledge Graph & Project File Map Script (graphify_sync.py).
 Combines Knowledge Graph updates (graphify) and AST generator .agents/MAP.md into a single portable tool.
@@ -15,7 +16,8 @@ Usage:
     python graphify_sync.py                # Full pipeline (graph -> wiki -> MAP.md -> verify -> clean)
     python graphify_sync.py --map-only     # Update only the .agents/MAP.md map (very fast, no graphify)
     python graphify_sync.py --graph-only   # Update only graphify & export wiki
-    python graphify_sync.py --no-pause     # Skip Enter key pause at the end
+    python graphify_sync.py --pause        # Hold terminal window with Enter prompt at the end
+    python graphify_sync.py --no-pause     # Exit immediately without pause even on error
 """
 import ast
 import json
@@ -347,7 +349,10 @@ def main():
         print("[PERINGATAN] Terjadi kesalahan dalam proses sinkronisasi.")
     print("=" * 60)
 
-    if "--no-pause" not in sys.argv and sys.stdin and sys.stdin.isatty():
+    # Otomatis close jika seluruh proses sukses.
+    # Hanya jeda jika terjadi error (agar pesan terbaca) atau jika dipaksa dengan opsi --pause.
+    butuh_pause = (not sukses or "--pause" in sys.argv) and "--no-pause" not in sys.argv
+    if butuh_pause and sys.stdin and sys.stdin.isatty():
         input("\nTekan Enter untuk menutup...")
     sys.exit(0 if sukses else 1)
 
