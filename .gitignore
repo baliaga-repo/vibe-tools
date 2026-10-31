@@ -42,3 +42,6 @@ desktop.ini
 *.tmp
 *.bak
 *.log
+
+# Skrip push lokal / utilitas
+push_to_github.py
