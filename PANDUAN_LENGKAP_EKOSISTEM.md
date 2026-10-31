@@ -58,7 +58,7 @@ Panduan praktis satu pintu untuk merancang, merombak, dan mengeksekusi kodingan 
 
 <a id="tahap-1-brainstorming-detail--tanya-jawab-grill-me---masuk-ke-draf-awal"></a>
 #### 🔹 Tahap 1: Brainstorming Detail & Tanya-Jawab (`/grill-me`) -> Masuk ke Draf Awal
-> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` *(bisa sebutkan "gunakan juga analisa OpenRouter R1/Claude" bila rumit)* | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
+> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` *(otomatis dapat memanggil opini kedua dari `hermes` self-learning & `openrouter` R1/Claude bila diperlukan)* | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
 
 ```markdown
 MODE KONSULTASI & BRAINSTORMING MURNI.
@@ -67,7 +67,8 @@ Kondisi: [Jelaskan fitur yang ingin dibuat / masalah yang ingin diselesaikan / b
 
 Tolong bantu saya dengan bahasa yang sederhana dan mudah dipahami:
 1. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik (beserta kelebihan & kekurangannya) agar saya paham betul arah solusinya.
-2. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
+2. Jika diperlukan analisis mendalam atau sudut pandang tambahan, gunakan opini dari Hermes (yang memiliki fitur self-learning/memori) serta OpenRouter (DeepSeek-R1 / Claude).
+3. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
 
 REM PENGAMAN (STRICT):
 - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
