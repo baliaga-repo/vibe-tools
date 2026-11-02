@@ -9,6 +9,7 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
 1. [Panduan Strategi & Prompt Siap Pakai (Antigravity IDE, Zoo Code, & Ponytail)](#1-panduan-strategi--prompt-siap-pakai-antigravity-ide-zoo-code--ponytail)
    * 1.1 [Contekan Cepat: Pilih Model & Cockpit Sesuai Tahap](#11-contekan-cepat-pilih-model--cockpit-sesuai-tahap)
    * 1.2 [Alur Utama Pembangunan & Perombakan Fitur (3 Tahap Terpadu)](#12-alur-utama-pembangunan--perombakan-fitur-3-tahap-terpadu)
+     * [Alur Pasca-Implementasi: Modifikasi & Fitur Lanjutan (Hemat Token)](#alur-pasca-implementasi-modifikasi--penambahan-fitur-lanjutan-hemat-token)
    * 1.3 [Dua Prompt Spesialis Ringkas (Atasi Bug & Rapikan Kode /ponytail)](#13-dua-prompt-spesialis-ringkas-di-luar-bikin-fitur-baru)
    * 1.4 [Tiga "Golden Rules" Anti-Blunder](#14-tiga-golden-rules-anti-blunder)
 2. [Docstring Translator Bilingual](#2-docstring-translator-bilingual)
@@ -55,6 +56,10 @@ Panduan praktis satu pintu untuk merancang, merombak, dan mengeksekusi kodingan 
 ### 🚀 1.2 Alur Utama Pembangunan & Perombakan Fitur (3 Tahap Terpadu)
 
 > **Alur Emas:** **Tahap 1 (Brainstorming & Paham Dulu -> Draf)** ➔ **Tahap 2 (Rombak/Resmikan ke `docs/specs` + Buat Tiket di `docs/tickets`)** ➔ **Tahap 3 (Eksekusi `/implement`)**.
+> 
+> 💡 **Protokol Pengingat Otomatis AI:**
+> - **Selesai Tahap 1:** AI wajib otomatis mengingatkan dan melampirkan template prompt **(Opsional) Revisi Draf** serta template prompt **Tahap 2**.
+> - **Selesai Tahap 2:** AI wajib otomatis mengingatkan dan melampirkan template prompt **Tahap 3 (Opsi A: Eksekusi Otomatis Penuh 1x Jalan Saja)**.
 
 <a id="tahap-1-brainstorming-detail--tanya-jawab-grill-me---masuk-ke-draf-awal"></a>
 #### 🔹 Tahap 1: Brainstorming Detail & Tanya-Jawab (`/grill-me`) -> Masuk ke Draf Awal
@@ -106,7 +111,9 @@ TAMBAHAN / MODIFIKASI / PEROMBAKAN RANCANGAN (JIKA ADA):
 ATURAN KETAT:
 - JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
 - Wajib patuhi aturan /ponytail (anti over-engineering, utamakan bawaan Python, tahan di file yang sama jika < 250 baris, dan gunakan Facade Pattern jika memecah file > 250-300 baris).
-- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas ke dalam @[docs/tickets].
+- Gunakan konvensi penomoran 3-digit sekuensial (cek nomor ID terakhir di @[docs/INDEX.md], lalu buat file 0XX_nama_fitur.md di docs/specs/ dan folder 0XX_nama_fitur/ di docs/tickets/ dengan nama kembar identik tanpa awalan spec_).
+- Daftarkan fitur baru tersebut ke katalog tabel di @[docs/INDEX.md].
+- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas ke dalam folder tiket terkait.
 - Buatkan daftar tiket terurut untuk saya tinjau.
 ```
 
@@ -135,6 +142,53 @@ ATURAN KETAT:
 * **Opsi B: Eksekusi Manual Satu per Satu (Jika Ingin Mengecek Tiap Tiket)**
   ```markdown
   /implement Silakan kerjakan Tiket 1 dulu dari @[docs/tickets] sesuai aturan /ponytail. Jalankan syntax gate (python -m py_compile), lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
+  ```
+
+---
+
+<a id="alur-pasca-implementasi-modifikasi--penambahan-fitur-lanjutan-hemat-token"></a>
+#### 🔹 Alur Pasca-Implementasi: Modifikasi & Penambahan Fitur Lanjutan (Hemat Token)
+*Gunakan alur ini jika tiket sebelumnya sudah selesai diimplementasikan, tetapi Anda ingin melakukan penyesuaian, modifikasi alur, atau menambah fitur baru:*
+
+> 💰 **Strategi Efisiensi Token (Kapan Langsung Edit vs Kapan Brainstorming Ulang?):**
+> * **Kapan Langsung Edit Spec/Tiket?** Jika ide & kebutuhan tambahannya **sudah jelas di kepala Anda** (misal: tambah format file baru, ubah urutan sortir, tambah tombol/kolom baru). Melewati sesi `/grill-me` akan menghemat **50%–70% token** karena tidak ada putaran tanya-jawab berulang.
+> * **Kapan Buka Sesi Brainstorming (`/grill-me`) Baru?** Hanya jika perubahannya sangat konseptual, arsitekturnya rumit, atau Anda belum yakin dampaknya ke sistem/API. **Sangat disarankan membukanya di Sesi Chat Baru** sambil melampirkan `@spec_terkait.md` agar context window lama ter-reset bersih (0 token akumulasi).
+
+* **Pilihan 1: Modifikasi Langsung (Cepat & Hemat Token — Tanpa `/grill-me`)**
+  *Gunakan di sesi chat saat ini atau chat baru dengan melampirkan spec & folder tiket:*
+  > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
+  ```markdown
+  /to-spec Tolong perbarui rancangan teknis di @[docs/specs/spec_terkait.md] dan tambahkan tiket kelanjutan ke @[docs/tickets/folder_tiket].
+
+  MODIFIKASI & FITUR TAMBAHAN YANG INGIN DITAMBAHKAN:
+  1. [Jelaskan fitur tambahan atau perilaku baru yang diinginkan secara spesifik].
+  2. [Jelaskan hal lain yang ingin diubah/disesuaikan].
+
+  ATURAN KETAT:
+  - JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
+  - Wajib patuhi aturan /ponytail full (< 250-300 baris, stdlib-first).
+  - Pertahankan tiket yang sudah selesai, cukup tambahkan tiket baru lanjutan (misal [TICKET-04], dst.) ke indeks.
+  - Tampilkan draf perubahan spec dan daftar tiket baru untuk saya tinjau.
+  ```
+
+* **Pilihan 2: Brainstorming Ulang Fitur Lanjutan (Jika Ide Masih Rumit / Ragu)**
+  *Buka **TAB CHAT BARU** agar context window kembali bersih dan hemat token:*
+  > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
+  ```markdown
+  MODE KONSULTASI & BRAINSTORMING FITUR LANJUTAN.
+
+  Dasar Proyek: Fitur sebelumnya sudah diimplementasikan sesuai @[docs/specs/spec_terkait.md].
+  Rencana Pengembangan Lanjutan: [Jelaskan ide/kebutuhan baru yang masih Anda bingungkan].
+
+  Tolong bantu saya dengan bahasa sederhana:
+  1. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik untuk menyambungkan fitur baru ini dengan arsitektur yang sudah ada.
+  2. Jika diperlukan analisis mendalam, gunakan opini dari Hermes / OpenRouter (DeepSeek-R1).
+  3. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
+
+  REM PENGAMAN (STRICT):
+  - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
+  - Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk perbaruan @[docs/specs/spec_terkait.md] dan buat tiket lanjutannya di @[docs/tickets/folder_tiket].
+  - JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
   ```
 
 ---
