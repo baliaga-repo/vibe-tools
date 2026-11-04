@@ -79,7 +79,7 @@ REM PENGAMAN (STRICT):
 - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
 - Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
 - Ingatkan dan rancangkan Prompt komplit untuk Tahap 2 yang langsung menyebutkan nama file DRAF SPESIFIKASI (.md) yang telah dibuat, jangan lakukan otomatis.
-- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
+- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, dengan draf spesifikasi di nama_spesifikasi_draf.md. jalankan Tahap 2 sekarang dalam 1 langkah simultan".
 ```
 
 <details>
@@ -117,6 +117,7 @@ ATURAN KETAT:
 - Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas ke dalam folder tiket terkait.
 - Buatkan daftar tiket terurut untuk saya tinjau.
 - Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan rentang nomor tiket dan direktori tiket yang baru dibuat (@[docs/tickets/0XX_nama_fitur]), jangan lakukan otomatis.
+- JANGAN sekali-kali memulai Eksekusi Tiket Koding sebelum saya mengetik kalimat: "/jalankan tahap 3, implement Tiket 1 sampai [X] sudah saya setujui".
 ```
 
 ---

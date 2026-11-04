@@ -171,7 +171,10 @@ class VibeEcosystemUpdater:
     def sync_roo_hybrid_cockpit(self, setup_ollama: bool = False) -> None:
         """[ID]: Memperbarui konfigurasi Zoo Code / Roo Code via setup_zoo_hybrid.py."""
         try:
-            from vibe_tools.setup_zoo_hybrid import pasang_zoo_hybrid
+            try:
+                from vibe_tools.setup_zoo_hybrid import pasang_zoo_hybrid
+            except ModuleNotFoundError:
+                from setup_zoo_hybrid import pasang_zoo_hybrid
             pasang_zoo_hybrid(target_path=str(self.target_root), setup_ollama=setup_ollama)
         except Exception as e:
             print(f"[PERINGATAN] Gagal sinkronisasi Zoo Code / Roo Code Hybrid: {e}")

@@ -46,10 +46,12 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
 
 ## 3. Higienitas Repositori Publik / Shared Ecosystem
 
-- Repositori bersama seperti `vibe_tools` berstatus publik dan dibagikan secara global:
+- Repositori bersama seperti `vibe_tools` berstatus publik dan dibagikan secara global ke berbagai proyek berbeda (misal: Youtube Download, Scrapper, dll):
   - Dilarang keras menyertakan path absolut lokal mesin (`C:\path\to\user\...`), token API, atau nama proyek privat internal.
   - Gunakan path generik (`docs/specs`, `docs/tickets`, `src/app.py`) dan URL dummy publik (`https://github.com/vibe-ecosystem/vibe-tools`).
-  - Skrip operasional spesifik proyek pribadi wajib diletakkan di root workspace proyek terkait, bukan di dalam direktori `vibe_tools`.
+  - **Isolasi Modul Spesifik vs Universal**: `vibe_tools` HANYA untuk perkakas universal tingkat ekosistem (manajemen prompt, MCP, sync rules, updater git, penerjemah docstring, graphify).
+  - **Dilarang Keras Masuk `vibe_tools`**: Modul domain spesifik proyek (YouTube downloading/livechat, Holodex API, DaVinci Resolve automation, Silent Cut VAD, Twitter/X VTuber Radar, `.spec` PyInstaller proyek tertentu) WAJIB diletakkan di root workspace proyek terkait, BUKAN di dalam direktori `vibe_tools`.
+  - **Gerbang Konfirmasi AI**: Sebelum membuat atau memindahkan berkas baru ke dalam `vibe_tools`, AI Agent WAJIB bertanya kepada pengguna terlebih dahulu untuk memastikan berkas tersebut 100% universal dan disetujui pengguna.
 
 ***
 
