@@ -57,9 +57,9 @@ Panduan praktis satu pintu untuk merancang, merombak, dan mengeksekusi kodingan 
 
 > **Alur Emas:** **Tahap 1 (Brainstorming & Paham Dulu -> Draf)** ➔ **Tahap 2 (Rombak/Resmikan ke `docs/specs` + Buat Tiket di `docs/tickets`)** ➔ **Tahap 3 (Eksekusi `/implement`)**.
 > 
-> 💡 **Protokol Pengingat Otomatis AI:**
-> - **Selesai Tahap 1:** AI wajib otomatis mengingatkan dan melampirkan template prompt **(Opsional) Revisi Draf** serta template prompt **Tahap 2**.
-> - **Selesai Tahap 2:** AI wajib otomatis mengingatkan dan melampirkan template prompt **Tahap 3 (Opsi A: Eksekusi Otomatis Penuh 1x Jalan Saja)**.
+> 💡 **Protokol Pengingat & Rancang Prompt Otomatis AI:**
+> - **Selesai Tahap 1:** AI wajib otomatis mengingatkan dan merancangkan prompt **Tahap 2** secara komplit yang langsung menyebutkan **nama file Draf Spesifikasi (`.md`) yang baru dibuat** (serta melampirkan template **(Opsional) Revisi Draf**), tanpa mengeksekusinya secara otomatis.
+> - **Selesai Tahap 2:** AI wajib otomatis mengingatkan dan merancangkan prompt **Tahap 3 (Opsi A: Eksekusi Otomatis Penuh 1x Jalan)** secara komplit yang langsung menyebutkan **rentang nomor tiket dan path direktori tiket yang baru dibuat** (contoh: `@[docs/tickets/0XX_nama_fitur]`), tanpa mengeksekusinya secara otomatis.
 
 <a id="tahap-1-brainstorming-detail--tanya-jawab-grill-me---masuk-ke-draf-awal"></a>
 #### 🔹 Tahap 1: Brainstorming Detail & Tanya-Jawab (`/grill-me`) -> Masuk ke Draf Awal
@@ -78,6 +78,7 @@ Tolong bantu saya dengan bahasa yang sederhana dan mudah dipahami:
 REM PENGAMAN (STRICT):
 - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
 - Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
+- Ingatkan dan rancangkan Prompt komplit untuk Tahap 2 yang langsung menyebutkan nama file DRAF SPESIFIKASI (.md) yang telah dibuat, jangan lakukan otomatis.
 - JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
 ```
 
@@ -87,11 +88,11 @@ REM PENGAMAN (STRICT):
 ```markdown
 REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
 
-Terkait draf spesifikasi tadi, saya ingin merevisi/menanyakan bagian berikut:
+Terkait draf spesifikasi @[nama_draf_spesifikasi.md] tadi, saya ingin merevisi/menanyakan bagian berikut:
 1. [Bagian yang belum pas / ingin diubah]: Tolong ubah menjadi [keinginan baru].
 2. [Bagian yang masih bingung]: Tolong jelaskan lebih sederhana maksud dari [istilah/poin X].
 
-Perbarui DRAF SPESIFIKASI (.md) saja dan jangan menyentuh kodingan dulu!
+Perbarui DRAF SPESIFIKASI (.md) saja, lalu perbarui rancangan Prompt komplit untuk Tahap 2 dan jangan menyentuh kodingan dulu!
 ```
 </details>
 
@@ -99,11 +100,11 @@ Perbarui DRAF SPESIFIKASI (.md) saja dan jangan menyentuh kodingan dulu!
 
 <a id="tahap-2-matangkanrombak-rancangan-ke-docsspecs--buat-tiket-ke-docstickets-1x-jalan"></a>
 #### 🔹 Tahap 2: Matangkan/Rombak Rancangan ke `docs/specs` + Buat Tiket ke `docs/tickets` (1x Jalan)
-*Gunakan setelah Anda paham dan cocok dengan arah Draf di Tahap 1. Anda bisa sekaligus menambahkan/merombak poin rancangan di dalam kotak ini:*
+*Gunakan setelah Anda paham dan cocok dengan arah Draf di Tahap 1 (AI telah menyiapkan prompt ini lengkap dengan nama file draf yang baru dibuat). Anda juga bisa menambahkan/merombak poin rancangan di dalam kotak ini:*
 > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
 
 ```markdown
-/to-spec Tolong buatkan rancangan spesifikasi teknis formal ke dalam @[docs/specs] berdasarkan @[DRAF_SPESIFIKASI] tadi.
+/to-spec Tolong buatkan rancangan spesifikasi teknis formal ke dalam @[docs/specs] berdasarkan @[nama_draf_spesifikasi.md] tadi.
 
 TAMBAHAN / MODIFIKASI / PEROMBAKAN RANCANGAN (JIKA ADA):
 1. [Tulis tambahan/perubahan rancangan di sini, atau hapus baris ini jika draf tadi sudah 100% pas]
@@ -115,25 +116,26 @@ ATURAN KETAT:
 - Daftarkan fitur baru tersebut ke katalog tabel di @[docs/INDEX.md].
 - Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas ke dalam folder tiket terkait.
 - Buatkan daftar tiket terurut untuk saya tinjau.
+- Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan rentang nomor tiket dan direktori tiket yang baru dibuat (@[docs/tickets/0XX_nama_fitur]), jangan lakukan otomatis.
 ```
 
 ---
 
 <a id="tahap-3-eksekusi-tiket-koding-implement--ponytail"></a>
 #### 🔹 Tahap 3: Eksekusi Tiket Koding (`/implement` + `/ponytail`)
-*Pilih salah satu cara eksekusi di bawah ini setelah daftar tiket di Tahap 2 Anda setujui:*
+*Pilih salah satu cara eksekusi di bawah ini setelah daftar tiket di Tahap 2 Anda setujui (AI telah menyiapkan prompt Opsi A lengkap dengan direktori tiketnya):*
 > 💡 **Rekomendasi Model:** ✈️ Antigravity: Ganti ke **`Gemini 3.8 Flash (High)`** *(Gratis & Cepat)* | 🦓 Zoo Code: Mode **`💻 Vibe Coder`** *(tambahkan `/pakai-rag` atau `/pakai-3b` di baris paling atas jika ingin hemat kuota)*
 
 * **Opsi A: Eksekusi Otomatis Penuh 1x Jalan (Rekomendasi Utama / Bisa Ditinggal AFK)**
   ```markdown
-  /implement Tiket 1 sampai [X] sudah saya setujui.
+  /implement Tiket 1 sampai [X] pada @[docs/tickets/0XX_nama_fitur] sudah saya setujui.
 
   INSTRUKSI EKSEKUSI PENUH OTOMATIS:
   1. Eksekusi SEMUA tiket secara berurutan (dari Tiket 1 -> Tiket 2 -> dst) sampai SELESAI semuanya.
   2. DILARANG berhenti di tengah jalan untuk meminta konfirmasi antar-tiket.
   3. Patuhi aturan /ponytail full (kode seringkas mungkin, stdlib-first, komentar/docstring Bahasa Indonesia).
   4. Setelah setiap tiket selesai:
-     - Jalankan silent syntax gate (python -m py_compile <file_yang_diubah>).
+     - Jalankan silent syntax & symbol gate (python -m py_compile <file_yang_diubah> dan python -m pyflakes <file_yang_diubah>).
      - Langsung lanjut otomatis ke tiket berikutnya tanpa jeda.
   5. Hanya berhenti jika menemukan error fatal yang memblokir jalannya kode.
   6. Ketika SEMUA tiket selesai, buat rangkuman final dalam 1 pesan saja.
@@ -141,7 +143,7 @@ ATURAN KETAT:
 
 * **Opsi B: Eksekusi Manual Satu per Satu (Jika Ingin Mengecek Tiap Tiket)**
   ```markdown
-  /implement Silakan kerjakan Tiket 1 dulu dari @[docs/tickets] sesuai aturan /ponytail. Jalankan syntax gate (python -m py_compile), lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
+  /implement Silakan kerjakan Tiket 1 dulu dari @[docs/tickets/0XX_nama_fitur] sesuai aturan /ponytail. Jalankan syntax & symbol gate (python -m py_compile dan python -m pyflakes), lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
   ```
 
 ---
@@ -169,6 +171,7 @@ ATURAN KETAT:
   - Wajib patuhi aturan /ponytail full (< 250-300 baris, stdlib-first).
   - Pertahankan tiket yang sudah selesai, cukup tambahkan tiket baru lanjutan (misal [TICKET-04], dst.) ke indeks.
   - Tampilkan draf perubahan spec dan daftar tiket baru untuk saya tinjau.
+  - Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan nomor tiket baru dan direktori tiketnya (@[docs/tickets/folder_tiket]), jangan lakukan otomatis.
   ```
 
 * **Pilihan 2: Brainstorming Ulang Fitur Lanjutan (Jika Ide Masih Rumit / Ragu)**
@@ -188,6 +191,7 @@ ATURAN KETAT:
   REM PENGAMAN (STRICT):
   - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
   - Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk perbaruan @[docs/specs/spec_terkait.md] dan buat tiket lanjutannya di @[docs/tickets/folder_tiket].
+  - Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan nomor tiket baru dan direktori tiketnya (@[docs/tickets/folder_tiket]), jangan lakukan otomatis.
   - JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
   ```
 
