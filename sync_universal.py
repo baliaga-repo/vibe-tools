@@ -11,6 +11,7 @@ inherit all skills & rules universally with zero copy-pasting.
 """
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -49,7 +50,7 @@ def is_junction_or_symlink(path: str) -> bool:
         return False
 
 
-def buat_junction(sumber_asli: str, target_link: str, nama_komponen: str):
+def buat_junction(sumber_asli: str, target_link: str, nama_komponen: str) -> bool:
     """
     [ID]: Membuat Windows NTFS Junction dari target_link mengarah ke sumber_asli.
     Tidak memerlukan hak akses Administrator.
@@ -87,6 +88,66 @@ def buat_junction(sumber_asli: str, target_link: str, nama_komponen: str):
         return False
 
 
+def sanitasi_frontmatter_rules(rule_dirs: list[str]) -> int:
+    """[ID]: Men-sanitasi YAML frontmatter pada seluruh file rule (.md) agar bebas unmarshal error."""
+    diperbaiki = 0
+    pola_globs_seq = re.compile(r"^(\s*globs\s*:\s*)\[(.*?)\]\s*$", re.MULTILINE)
+
+    for rdir in rule_dirs:
+        if not os.path.isdir(rdir):
+            continue
+        for fname in sorted(os.listdir(rdir)):
+            if not fname.endswith(".md"):
+                continue
+            fpath = os.path.join(rdir, fname)
+            if not os.path.isfile(fpath):
+                continue
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    teks_asli = f.read()
+            except Exception:
+                continue
+
+            teks = teks_asli
+            lines = teks.splitlines()
+
+            # 1. Pastikan memiliki YAML frontmatter pembuka di baris pertama
+            if not lines or lines[0].strip() != "---":
+                judul = fname.replace(".md", "").replace("-", " ").title()
+                body_aman = "\n".join("***" if ln.strip() == "---" else ln for ln in lines)
+                teks = (
+                    f"---\ntrigger: always_on\ndescription: Custom rule for {judul}.\n---\n\n{body_aman}\n"
+                )
+            else:
+                end_idx = None
+                for idx in range(1, len(lines)):
+                    if lines[idx].strip() == "---":
+                        end_idx = idx
+                        break
+                if end_idx is not None:
+                    fm_block = "\n".join(lines[1:end_idx])
+
+                    def _ubah_seq_ke_str(match: re.Match) -> str:
+                        prefix = match.group(1)
+                        isi = [x.strip().strip("\"'") for x in match.group(2).split(",") if x.strip()]
+                        return f'{prefix}"{", ".join(isi)}"'
+
+                    fm_baru = pola_globs_seq.sub(_ubah_seq_ke_str, fm_block)
+                    if "trigger:" not in fm_baru:
+                        fm_baru = "trigger: always_on\n" + fm_baru
+                    body_lines = ["***" if ln.strip() == "---" else ln for ln in lines[end_idx + 1 :]]
+                    if fm_baru != fm_block or any(ln.strip() == "---" for ln in lines[end_idx + 1 :]):
+                        teks = "---\n" + fm_baru + "\n---\n" + "\n".join(body_lines) + "\n"
+
+            if teks != teks_asli:
+                with open(fpath, "w", encoding="utf-8") as f:
+                    f.write(teks)
+                diperbaiki += 1
+                print(f"[SANITASI] Frontmatter diperbaiki otomatis: {fpath}")
+
+    return diperbaiki
+
+
 def sinkronisasi_universal():
     """[ID]: Titik masuk utama sinkronisasi ekosistem universal."""
     print("=" * 70)
@@ -94,6 +155,10 @@ def sinkronisasi_universal():
     print(f"Master Path : {VIBE_TOOLS_DIR}")
     print(f"Global Root : {GLOBAL_CONFIG_DIR}")
     print("=" * 70)
+
+    # 0. Sanitasi otomatis YAML frontmatter di vibe_tools/rules dan .agents/rules workspace
+    workspace_rules_dir = os.path.join(os.path.dirname(VIBE_TOOLS_DIR), ".agents", "rules")
+    sanitasi_frontmatter_rules([LOCAL_RULES_DIR, workspace_rules_dir])
 
     # 1. Hubungkan Skills
     ok_skills = buat_junction(LOCAL_SKILLS_DIR, GLOBAL_SKILLS_DIR, "Skills")

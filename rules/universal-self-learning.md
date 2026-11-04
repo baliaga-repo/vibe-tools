@@ -1,8 +1,13 @@
+---
+trigger: always_on
+description: Long-term self-learning memory, 3-stage vibe coding workflow, Ponytail threshold, and Antigravity YAML frontmatter guardrails.
+---
+
 # Universal Self-Learning & Best Practices Ekosistem Vibe Coding
 
 Dokumen aturan ini merupakan akumulasi memori jangka panjang (*long-term self-learning memory*) yang dipelajari dan disinkronisasikan oleh AI Agent (Hermes, Antigravity IDE, Zoo Code) agar dapat diterapkan secara konsisten di semua proyek dan perangkat.
 
----
+***
 
 ## 1. Alur Emas 3-Tahap Prompting & Vibe Coding
 
@@ -24,7 +29,7 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
    - Jalankan *silent syntax gate* (`python -m py_compile <file>`) setelah setiap modifikasi file.
    - Jalankan unit test terkait dan berikan rangkuman akhir dalam 1 pesan padat setelah semua tiket rampung.
 
----
+***
 
 ## 2. Standar Ambang Batas 250 Baris (Ponytail vs Clean Architecture)
 
@@ -37,16 +42,16 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
 - **Docstring & Komentar**:
   - Seluruh docstring fungsi, kelas, dan komentar teknis wajib ditulis dalam **Bahasa Indonesia** yang ringkas dan jelas.
 
----
+***
 
 ## 3. Higienitas Repositori Publik / Shared Ecosystem
 
 - Repositori bersama seperti `vibe_tools` berstatus publik dan dibagikan secara global:
-  - Dilarang keras menyertakan path absolut lokal mesin (`C:\Users\...`, `d:\mobog\...`), token API, atau nama proyek privat (`Scrapper_new_acmt`, dll).
+  - Dilarang keras menyertakan path absolut lokal mesin (`C:\path\to\user\...`), token API, atau nama proyek privat internal.
   - Gunakan path generik (`docs/specs`, `docs/tickets`, `src/app.py`) dan URL dummy publik (`https://github.com/vibe-ecosystem/vibe-tools`).
   - Skrip operasional spesifik proyek pribadi wajib diletakkan di root workspace proyek terkait, bukan di dalam direktori `vibe_tools`.
 
----
+***
 
 ## 4. Sinkronisasi Git Multi-Perangkat (PC ⇄ Laptop Anti-Bentrok)
 
@@ -59,3 +64,16 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
     ```
   - Perintah ini secara cerdas menyimpan perubahan lokal sementara (*autostash*), menarik commit terbaru dari remote, dan menempelkan kembali perubahan lokal di atasnya tanpa menimbulkan merge commit yang membingungkan.
 
+***
+
+## 5. Standar Skema YAML Frontmatter Rules Antigravity (Anti-Unmarshal Error)
+
+- **Wajib Scalar String pada `globs`**:
+  - Parser Go di Antigravity IDE melakukan unmarshal field `globs` ke tipe `string` tunggal, **BUKAN** array/list (`[]string` / YAML `!!seq`).
+  - **BENAR**: `globs: "*.py"` atau `globs: "*.py, *.pyw"`
+  - **SALAH (Menyebabkan Crash Unmarshal)**: `globs: ["*.py"]` (`yaml: unmarshal errors: cannot unmarshal !!seq into string`)
+- **Kewajiban Header Frontmatter & Larangan `---` di Body**:
+  - Setiap file rule di `.agents/rules/*.md` dan `vibe_tools/rules/*.md` wajib diawali blok frontmatter `---` pada baris 1 yang memuat minimal `trigger: always_on` dan `description: ...`.
+  - Gunakan `***` (bukan `---`) untuk garis pemisah horizontal di dalam isi dokumen agar tidak membingungkan parser frontmatter.
+- **Deduplikasi & Sinkronisasi `.agents/rules` vs `vibe_tools/rules`**:
+  - Saat memperbarui rule di `vibe_tools/rules/` (yang terhubung ke `~/.gemini/config/rules` via NTFS Junction), pastikan salinan lokal di `.agents/rules/` juga disinkronkan atau disanitasi otomatis melalui `vibe_tools/sync_universal.py`.

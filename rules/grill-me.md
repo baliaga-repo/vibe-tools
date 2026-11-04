@@ -1,3 +1,8 @@
+---
+trigger: always_on
+description: Structured interactive interview workflow (/grill-me) before writing production code.
+---
+
 # Rule: Super Grill-Me Workflow
 
 Triggered when the user invokes `/grill-me` or requests an architectural interview before writing code.

@@ -66,12 +66,12 @@ MODEL_ALIASES = {
     "o3-mini": "openai/o3-mini",
     
     # Standar Emas Coding & Refactoring
-    "claude": "anthropic/claude-3.7-sonnet:thinking",
+    "claude": "anthropic/claude-sonnet-5.5",
     "claude-thinking": "anthropic/claude-3.7-sonnet:thinking",
     "claude-3.7": "anthropic/claude-3.7-sonnet",
     "claude-3.7-thinking": "anthropic/claude-3.7-sonnet:thinking",
     "claude-4.5": "anthropic/claude-sonnet-4.5",
-    "sonnet": "anthropic/claude-3.7-sonnet:thinking",
+    "sonnet": "anthropic/claude-sonnet-5.5",
     "claude-3.5-sonnet": "anthropic/claude-3.5-sonnet",
     "claude-haiku": "anthropic/claude-3.5-haiku",
     "haiku": "anthropic/claude-3.5-haiku",
