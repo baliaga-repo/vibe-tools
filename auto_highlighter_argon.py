@@ -1,9 +1,15 @@
 """
-Modul: auto_highlighter_argon.py
+[ID]: Modul: auto_highlighter_argon.py
 Deskripsi: Otomasi ekstraksi highlight VTuber menggunakan model penalaran Google Gemini (Gemini 4 Argon / Gemini 3.8 Flash).
            Menganalisis lonjakan CPM livechat & transkrip secara lokal (Headless),
            menghasilkan rangkuman highlight tanpa peramban (browser),
            serta menyimpan output langsung ke sections.txt dan marker DaVinci Resolve.
+
+[EN]: Module: auto_highlighter_argon.py
+Description: Automates VTuber highlight extraction using Google Gemini reasoning models (Gemini 4 Argon / Gemini 3.8 Flash).
+             Analyzes live chat CPM spikes & transcripts locally (headless),
+             generates highlight summaries without a browser,
+             and saves output directly to sections.txt and DaVinci Resolve markers.
 """
 
 import argparse
