@@ -148,6 +148,40 @@ def sanitasi_frontmatter_rules(rule_dirs: list[str]) -> int:
     return diperbaiki
 
 
+def sinkronkan_memori_hermes() -> bool:
+    """
+    [ID]: Menyinkronkan aturan self-learning universal dari vibe_tools/rules/universal-self-learning.md
+    ke memori jangka panjang Hermes Agent (~/.hermes/memories/MEMORY.md) agar lintas perangkat selalu identik.
+    """
+    sumber_rule = os.path.join(LOCAL_RULES_DIR, "universal-self-learning.md")
+    if not os.path.isfile(sumber_rule):
+        return False
+
+    hermes_mem_dir = os.path.expanduser(r"~\.hermes\memories")
+    hermes_mem_file = os.path.join(hermes_mem_dir, "MEMORY.md")
+
+    try:
+        with open(sumber_rule, "r", encoding="utf-8") as f:
+            teks = f.read()
+
+        # Hilangkan blok YAML frontmatter di baris awal jika ada untuk kebersihan MEMORY.md Hermes
+        lines = teks.splitlines()
+        if lines and lines[0].strip() == "---":
+            for idx in range(1, len(lines)):
+                if lines[idx].strip() == "---":
+                    teks = "\n".join(lines[idx + 1 :]).lstrip() + "\n"
+                    break
+
+        os.makedirs(hermes_mem_dir, exist_ok=True)
+        with open(hermes_mem_file, "w", encoding="utf-8") as f:
+            f.write(teks)
+        print(f"[OK] Memori Hermes disinkronkan: {hermes_mem_file}")
+        return True
+    except Exception as e:
+        print(f"[WARN] Gagal menyinkronkan memori Hermes: {e}")
+        return False
+
+
 def sinkronisasi_universal():
     """[ID]: Titik masuk utama sinkronisasi ekosistem universal."""
     print("=" * 70)
@@ -165,6 +199,9 @@ def sinkronisasi_universal():
 
     # 2. Hubungkan Rules
     ok_rules = buat_junction(LOCAL_RULES_DIR, GLOBAL_RULES_DIR, "Rules")
+
+    # 3. Sinkronkan Memori Jangka Panjang Hermes Agent (~/.hermes/memories/MEMORY.md)
+    sinkronkan_memori_hermes()
 
     print("-" * 70)
     if ok_skills and ok_rules:

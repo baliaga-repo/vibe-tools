@@ -56,7 +56,7 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
 ## 4. Sinkronisasi Git Multi-Perangkat (PC ⇄ Laptop Anti-Bentrok)
 
 - **Sebelum Berpindah Perangkat**:
-  - Selalu jalankan `python vibe_tools/push_to_github.py` untuk mengamankan perubahan ke remote.
+  - Selalu jalankan `python vibe_tools/push_vibe_tools.py` untuk mengamankan perubahan ke remote.
 - **Di Perangkat Penerima**:
   - Jika kedua perangkat memiliki commit atau modifikasi lokal yang belum tersinkron, jalankan:
     ```powershell
@@ -77,3 +77,29 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
   - Gunakan `***` (bukan `---`) untuk garis pemisah horizontal di dalam isi dokumen agar tidak membingungkan parser frontmatter.
 - **Deduplikasi & Sinkronisasi `.agents/rules` vs `vibe_tools/rules`**:
   - Saat memperbarui rule di `vibe_tools/rules/` (yang terhubung ke `~/.gemini/config/rules` via NTFS Junction), pastikan salinan lokal di `.agents/rules/` juga disinkronkan atau disanitasi otomatis melalui `vibe_tools/sync_universal.py`.
+
+***
+
+## 6. Pola Arsitektur Data Besar (SQLite Streaming ETL) & Pencegahan Bug Klasik
+
+1. **SQLite Streaming & Native DDL (`CREATE TABLE AS SELECT`) vs Loop Python**:
+   - Untuk pemrosesan tabel besar (>100.000 baris dari PDF/Excel/CSV), hindari menumpuk seluruh data di RAM (list/DataFrame raksasa) atau melakukan iterasi transformasi baris-per-baris di Python.
+   - Gunakan SQLite berbasis disk dengan mode `PRAGMA journal_mode = WAL;` dan delegasikan transformasi kolom via perintah DDL native `CREATE TABLE [tabel_bersih] AS SELECT ... FROM [tabel_mentah];`.
+2. **Single SQL Query & Referensi Nama Header `[NAMA_KOLOM]` vs Urutan Huruf Kolom (`A, B, C`)**:
+   - Jangan gunakan indeks posisi huruf kolom statis (`A, B, C`) untuk konfigurasi insert/delete/formula kolom karena posisi acuan pasti bergeser saat ada kolom yang disisipkan atau dihapus.
+   - Gunakan **1 Text Box Query SQLite utuh** dengan referensi nama header asli yang dibungkus kurung siku (`[IDPEL]`, `[NO METER]`).
+3. **Jebakan SQL `TRIM()` vs UDF `BERSIHKAN_SPASI()` pada Teks/Angka Ekstraksi PDF**:
+   - Ekstraksi tabel PDF sering memotong teks atau angka panjang (seperti koordinat atau nomor seri) menjadi dua baris sehingga menghasilkan spasi di tengah string (contoh: `'115.2484562 2479914'` atau `'- 8.683833075 056866'`).
+   - Fungsi bawaan SQL `TRIM()` hanya menghapus spasi di ujung kiri dan kanan, **bukan** spasi di tengah. Wajib gunakan UDF Python `BERSIHKAN_SPASI()` untuk kolom ID, kode, nomor meter, dan koordinat.
+4. **Normalisasi Kata Terputus PDF via Python UDF Dinamis, Bukan `CASE WHEN` Kaku**:
+   - Hindari menulis blok `CASE WHEN` yang panjang di dalam query SQL untuk memperbaiki kata-kata yang terpecah spasi akibat lebar kolom PDF (misal `'Norm al'` -> `'Normal'`).
+   - Daftarkan fungsi Python berbasis kamus normalisasi *case-insensitive* ke koneksi SQLite via `conn.create_function("RAPIKAN_LCD", 1, fn_normalisasi)` sehingga query SQL tetap ringkas 1 baris.
+5. **Protokol Anti-Crash File Output Terkunci (`[Errno 13] Permission denied`)**:
+   - Sebelum memulai proses transformasi berat dan sebelum menyimpan file output Excel (`.xlsx`/`.xls`), selalu lakukan *Early File Lock Check* (coba buka file dengan mode `"a+b"`).
+   - Jika file sedang dibuka di Microsoft Excel, tampilkan dialog interaktif *Retry/Cancel* (`messagebox.askretrycancel`) agar pengguna cukup menutup Excel lalu melanjutkan proses tanpa harus mengulang dari awal.
+6. **Manajemen Lock SQLite Windows (`[WinError 32]`) & Sanitasi Path JSON**:
+   - Selalu tutup `cursor` dan `conn` di dalam blok `finally` sebelum melakukan `os.rename()` atau `os.remove()` pada file database `.db` di Windows.
+   - Selalu normalisasi path direktori Windows menggunakan *forward slash* (`/`) sebelum disimpan ke file konfigurasi `.json` untuk mencegah `JSONDecodeError: Invalid \escape`.
+7. **Silent Syntax & Undefined Symbol Gate (`py_compile` + `pyflakes`)**:
+   - `python -m py_compile` hanya memvalidasi sintaks AST dan **tidak mendeteksi `NameError`** (seperti lupa mengimpor `Path` atau `Union` yang dipanggil di dalam fungsi).
+   - Setelah memodifikasi file `.py`, wajib jalankan `python -m py_compile <file>` **DAN** `python -m pyflakes <file>` untuk memastikan nol *undefined name* sebelum menyerahkan hasil ke pengguna.

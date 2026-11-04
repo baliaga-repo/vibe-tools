@@ -36,4 +36,4 @@ Structure code across distinct layers:
 ## 4. Token Efficiency & Zero-Syntax-Error Gate
 - **Targeted Edits**: Use localized line replacements (`replace_file_content` / inline edits) rather than rewriting entire files.
 - **Focused Context**: When modifying a feature, open and reference only the specific files directly relevant to that task.
-- **Silent Syntax Gate**: After modifying any `.py` file, always run `python -m py_compile <modified_files>` and fix any syntax/indentation issues in the same turn before handing off to the user.
+- **Silent Syntax & Undefined Symbol Gate**: After modifying any `.py` file, always run `python -m py_compile <modified_files>` AND `python -m pyflakes <modified_files>` (or symbol verification) to ensure zero syntax errors, zero missing imports, and zero undefined names (`NameError`) in the same turn before handing off to the user.

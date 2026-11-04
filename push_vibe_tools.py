@@ -139,7 +139,7 @@ def dapatkan_branch_aktif(repo_dir: Path = REPO_DIR) -> str:
 def dapatkan_remote_info(nama_remote: str = "origin", repo_dir: Path = REPO_DIR) -> str:
     """Mengambil URL remote origin."""
     kode, out, _ = jalankan_perintah(f"git remote get-url {nama_remote}", repo_dir=repo_dir)
-    return out if kode == 0 else ""
+    return re.sub(r"://[^@]+@", "://***@", out) if kode == 0 and out else ""
 
 
 def dapatkan_daftar_perubahan(repo_dir: Path = REPO_DIR):
