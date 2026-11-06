@@ -10,8 +10,8 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
    * 1.1 [Contekan Cepat: Pilih Model & Cockpit Sesuai Tahap](#11-contekan-cepat-pilih-model--cockpit-sesuai-tahap)
    * 1.2 [Alur Utama Pembangunan & Perombakan Fitur (3 Tahap Terpadu)](#12-alur-utama-pembangunan--perombakan-fitur-3-tahap-terpadu)
      * [Alur Pasca-Implementasi: Modifikasi & Fitur Lanjutan (Hemat Token)](#alur-pasca-implementasi-modifikasi--penambahan-fitur-lanjutan-hemat-token)
-   * 1.3 [Dua Prompt Spesialis Ringkas (Atasi Bug & Rapikan Kode /ponytail)](#13-dua-prompt-spesialis-ringkas-di-luar-bikin-fitur-baru)
-   * 1.4 [Tiga "Golden Rules" Anti-Blunder](#14-tiga-golden-rules-anti-blunder)
+   * 1.3 [Tiga Prompt Spesialis Ringkas (Atasi Bug, Rapikan Kode /ponytail, & Mode Otak-Tangan)](#13-tiga-prompt-spesialis-ringkas-di-luar-bikin-fitur-baru)
+   * 1.4 [Empat "Golden Rules" Anti-Blunder (Termasuk Anti-Sycophancy)](#14-tiga-golden-rules-anti-blunder)
 2. [Docstring Translator Bilingual](#2-docstring-translator-bilingual)
 3. [Sinkronisasi Git vibe_tools (Pindah PC ⇄ Laptop, Pengguna Publik, & Fork Global)](#3-sinkronisasi-git-vibe_tools-pindah-pc--laptop-pengguna-publik--fork-global)
    * 3.1 [Skenario Pindah PC ⇄ Laptop Anti-Bentrok](#31-skenario-pindah-pc--laptop-anti-bentrok)
@@ -30,6 +30,7 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
    * 6.4 [Tahap 4: Prompt Setup Mandiri & Alternatif Manual](#64-tahap-4-prompt-setup-mandiri--alternatif-manual)
    * 6.5 [Tahap 5: Verifikasi & Uji Koneksi](#65-tahap-5-verifikasi--uji-koneksi)
    * 6.6 [Tahap 6: Katalog Model Pilihan & Update Otomatis](#66-tahap-6-katalog-model-pilihan--update-otomatis)
+   * 6.7 [Mode Otak-Tangan: Iterative Debug Loop & Session Cache](#67-mode-otak-tangan-iterative-debug-loop--session-cache)
 7. [Katalog 15 Skill Universal & Panduan Penggunaan](#7-katalog-15-skill-universal--panduan-penggunaan)
 8. [Arsitektur Hybrid Dual-Cockpit (Antigravity + VS Code Zoo Code + Ollama RTX 3060)](#8-arsitektur-hybrid-dual-cockpit-antigravity--vs-code-zoo-code--ollama-rtx-3060)
 9. [Otomasi Pemeliharaan, Sinkronisasi Database, & Universal Updater Lintas-Proyek](#9-otomasi-pemeliharaan-sinkronisasi-database--universal-updater-lintas-proyek)
@@ -49,6 +50,7 @@ Panduan praktis satu pintu untuk merancang, merombak, dan mengeksekusi kodingan 
 | **Tahap 2: Spec (`docs/specs`) & Tiket (`docs/tickets`)** | Merombak/mematangkan rancangan ke `.md` resmi & memecah tiket kerja | **Gemini 4 Argon (High)** | Mode **`🔥 Grill-Me & Spec`** *(Otomatis terkunci hanya edit `docs/`)* |
 | **Tahap 3: Eksekusi Tiket Koding (`/implement`)** | Mengerjakan semua tiket sampai lulus `py_compile` dengan hemat kode (`/ponytail`) | **Gemini 3.8 Flash (High)** *(Cepat, konteks besar, 100% Gratis)* | Mode **`💻 Vibe Coder`** atau **`🪃 Orchestrator`** *(awalan `/pakai-rag` atau `/pakai-3b`)* |
 | **Kasus Khusus: Cari Bug / Rapikan Kode** | Lacak akar error runtime atau pangkas kode bertele-tele & *dead code* | **Argon / Flash** + MCP `openrouter` (`deepseek-r1`) | Mode **`🔍 Bug Hunter`** atau **`🛡️ Code Reviewer`** |
+| **Kasus Khusus: Debug Ilmiah (Otak-Tangan)** | Investigasi bug rumit via trial-and-error bertahap & self-learning | **Claude Sonnet 4.5** (Otak via `tanya_openrouter`) + **Gemini Flash** (Tangan IDE) | Mode **`🔍 Bug Hunter`** |
 
 ---
 
@@ -66,21 +68,43 @@ Panduan praktis satu pintu untuk merancang, merombak, dan mengeksekusi kodingan 
 > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` *(otomatis dapat memanggil opini kedua dari `hermes` self-learning & `openrouter` R1/Claude bila diperlukan)* | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
 
 ```markdown
-MODE KONSULTASI & BRAINSTORMING MURNI.
+MODE KONSULTASI & BRAINSTORMING MURNI (DEVIL'S ADVOCATE & CRITICAL THINKING).
 
-Kondisi: [Jelaskan fitur yang ingin dibuat / masalah yang ingin diselesaikan / bagian yang masih bingung].
+Kondisi: [Jelaskan fitur yang ingin dibuat / masalah yang ingin diselesaikan / ide baru yang dipikirkan].
 
-Tolong bantu saya dengan bahasa yang sederhana dan mudah dipahami:
-1. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik (beserta kelebihan & kekurangannya) agar saya paham betul arah solusinya.
-2. Jika diperlukan analisis mendalam atau sudut pandang tambahan, gunakan opini dari Hermes (yang memiliki fitur self-learning/memori) serta OpenRouter (DeepSeek-R1 / Claude).
-3. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
+Tolong bantu saya membedah dan menguji ide ini secara kritis:
+1. SIKAP ANTI-PENJILAT (DEVIL'S ADVOCATE):
+   - Dilarang memuji atau bersikap "yes-man" (jangan katakan "ide luar biasa", "solusi brilian", dll).
+   - Bertindaklah sebagai Senior System Architect / Red Teamer yang skeptis dan kritis.
+   - Uji asumsi saya: Tunjukkan minimal 3-5 potensi cacat fatal (fatal flaws), risiko kegagalan di dunia nyata, blindspot, edge-case ekstrem, atau tanda-tanda over-engineering.
+2. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik (beserta kelebihan, kekurangan, dan trade-off masing-masing) agar saya paham betul arah solusinya.
+3. Jika diperlukan analisis mendalam atau sudut pandang penalaran kedua, gunakan opini dari Hermes (yang memiliki fitur self-learning/memori) serta OpenRouter (DeepSeek-R1 / Claude).
+4. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan kritis satu per satu menggunakan ask_question) untuk menguji kesiapan konsep saya sampai tuntas.
 
 REM PENGAMAN (STRICT):
 - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
-- Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
+- Setelah sesi tanya jawab & uji kritis selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
 - Ingatkan dan rancangkan Prompt komplit untuk Tahap 2 yang langsung menyebutkan nama file DRAF SPESIFIKASI (.md) yang telah dibuat, jangan lakukan otomatis.
 - JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, dengan draf spesifikasi di nama_spesifikasi_draf.md. jalankan Tahap 2 sekarang dalam 1 langkah simultan".
 ```
+
+<details>
+<summary>🔥 <b>(Varian Khusus) Mode Red-Team Ekstrem / Brutal Stress-Test — Gunakan saat ingin ide diuji secara tanpa ampun sebelum dispesifikasikan</b></summary>
+
+```markdown
+MODE RED-TEAM & BRUTAL STRESS-TEST IDE BARU.
+
+Ide/Inovasi Saya: [Jelaskan ide/solusi yang ingin Anda uji].
+
+TUGAS ANDA (BRUTAL CRITIC & SKEPTICAL VENTURE CAPITALIST / SENIOR ARCHITECT):
+1. DILARANG MEMUJI. Hapus segala basa-basi dan kalimat penyemangat.
+2. Serang ide ini tanpa ampun: Berikan 5 alasan utama mengapa ide ini berpotensi GAGAL TOTAL, tidak efisien, atau solusi yang mencari-cari masalah (premature optimization / over-engineering).
+3. Ajukan 3 pertanyaan paling sulit yang jika saya gagal menjawabnya secara logis, ide ini harus langsung dibatalkan atau dirombak total.
+4. Tawarkan counter-thesis (sudut pandang alternatif yang berlawanan) yang jauh lebih sederhana menggunakan bawaan Python/sistem yang sudah ada.
+
+REM PENGAMAN: Dilarang menyentuh kode (.py). Murni evaluasi logis dan konseptual.
+```
+</details>
 
 <details>
 <summary>🔄 <b>(Opsional) Kotak Revisi Draf Awal — Gunakan jika masih ada bagian draf yang ingin diubah/ditanyakan sebelum lanjut ke Tahap 2</b></summary>
@@ -179,15 +203,19 @@ ATURAN KETAT:
   *Buka **TAB CHAT BARU** agar context window kembali bersih dan hemat token:*
   > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
   ```markdown
-  MODE KONSULTASI & BRAINSTORMING FITUR LANJUTAN.
+  MODE KONSULTASI & BRAINSTORMING FITUR LANJUTAN (DEVIL'S ADVOCATE & CRITICAL THINKING).
 
   Dasar Proyek: Fitur sebelumnya sudah diimplementasikan sesuai @[docs/specs/spec_terkait.md].
   Rencana Pengembangan Lanjutan: [Jelaskan ide/kebutuhan baru yang masih Anda bingungkan].
 
-  Tolong bantu saya dengan bahasa sederhana:
-  1. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik untuk menyambungkan fitur baru ini dengan arsitektur yang sudah ada.
-  2. Jika diperlukan analisis mendalam, gunakan opini dari Hermes / OpenRouter (DeepSeek-R1).
-  3. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
+  Tolong bantu saya membedah dan menguji rencana lanjutan ini secara kritis:
+  1. SIKAP ANTI-PENJILAT (DEVIL'S ADVOCATE):
+     - Dilarang memuji atau bersikap "yes-man".
+     - Uji apakah penambahan fitur ini benar-benar esensial atau sekadar over-engineering / bikin bloat.
+     - Tunjukkan potensi efek samping, risiko regresi, atau konflik dengan arsitektur yang sudah ada.
+  2. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik untuk menyambungkan fitur baru ini dengan arsitektur yang sudah ada (beserta kelebihan, kekurangan, dan trade-off masing-masing).
+  3. Jika diperlukan analisis mendalam, gunakan opini dari Hermes / OpenRouter (DeepSeek-R1 / Claude).
+  4. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan kritis satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
 
   REM PENGAMAN (STRICT):
   - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
@@ -198,8 +226,8 @@ ATURAN KETAT:
 
 ---
 
-<a id="13-dua-prompt-spesialis-ringkas-di-luar-bikin-fitur-baru"></a>
-### 🛠️ 1.3 Dua Prompt Spesialis Ringkas (Di Luar Bikin Fitur Baru)
+<a id="13-tiga-prompt-spesialis-ringkas-di-luar-bikin-fitur-baru"></a>
+### 🛠️ 1.3 Tiga Prompt Spesialis Ringkas (Di Luar Bikin Fitur Baru)
 
 #### 🐞 Kasus A: Mengatasi Error Run / Bug Saat Aplikasi Dijalankan
 > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Argon / Flash` + MCP `openrouter` (`deepseek-r1`) | 🦓 Zoo Code: Mode `🔍 Bug Hunter`
@@ -226,14 +254,39 @@ INSTRUKSI INVESTIGASI:
 3. Tampilkan tabel temuan untuk saya konfirmasi (JANGAN hapus/ubah kode sebelum saya setujui).
 ```
 
+#### 🔬 Kasus C: Mode Otak-Tangan (Scientific Trial-and-Error Testing: Claude Sonnet 4.5 x Gemini Flash & Self-Learning)
+> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 3.8 Flash (High)` sebagai Tangan eksekutor + `tanya_openrouter(..., model="claude", mode_debug=True)` sebagai Otak perancang tes | 🦓 Zoo Code: Mode `🔍 Bug Hunter`
+
+*Gunakan pola ini ketika Anda menghadapi bug yang membingungkan atau error misterius yang membutuhkan pengujian coba-coba (trial-and-error) bertahap untuk mempersempit kemungkinan secara ilmiah:*
+
+```markdown
+Selesaikan investigasi bug ini menggunakan Pola Otak-Tangan (Brain & Hands Protocol):
+
+DESKRIPSI MASALAH:
+[Jelaskan perilaku aneh atau paste traceback error di sini]
+
+PEMBAGIAN PERAN & ALUR KERJA:
+1. Claude Sonnet 4.5 (Otak via tanya_openrouter model="claude", mode_debug=True):
+   - Bertindak sebagai Lead Debugging Architect.
+   - Buatkan [HIPOTESIS] dan [PERINTAH_TES] minimal untuk mempersempit akar masalah.
+2. Gemini Flash (Tangan di Antigravity IDE):
+   - Eksekusi [PERINTAH_TES] secara nyata di terminal Windows secara GRATIS.
+   - Tangkap output stdout/stderr dan kembalikan ke Claude via session_id yang sama.
+   - Batas maksimal 4 putaran tes otomatis per sesi (jika belum selesai di putaran ke-4, lapor ke user).
+3. Saat status [STATUS: SELESAI]:
+   - Terapkan [SOLUSI_KODE] ke berkas proyek dan jalankan silent syntax gate (py_compile + pyflakes).
+   - Catat [PELAJARAN_KUNCI] ke memori pembelajaran jika merupakan pola bug baru yang penting.
+```
+
 ---
 
 <a id="14-tiga-golden-rules-anti-blunder"></a>
-### 🛡️ 1.4 Tiga "Golden Rules" Anti-Blunder
+### 🛡️ 1.4 Empat "Golden Rules" Anti-Blunder
 
 1. **Paham Dulu Baru Spec & Tiket**: Selalu mulai dari **Tahap 1 (Brainstorming & `/grill-me`)** dengan rem pengaman aktif sampai Anda benar-benar paham arah solusinya.
 2. **Aturan Ambang 250 Baris (`/ponytail` vs Clean Architecture)**: Selama file masih **< 250 baris**, AI wajib menulis kode sesingkat mungkin di file yang ada tanpa bikin class/file baru. Pemecahan file (`/modular-refactor` + *Facade Pattern*) baru dilakukan jika ukuran file menyentuh **250–300 baris**.
 3. **Ganti Model Sesuai Beban**: Gunakan **Argon / DeepSeek-R1** saat memikirkan arsitektur (Tahap 1 & 2), lalu pindah ke **Flash (Gratis) / Zoo Code Local Scout ($0)** saat mengeksekusi tiket koding (Tahap 3).
+4. **Anti-Sycophancy (Wajib Menantang Ide / Devil's Advocate)**: AI dilarang menjadi *cheerleader* atau *yes-man* yang langsung memuji ide baru. Dalam perencanaan ide & fitur (Tahap 1), AI wajib menguji asumsi, menunjukkan potensi cacat fatal, risiko *over-engineering*, dan blindspot sebelum menyepakati spesifikasi.
 
 ---
 
@@ -455,6 +508,21 @@ Server MCP OpenRouter mendukung **Sistem Alias Cerdas**:
 > [!TIP]
 > Untuk mengecek daftar model dan harga terbaru langsung dari OpenRouter secara otomatis, ketik:  
 > *"Panggil tool `daftar_model_rekomendasi`."*
+
+<a id="67-mode-otak-tangan-iterative-debug-loop--session-cache"></a>
+### 🧠 6.7 Mode Otak-Tangan (Iterative Debug Loop & Session Cache)
+
+Server MCP OpenRouter mendukung siklus **Scientific Debugging Loop** menggunakan parameter baru pada `tanya_openrouter`:
+* `session_id: str`: Menyimpan memori sesi ringan berbasis *Sliding Window* (maksimal 4 putaran terakhir = 8 pesan) di `~/.gemini/cache/openrouter_sessions.json`.
+  * Awali dengan `new:<id>` atau `reset:<id>` untuk membersihkan riwayat lama sebelum memulai investigasi baru.
+* `mode_debug: bool = True`: Menyuntikkan protokol tag terstruktur wajib bagi Claude:
+  * `[HIPOTESIS]`: Dugaan teknis penyebab bug yang sedang diuji saat ini.
+  * `[PERINTAH_TES]`: Perintah CLI / pytest / python minimal untuk dieksekusi Gemini di terminal IDE.
+  * `[STATUS]`: `LANJUT_TES` (masih butuh pengujian) atau `SELESAI` (akar masalah terbukti pasti).
+  * `[SOLUSI_KODE]`: Instruksi perbaikan presisi saat status `SELESAI`.
+  * `[PELAJARAN_KUNCI]`: Rangkuman 1–2 kalimat akar masalah & pencegahannya untuk *self-learning*.
+
+> 💰 **Keuntungan Token & Biaya:** Gemini Flash menjalankan seluruh uji coba terminal, kompilasi sintaks, dan inspeksi berkas lokal secara **gratis** ($0), sedangkan Claude hanya menerima ringkasan hasil tes padat (< 2.500 token), menghemat biaya API hingga **> 90%** dan menjaga batas harian `$1.00/hari` tetap aman.
 
 ---
 

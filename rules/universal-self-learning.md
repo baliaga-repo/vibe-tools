@@ -13,7 +13,8 @@ Dokumen aturan ini merupakan akumulasi memori jangka panjang (*long-term self-le
 
 Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan berikut:
 
-1. **Tahap 1: Konsultasi & Brainstorming Murni (Read-Only Mode)**:
+1. **Tahap 1: Konsultasi & Brainstorming Murni (Read-Only Mode & Anti-Sycophancy)**:
+   - **Sikap Anti-Penjilat (Devil's Advocate)**: AI dilarang bersikap *yes-man* atau langsung memuji ide. Wajib menguji asumsi secara kritis, menunjukkan potensi cacat fatal, risiko *over-engineering*, dan blindspot sebelum menyepakati draf.
    - Gunakan sesi interaktif `/grill-me` (ajukan pertanyaan satu per satu via `ask_question`).
    - Bedah kebutuhan, bandingkan 2–3 opsi arsitektur beserta kelebihan/kekurangannya.
    - Kumpulkan hasil diskusi dalam bentuk **DRAF SPESIFIKASI (`.md`)**.
@@ -105,3 +106,14 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
 7. **Silent Syntax & Undefined Symbol Gate (`py_compile` + `pyflakes`)**:
    - `python -m py_compile` hanya memvalidasi sintaks AST dan **tidak mendeteksi `NameError`** (seperti lupa mengimpor `Path` atau `Union` yang dipanggil di dalam fungsi).
    - Setelah memodifikasi file `.py`, wajib jalankan `python -m py_compile <file>` **DAN** `python -m pyflakes <file>` untuk memastikan nol *undefined name* sebelum menyerahkan hasil ke pengguna.
+8. **Pencegahan Bug Hierarki Path Script Subprocess (`parents[N]` vs Chaining `dirname`)**:
+   - Skrip di dalam subdirektori bertingkat (misal `pipelines/.../davinci_core/`) yang dipanggil sebagai subprocess oleh GUI (`jobs.py`) memiliki `sys.path[0]` yang menunjuk ke subfoldernya sendiri, BUKAN ke root proyek.
+   - Hindari chaining manual `os.path.dirname()` yang rawan salah hitung. Wajib gunakan `Path(__file__).resolve().parents[N]` atau temukan root proyek via anchor file (`run_gui.py` / `.git`).
+   - Selalu daftarkan root proyek (`ROOT_DIR`) ke `sys.path` pada baris-baris awal skrip sebelum melakukan impor antar-modul internal.
+9. **Pencegahan Silent Import Error & Pola 3-Layer Fallback Kunci API**:
+   - Dilarang keras menelan kegagalan impor modul konfigurasi API key dengan blok `try... except Exception: pass` tanpa log/peringatan diagnostik.
+   - Modul yang membutuhkan API Key (OpenRouter, Gemini, Deepgram) WAJIB mengimplementasikan **3-Layer Fallback Resolver**:
+     1. Lapis 1: Periksa `os.environ.get("NAMA_KEY")`.
+     2. Lapis 2: Periksa modul konfigurasi proyek (`config.toolbox_config` / `config.deepgram_config`).
+     3. Lapis 3: Periksa berkas aman lokal di `~/.gemini/<nama_key>.txt` (misal `openrouter_key.txt`, `gemini_key.txt`).
+   - Fungsi klien API pihak ketiga dilarang melempar `ValueError("KEY belum dikonfigurasi")` secara prematur hanya karena parameter pemanggil kosong string (`api_key=""`). Klien wajib menjalankan Lapis 1 & Lapis 3 secara otonom (*defense-in-depth*) sebelum memutuskan gagal.
