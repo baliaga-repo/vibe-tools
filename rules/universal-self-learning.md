@@ -166,3 +166,25 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
       2. *Pre-barrier*: Segera finalisasi antrean kata dialog sebelumnya (`current_chunk`) sebelum menyentuh token bracket.
       3. *Isolated Segment*: Masukkan token bracket ke dalam segmen mandiri (`[w]`), simpan dengan timestamp start/end murni miliknya, lalu lewati ke iterasi berikutnya (`continue`).
       4. *Post-barrier*: Kata setelah bracket otomatis mulai di segmen dialog baru tanpa tercampur. Tanda baca mandiri (`attach_standalone_punctuation`) juga dilarang menempel ke token bracket.
+19. **Pencegahan Under-Clustering Diarization Cloud via Per-Turn Biometric Refinement & Provider Options (`num_speakers`)**:
+    - **Pola Bug**:
+      1. Model diarization cloud (seperti ElevenLabs Scribe v2 via OpenRouter) mengelompokkan suara secara kasar menjadi hanya 2 kluster (`SPEAKER_00`, `SPEAKER_01`) jika opsi `num_speakers` tidak diteruskan dalam payload `provider.options.elevenlabs`.
+      2. Sistem anchoring biometrik hanya mengambil 1 sampel durasi terpanjang dari masing-masing kluster kasar dan langsung menstempel seluruh kluster tersebut dengan identitas biometrik tunggal (*coarse identity stamping*). Akibatnya, jika ada 6 pembicara namun terkelompok ke 2 kluster, 4 pembicara lainnya lenyap total dan seluruh dialog mereka salah terlabeli ke pembicara sampel terpanjang.
+    - **Solusi Wajib**:
+      1. Teruskan parameter `num_speakers` (dari `len(roster_filter)`) pada payload provider OpenRouter:
+         `provider: {"options": {"elevenlabs": {"diarize": True, "num_speakers": N, "tag_audio_events": True}}}`.
+      2. Wajib terapkan *Per-Turn Biometric Refinement* (`refine_speech_turns_with_voiceprint`): Setiap speech turn divalidasi secara mandiri ke Voiceprint Bank menggunakan audio segmennya sendiri, dan indeks kata sumber (`word_indices`) langsung dimutakhirkan ke handle pembicara hasil pencocokan biometrik.
+      3. Berikan fallback FFmpeg otomatis pada `ekstrak_segmen_wav` saat modul bawaan `wave.open` gagal membaca format terkompresi (seperti FLAC dalam ekstensi WAV, kode format `61868`).
+20. **Pencegahan Hardcoded Path Subdirektori Usang & Wajib `mkdir(parents=True, exist_ok=True)`**:
+    - **Pola Bug**: Menulis metadata runtime (`active_stream_info.json`) menggunakan path absolut hardcoded ke folder lama (`cache_chat/active_stream_info.json`) yang tidak ada di workspace baru (hanya ada `cache/`). Selain mematikan portabilitas antar-mesin, ketiadaan pemanggilan `parent.mkdir(parents=True, exist_ok=True)` sebelum operasi `with open(..., "w")` menyebabkan error `[Errno 2] No such file or directory`.
+    - **Solusi Wajib**:
+      1. Resolusikan direktori kerja/cache selalu dari root proyek via `Path(__file__).resolve().parents[N] / "cache"` atau impor dari konfigurasi terpusat (`gui.paths.CACHE_DIR`).
+      2. Jangan pernah meng-hardcode path absolut lokal (`D:\...` atau `C:\...`).
+      3. Selalu pastikan folder induk dibuat secara otomatis sebelum menulis berkas: `target_path.parent.mkdir(parents=True, exist_ok=True)`.
+21. **Isolasi Sinyal UI saat Restorasi Cache (Signal Cascade Cache Poisoning) & Gating Mutasi API Eksternal**:
+    - **Pola Bug**: Memulihkan nilai widget UI (seperti `setValue()` pada spinbox atau dropdown) dari cache tanpa memblokir sinyal (`QSignalBlocker`). Sinyal yang terpancar secara prematur memicu kalkulasi ulang sebelum seluruh struktur data (seperti `self.segments`) selesai dimuat dari cache. Hal ini diperparah jika perubahan konfigurasi langsung memanggil API mutasi eksternal (seperti `sync_markers_to_timeline` di DaVinci Resolve), sehingga setiap restorasi tab atau pergeseran slider menghapus dan menimpa marker manual yang sudah dirapikan pengguna.
+    - **Solusi Wajib**:
+      1. Wajib bungkus seluruh pembaruan widget saat restorasi cache dengan `with QSignalBlocker(widget1), QSignalBlocker(widget2): ...`.
+      2. Terapkan prinsip *Explicit Apply Gate*: Jangan pernah menggabungkan eksplorasi parameter UI (slider/spinbox/preset) secara langsung dengan penulisan API eksternal yang destruktif (DaVinci Resolve timeline, disk, network). Sediakan tombol eksplisit (`🎯 Terapkan Konfigurasi`) agar mutasi eksternal hanya dieksekusi atas kehendak pengguna.
+      3. Jangan panggil fungsi sinkronisasi balik (seperti `_sync_markers_background`) di dalam callback yang bertugas membaca data eksternal (seperti `_on_sync_markers_clicked`).
+
