@@ -90,7 +90,10 @@ def resolve_model_id(alias_or_id: str) -> str:
 
 
 def check_daily_limit_exceeded(api_key: str) -> tuple[bool, float]:
-    """Mengecek apakah penggunaan hari ini (usage_daily) melebihi batas pengeluaran harian."""
+    """
+[ID]: Mengecek apakah penggunaan hari ini (usage_daily) melebihi batas pengeluaran harian.
+[EN]: Check if today's usage (usage_daily) exceeds the daily spending limit.
+"""
     try:
         status, data_json, _ = _http_json("https://openrouter.ai/api/v1/auth/key", headers={"Authorization": f"Bearer {api_key}"}, timeout=5)
         if status == 200:
@@ -102,7 +105,10 @@ def check_daily_limit_exceeded(api_key: str) -> tuple[bool, float]:
 
 
 def _kelola_sesi(session_id: str, user_prompt: str = None, assistant_reply: str = None) -> list[dict]:
-    """Mengelola riwayat percakapan sesi (Sliding Window max 4 putaran / 8 pesan terakhir)."""
+    """
+[ID]: Mengelola riwayat percakapan sesi (Sliding Window max 4 putaran / 8 pesan terakhir).
+[EN]: Manage session conversation history (Sliding Window max 4 turns / last 8 messages).
+"""
     if not session_id:
         return []
     clean_id, is_reset = session_id.strip(), False
@@ -148,7 +154,10 @@ def tanya_openrouter(
     session_id: str = "",
     mode_debug: bool = False,
 ) -> str:
-    """Mengirim pertanyaan atau menjalankan siklus debugging bertahap ke AI via OpenRouter API."""
+    """
+[ID]: Mengirim pertanyaan atau menjalankan siklus debugging bertahap ke AI via OpenRouter API.
+[EN]: Send a query or run a step-by-step debugging cycle with the AI via the OpenRouter API.
+"""
     api_key = get_api_key()
     if not api_key:
         return f"❌ Error: API Key belum dikonfigurasi di {Path.home() / '.gemini' / 'openrouter_key.txt'}"
@@ -205,7 +214,10 @@ def tanya_openrouter(
 
 @mcp.tool()
 def daftar_model_rekomendasi() -> str:
-    """Menampilkan katalog model AI unggulan dan alias pendek yang didukung."""
+    """
+[ID]: Menampilkan katalog model AI unggulan dan alias pendek yang didukung.
+[EN]: Display the catalog of featured AI models and supported short aliases.
+"""
     return """### 🏆 Katalog Model AI Unggulan OpenRouter
 | Kategori | Alias | Model ID Resmi | Kasus Rekomendasi |
 | :--- | :---: | :--- | :--- |
@@ -221,7 +233,10 @@ def daftar_model_rekomendasi() -> str:
 
 @mcp.tool()
 def cek_koneksi_openrouter() -> str:
-    """Mengecek validitas API Key, saldo, dan limit pemakaian OpenRouter."""
+    """
+[ID]: Mengecek validitas API Key, saldo, dan limit pemakaian OpenRouter.
+[EN]: Check OpenRouter API key validity, balance, and usage limit.
+"""
     api_key = get_api_key()
     if not api_key:
         return f"⚠️ API Key belum ditemukan di {Path.home() / '.gemini' / 'openrouter_key.txt'}"

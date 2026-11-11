@@ -3,6 +3,10 @@
 [ID]: Universal Ecosystem Updater & Standarisasi Dual-Cockpit (Antigravity + Roo Code).
 Memperbarui konfigurasi ekosistem AI (.agents, .roomodes, .roo) secara non-destruktif
 lintas proyek melalui Remote GitHub maupun dorongan Master Lokal (--target).
+
+[EN]: [ID]: Universal Ecosystem Updater & Dual-Cockpit Standardization (Antigravity + Roo Code).
+Non-destructively updates AI ecosystem configurations (.agents, .roomodes, .roo)
+across projects via GitHub Remote or Local Master push (--target).
 """
 
 import argparse
@@ -27,7 +31,10 @@ if sys.platform.startswith("win") and hasattr(sys.stdout, "reconfigure"):
 
 
 class UpdateStatus(Enum):
-    """[ID]: Status perbandingan berkas antara sumber dan target."""
+    """
+[ID]: Status perbandingan berkas antara sumber dan target.
+[EN]: File comparison status between source and target.
+"""
     UP_TO_DATE = "UP_TO_DATE"
     OUTDATED = "OUTDATED"
     LOCAL_MODIFIED = "LOCAL_MODIFIED"
@@ -63,7 +70,10 @@ class VibeEcosystemUpdater:
 
     @staticmethod
     def hitung_sha256(file_path: Path) -> str:
-        """[ID]: Menghitung SHA256 berkas dengan normalisasi LF."""
+        """
+[ID]: Menghitung SHA256 berkas dengan normalisasi LF.
+[EN]: Compute the SHA256 hash of a file with LF normalization.
+"""
         try:
             konten = file_path.read_bytes().replace(b"\r\n", b"\n")
             return hashlib.sha256(konten).hexdigest()
@@ -104,7 +114,10 @@ class VibeEcosystemUpdater:
         return manifest
 
     def analyze_workspace(self, source_manifest: Dict[str, str]) -> List[FileDiffManifest]:
-        """[ID]: Membandingkan berkas target terhadap manifest sumber."""
+        """
+[ID]: Membandingkan berkas target terhadap manifest sumber.
+[EN]: Compare the target file against the source manifest.
+"""
         diffs: List[FileDiffManifest] = []
         for rel_posix, src_hash in source_manifest.items():
             rel_path = Path(rel_posix)
@@ -219,7 +232,10 @@ class VibeEcosystemUpdater:
 
 
 def main():
-    """[ID]: Titik masuk CLI Universal Updater Dual-Cockpit."""
+    """
+[ID]: Titik masuk CLI Universal Updater Dual-Cockpit.
+[EN]: CLI entry point for the Universal Updater Dual-Cockpit.
+"""
     parser = argparse.ArgumentParser(description="Vibe Tools Universal Updater (Dual-Cockpit)")
     parser.add_argument("--pull", action="store_true", help="Tarik pembaruan submodule dari GitHub sebelum update")
     parser.add_argument("--check", action="store_true", help="Pengecekan versi tanpa modifikasi")

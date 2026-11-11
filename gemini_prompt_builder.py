@@ -1,8 +1,15 @@
-"""Modul builder prompt kurasi Gemini Web dengan arsitektur modular dan Facade Pattern.
+"""
+[ID]: Modul builder prompt kurasi Gemini Web dengan arsitektur modular dan Facade Pattern.
 
 Menyusun instruksi prompt tingkat lanjut dalam Bahasa Inggris untuk optimasi reasoning BPE LLM,
 namun mempertahankan kontrak output laporan markdown secara ketat dalam Bahasa Indonesia
 sesuai acuan prompt_rangkum.txt agar kompatibel dengan modul ekstraksi segmen.
+
+[EN]: Gemini Web curation prompt builder module with a modular architecture and Facade Pattern.
+
+Constructs advanced prompt instructions in English for BPE LLM reasoning optimization,
+while strictly maintaining the markdown report output contract in Indonesian
+based on prompt_rangkum.txt for compatibility with the segment extraction module.
 """
 
 import re
@@ -12,7 +19,10 @@ from typing import Any, Dict, List, Optional
 
 @dataclass(frozen=True)
 class GeminiPromptConfig:
-    """Konfigurasi parameter prompt untuk Gemini Web Automator dan Salin Manual."""
+    """
+[ID]: Konfigurasi parameter prompt untuk Gemini Web Automator dan Salin Manual.
+[EN]: Configure prompt parameters for Gemini Web Automator and Manual Copy.
+"""
 
     vtuber_name: str = "VTuber"
     vod_title: str = "VTuber Livestream Highlight"
@@ -27,7 +37,10 @@ class GeminiWebPromptBuilder:
     """Builder modular penyusun prompt dwibahasa (Directives EN, Output Report ID)."""
 
     def __init__(self, config: Optional[GeminiPromptConfig] = None) -> None:
-        """Inisialisasi builder dengan konfigurasi prompt."""
+        """
+[ID]: Inisialisasi builder dengan konfigurasi prompt.
+[EN]: Initialize the builder with the prompt configuration.
+"""
         self.config = config or GeminiPromptConfig()
 
     def format_cluster_data(self, klaster_segmen: Optional[List[Dict[str, Any]]]) -> str:
@@ -61,7 +74,10 @@ class GeminiWebPromptBuilder:
         )
 
     def build(self, klaster_segmen: Optional[List[Dict[str, Any]]] = None) -> str:
-        """Menyusun teks prompt lengkap siap diinjeksikan ke sesi Chromium Gemini Web."""
+        """
+[ID]: Menyusun teks prompt lengkap siap diinjeksikan ke sesi Chromium Gemini Web.
+[EN]: Construct the complete prompt text ready to be injected into the Chromium Gemini Web session.
+"""
         data_terstruktur = self.format_cluster_data(klaster_segmen)
         lampiran_note = (
             "(Complete livechat & speech transcript files are attached as primary reference data).\n"
@@ -112,7 +128,10 @@ Output direct Markdown only. Do NOT include Markdown code blocks (```) around th
 
 
 class GeminiWebPromptFacade:
-    """Facade tingkat tinggi untuk antarmuka pembentukan prompt terpadu."""
+    """
+[ID]: Facade tingkat tinggi untuk antarmuka pembentukan prompt terpadu.
+[EN]: High-level facade for a unified prompt construction interface.
+"""
 
     @classmethod
     def create_prompt(
@@ -144,7 +163,10 @@ def buat_prompt_gemini_web(
     files_attached: bool = True,
     safe_mode: bool = False,
 ) -> str:
-    """Fungsi Facade drop-in replacement yang kompatibel dengan API sebelumnya."""
+    """
+[ID]: Fungsi Facade drop-in replacement yang kompatibel dengan API sebelumnya.
+[EN]: Drop-in replacement facade function compatible with the previous API.
+"""
     return GeminiWebPromptFacade.create_prompt(
         klaster_segmen=klaster_segmen,
         vtuber_name=vtuber_name,

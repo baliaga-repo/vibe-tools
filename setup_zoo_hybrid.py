@@ -45,7 +45,10 @@ MODEL_OLLAMA_TARGET: Tuple[str, ...] = (
 
 
 def tentukan_target_proyek(arg_target: str = "") -> Path:
-    """[ID]: Menentukan direktori root proyek target pemasangan."""
+    """
+[ID]: Menentukan direktori root proyek target pemasangan.
+[EN]: Determine the root directory of the target installation project.
+"""
     if arg_target:
         target = Path(arg_target).expanduser().resolve()
         target.mkdir(parents=True, exist_ok=True)
@@ -169,7 +172,10 @@ def bangun_mcp_json_bebas_rahasia(target_dir: Path) -> None:
 
 
 def cek_atau_pasang_ollama(jalankan_pull: bool = False) -> None:
-    """[ID]: Memeriksa ketersediaan Ollama dan mengunduh model target jika diminta."""
+    """
+[ID]: Memeriksa ketersediaan Ollama dan mengunduh model target jika diminta.
+[EN]: Check Ollama availability and download the target model if requested.
+"""
     ollama_bin = shutil.which("ollama")
     if not ollama_bin:
         print("\n[INFO] Ollama belum terdeteksi di PATH. Mode Cloud + MCP tetap siap 100%.")
@@ -200,7 +206,10 @@ def cek_atau_pasang_ollama(jalankan_pull: bool = False) -> None:
 
 
 def pasang_zoo_hybrid(target_path: str = "", setup_ollama: bool = False) -> Path:
-    """[ID]: Titik masuk publik untuk memasang/meng-update Zoo Code / Roo Code Hybrid di direktori target."""
+    """
+[ID]: Titik masuk publik untuk memasang/meng-update Zoo Code / Roo Code Hybrid di direktori target.
+[EN]: Public entry point to install/update Zoo Code / Roo Code Hybrid in the target directory.
+"""
     target_dir = tentukan_target_proyek(target_path)
     print("=" * 70)
     print("🦓 SETUP & UPDATE ZOO CODE / ROO CODE HYBRID DUAL-COCKPIT")
