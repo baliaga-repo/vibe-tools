@@ -95,10 +95,10 @@ Di bagian bawah chat, klik dropdown mode untuk memilih peran AI:
 | **`Orchestrator (Selector)`** | 🪃 | **Pintu masuk utama (Default).** Memetakan arsitektur, merutekan tugas, dan menanyakan metode eksekusi terbaik. | `google/gemini-2.0-flash-001` atau `deepseek/deepseek-chat` |
 | **`Local Scout 3B (Fast $0)`** | 🏎️ | Pekerja kasar cepat offline di GPU RTX 3060 ($0). Menemukan letak file dan baris kode. | Ollama `qwen2.5-coder:3b-instruct` |
 | **`Local Scout 7B (Deep $0)`** | 🚜 | Analisis alur logika mendalam & relasi file offline ($0). | Ollama `qwen2.5-coder:7b-instruct-q4_K_M` |
-| **`Vibe Coder (Cloud Exec)`** | 💻 | Eksekusi koding presisi, bersih, modular (<300 baris), dan auto-verifikasi sintaks `py_compile`. | `deepseek/deepseek-chat` atau `google/gemini-2.0-flash-001` |
+| **`Vibe Coder (Cloud Exec)`** | 💻 | Eksekusi koding presisi, bersih, modular (<300 baris), dan auto-verifikasi sintaks `py_compile`. | `qwen/qwen3-coder` atau `deepseek/deepseek-v3.2` |
 | **`Grill-Me & Spec (Architect)`** | 🔥 | Wawancara arsitektur fitur baru. **Terkunci hanya boleh mengedit berkas di dalam `docs/`**. | `deepseek/deepseek-r1` |
-| **`Bug Hunter (Diagnose)`** | 🔍 | Investigasi akar masalah crash dan error log secara ilmiah sebelum perbaikan. | `deepseek/deepseek-r1` |
-| **`Code Reviewer (Audit)`** | 🛡️ | Audit modularitas kode, type hinting, dan docstring Bahasa Indonesia tanpa mengubah kode. | `deepseek/deepseek-chat` |
+| **`Bug Hunter (Diagnose)`** | 🔍 | **Protokol Otak-Tangan (Brain & Hands)**: Qwen3 Coder (Tangan di Zoo Code) + Claude Sonnet 4.6 (Otak via MCP `tanya_openrouter`, maks 4 putaran tes). | `qwen/qwen3-coder` *(+ MCP `claude`)* |
+| **`Code Reviewer (Audit)`** | 🛡️ | Audit modularitas kode, type hinting, dan docstring Bahasa Indonesia tanpa mengubah kode. | `qwen/qwen3-coder` atau `deepseek/deepseek-v3.2` |
 
 ---
 
@@ -107,9 +107,10 @@ Di bagian bawah chat, klik dropdown mode untuk memilih peran AI:
 | Peringkat | Model ID | Tipe | Biaya per 1 Juta Token | Keunggulan Utama |
 | :---: | :--- | :---: | :---: | :--- |
 | 🥇 | **Ollama Local (3B / 7B)** | Lokal GPU | **$0.00 (Gratis)** | 100% offline di RTX 3060 Anda, tanpa kuota/internet. |
-| 🥈 | **`google/gemini-2.0-flash-001`** | Cloud | **~$0.10** (~Rp 1.500) | Sangat cepat, membaca file besar dengan biaya termurah. |
-| 🥉 | **`deepseek/deepseek-chat` (V3)** | Cloud | **~$0.14** (~Rp 2.200) | Kualitas koding setara GPT-4/Claude dengan harga sangat murah. |
-| 🧠 | **`deepseek/deepseek-r1`** | Cloud (Reasoning) | **~$0.55** (~Rp 8.500) | Penalaran logika arsitektur mendalam (6x lebih murah dari Claude). |
+| 🥈 | **`qwen/qwen3-coder`** | Cloud (MoE) | **~$0.30 in / $0.30 out** | Paling disiplin sintaks, minim ngaco, token output super murah untuk Tangan eksekutor. |
+| 🥉 | **`deepseek/deepseek-v3.2`** | Cloud (DSA) | **~$0.27 in / $1.10 out** | Penalaran konsep umum luwes dan hemat untuk koding harian. |
+| 🧠 | **`deepseek/deepseek-r1`** | Cloud (Reasoning) | **~$0.55 in / $2.19 out** | Penalaran logika matematika & algoritma mendalam. |
+| 👑 | **`anthropic/claude-sonnet-4.6`** | MCP Otak (`claude`) | **~$3.00 in / $15.00 out** | Dipanggil terarah via MCP `tanya_openrouter` (`mode_debug=True`) sebagai Otak Arsitek Debug. |
 
 ---
 
@@ -132,12 +133,23 @@ Ketik perintah shortcut ini di awal prompt untuk menghemat waktu:
 - **/to-tickets**: Memecah spesifikasi menjadi tiket modular terurut di `docs/tickets/`.
 - **/implement**: Mengeksekusi tiket secara mandiri dan disiplin.
 
+### 3. Template Prompt Debug Ilmiah Otak-Tangan (Mode `🔍 Bug Hunter`):
+Pilih mode **`🔍 Bug Hunter (Diagnose)`** dengan model **`qwen/qwen3-coder`**, lalu tempelkan prompt berikut:
+```markdown
+Selesaikan bug ini menggunakan Protokol Otak-Tangan (Brain & Hands):
+DESKRIPSI BUG: [Jelaskan gejala atau tempel traceback error]
+ALUR KERJA:
+1. Panggil MCP openrouter:tanya_openrouter (model="claude", mode_debug=True, session_id="new:debug_1") dengan konteks English Bridge.
+2. Eksekusi [PERINTAH_TES] dari Claude di terminal Windows, lalu kirim hasilnya kembali dengan session_id="debug_1" (maksimal 4 putaran).
+3. Saat [STATUS]: SELESAI, terapkan [SOLUSI_KODE], jalankan py_compile + pyflakes, dan tampilkan [PELAJARAN_KUNCI].
+```
+
 ---
 
 ## 🛡️ Rambu Keamanan Token & Proteksi Berkas Proyek
 
 1. **Aturan Khusus Proyek Anda 100% Aman:**  
-   Tambahkan aturan unik proyek di [`.zoo/rules/99-project-custom.md`](file:///d:/mobog/Videos/Youtube%20Download/.zoo/rules/99-project-custom.md) (atau `.roo/`). Berkas ini memiliki proteksi ketat dan tidak akan pernah tertimpa saat update ekosistem.
+   Tambahkan aturan unik proyek di `.zoo/rules/99-project-custom.md` (atau `.roo/`). Berkas ini memiliki proteksi ketat dan tidak akan pernah tertimpa saat update ekosistem.
 2. **Matikan REA MCP Saat Tidak Digunakan:**  
    Server REA menyedot ~25.000 token per pesan. Pastikan selalu nonaktif via terminal:
    ```powershell

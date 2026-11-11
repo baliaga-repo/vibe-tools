@@ -87,6 +87,11 @@ def sinkronkan_template_universal(target_dir: Path) -> Tuple[int, int]:
             else:
                 print(f"  [TETAP]  {rel_path.as_posix()} (sudah versi terbaru)")
 
+        if rel_path.parts and rel_path.parts[0] == ".roo":
+            zoo_tujuan = target_dir / ".zoo" / Path(*rel_path.parts[1:])
+            zoo_tujuan.parent.mkdir(parents=True, exist_ok=True)
+            zoo_tujuan.write_text(isi_sumber, encoding="utf-8", newline="\n")
+
     # Sinkronisasi ganda: buat salinan .zoomodes dari .roomodes untuk kompatibilitas native Zoo Code
     roomodes_file = target_dir / ".roomodes"
     zoomodes_file = target_dir / ".zoomodes"

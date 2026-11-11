@@ -46,7 +46,7 @@ MODEL_REGISTRY: Dict[str, ModelTariff] = {
     ),
     "claude-sonnet": ModelTariff(
         key="claude-sonnet",
-        display_name="Claude Sonnet 4.5 (Arsitektur)",
+        display_name="Claude Sonnet 4.6 (Arsitektur)",
         alias="claude",
         input_usd_per_1m=3.00,
         output_usd_per_1m=15.00,
@@ -54,25 +54,45 @@ MODEL_REGISTRY: Dict[str, ModelTariff] = {
         emoji="👑",
         deskripsi="Standar emas arsitektur, refactoring sistem & desain modular"
     ),
+    "claude-opus": ModelTariff(
+        key="claude-opus",
+        display_name="Claude Opus 4.6 (Flagship)",
+        alias="opus",
+        input_usd_per_1m=5.00,
+        output_usd_per_1m=25.00,
+        tier="flagship",
+        emoji="🏛️",
+        deskripsi="Penalaran arsitektur berat untuk masalah sistemik multi-file"
+    ),
+    "gpt-5-codex": ModelTariff(
+        key="gpt-5-codex",
+        display_name="GPT-5 Codex (Software Eng)",
+        alias="codex",
+        input_usd_per_1m=1.25,
+        output_usd_per_1m=10.00,
+        tier="premium",
+        emoji="🛠️",
+        deskripsi="Spesialis software engineering presisi & bebas halusinasi"
+    ),
     "deepseek-v3": ModelTariff(
         key="deepseek-v3",
-        display_name="DeepSeek-V3 (Super Hemat)",
+        display_name="DeepSeek-V3.2 (Super Hemat)",
         alias="deepseek",
         input_usd_per_1m=0.27,
         output_usd_per_1m=1.10,
         tier="economy",
         emoji="⚡",
-        deskripsi="Cepat, cerdas, dan sangat hemat untuk koding harian"
+        deskripsi="Cepat, cerdas (DSA), dan sangat hemat untuk koding harian"
     ),
     "qwen-coder": ModelTariff(
         key="qwen-coder",
-        display_name="Qwen 2.5 Coder 32B",
+        display_name="Qwen3 Coder (MoE)",
         alias="qwen",
         input_usd_per_1m=0.30,
         output_usd_per_1m=0.30,
         tier="economy",
         emoji="💻",
-        deskripsi="Spesialis sintaks Python/JS ringan & cepat"
+        deskripsi="Spesialis kode Python/JS cepat berbasis arsitektur MoE"
     ),
     "gemini-flash": ModelTariff(
         key="gemini-flash",
@@ -143,7 +163,7 @@ def format_ask_question_options(prompt_text: str, file_count: int = 0) -> List[s
     options = []
     
     # Rekomendasi urutan opsi
-    ordered_keys = ["deepseek-r1", "claude-sonnet", "deepseek-v3", "gemini-flash", "hermes"]
+    ordered_keys = ["deepseek-r1", "claude-sonnet", "gpt-5-codex", "deepseek-v3", "qwen-coder", "gemini-flash", "hermes"]
     
     for key in ordered_keys:
         tariff = MODEL_REGISTRY[key]

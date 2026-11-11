@@ -5,13 +5,14 @@ namun mempertahankan kontrak output laporan markdown secara ketat dalam Bahasa I
 sesuai acuan prompt_rangkum.txt agar kompatibel dengan modul ekstraksi segmen.
 """
 
+import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 
 @dataclass(frozen=True)
 class GeminiPromptConfig:
-    """Konfigurasi parameter prompt untuk Gemini Web Automator."""
+    """Konfigurasi parameter prompt untuk Gemini Web Automator dan Salin Manual."""
 
     vtuber_name: str = "VTuber"
     vod_title: str = "VTuber Livestream Highlight"
@@ -19,6 +20,7 @@ class GeminiPromptConfig:
     min_segments: int = 10
     top_clips_count: int = 5
     target_window_sec: str = "10-30s"
+    safe_mode: bool = False
 
 
 class GeminiWebPromptBuilder:
@@ -47,6 +49,17 @@ class GeminiWebPromptBuilder:
             )
         return "\n".join(baris_data)
 
+    def build_safety_guidelines(self) -> str:
+        """Menghasilkan aturan moderasi konten Brand-Safe saat safe_mode=True."""
+        if not self.config.safe_mode:
+            return ""
+        return (
+            "# CONTENT MODERATION GUIDELINES (BRAND-SAFE MODE)\n"
+            "- PRIORITIZE: Wholesome entertainment, humorous gaming highlights, positive streamer-viewer chemistry.\n"
+            "- AVOID: Sensitive political chatter, profanity, heated conflicts, and NSFW audience triggers.\n"
+            "- BRAND-SAFE FOCUS: Ensure all selected moments are advertiser-friendly while strictly keeping the output structure below.\n\n"
+        )
+
     def build(self, klaster_segmen: Optional[List[Dict[str, Any]]] = None) -> str:
         """Menyusun teks prompt lengkap siap diinjeksikan ke sesi Chromium Gemini Web."""
         data_terstruktur = self.format_cluster_data(klaster_segmen)
@@ -55,6 +68,7 @@ class GeminiWebPromptBuilder:
             if self.config.files_attached
             else "(No external files attached. Analyze the potential cluster data provided below).\n"
         )
+        safety_section = self.build_safety_guidelines()
 
         return f"""# ROLE & OBJECTIVE
 Expert VTuber Highlight Editor & Lead Content Strategist. Map streamer-audience interactions from livestream chat timeline and transcript dialogue into captivating YouTube highlights.
@@ -65,7 +79,7 @@ OUTPUT LANGUAGE: STRICTLY INDONESIAN.
 2. ZERO HALLUCINATION: All timestamps, statements, and quotes MUST strictly originate from the provided timeline or attached transcript. Never invent dialogue or external facts. If missing, state: "Data tidak tersedia".
 3. TIME RESOLUTION: Every segment must have a valid YouTube Start Timecode (HH:MM:SS) and End Timecode in parentheses.
 
-# PARAMETERS
+{safety_section}# PARAMETERS
 - VTuber: {self.config.vtuber_name}
 - VOD: {self.config.vod_title}
 - Window: {self.config.target_window_sec} | Target: >={self.config.min_segments} Segments | Top Clips: {self.config.top_clips_count}
@@ -109,6 +123,7 @@ class GeminiWebPromptFacade:
         files_attached: bool = True,
         min_segments: int = 10,
         top_clips_count: int = 5,
+        safe_mode: bool = False,
     ) -> str:
         """Membuat teks prompt menggunakan builder dengan konfigurasi dinamis."""
         cfg = GeminiPromptConfig(
@@ -117,6 +132,7 @@ class GeminiWebPromptFacade:
             files_attached=files_attached,
             min_segments=min_segments,
             top_clips_count=top_clips_count,
+            safe_mode=safe_mode,
         )
         return GeminiWebPromptBuilder(config=cfg).build(klaster_segmen=klaster_segmen)
 
@@ -126,6 +142,7 @@ def buat_prompt_gemini_web(
     vtuber_name: str = "VTuber",
     vod_title: str = "VTuber Livestream Highlight",
     files_attached: bool = True,
+    safe_mode: bool = False,
 ) -> str:
     """Fungsi Facade drop-in replacement yang kompatibel dengan API sebelumnya."""
     return GeminiWebPromptFacade.create_prompt(
@@ -133,4 +150,37 @@ def buat_prompt_gemini_web(
         vtuber_name=vtuber_name,
         vod_title=vod_title,
         files_attached=files_attached,
+        safe_mode=safe_mode,
     )
+
+
+def sanitize_gemini_markdown_report(teks: str) -> str:
+    """
+    Membersihkan teks respons mentah dari Gemini Web sebelum disimpan ke berkas .md:
+    1. Membongkar pembungkus code fence luar (```markdown ... ``` atau ```text ... ```).
+    2. Menormalisasi level heading bagian utama (### 1. -> ## 1., dst).
+    3. Memangkas kalimat pengantar (preamble) sebelum '## 1. Timeline Kronologis'.
+    4. Memangkas penutup code fence atau kalimat penutup setelah bagian akhir.
+    """
+    if not teks or not isinstance(teks, str):
+        return ""
+    hasil = teks.strip()
+
+    # 1. Bongkar pembungkus code block luar
+    pola_fence = re.match(r"^```(?:markdown|text|md)?\s*\n?(.*?)\n?```$", hasil, re.DOTALL | re.IGNORECASE)
+    if pola_fence:
+        hasil = pola_fence.group(1).strip()
+
+    # 2. Normalisasi level heading bagian utama
+    hasil = re.sub(r"^(?:#{1,3}\s*)?1\.\s*Timeline Kronologis", "## 1. Timeline Kronologis", hasil, flags=re.MULTILINE | re.IGNORECASE)
+    hasil = re.sub(r"^(?:#{1,3}\s*)?2\.\s*Kandidat Klip", "## 2. Kandidat Klip", hasil, flags=re.MULTILINE | re.IGNORECASE)
+    hasil = re.sub(r"^(?:#{1,3}\s*)?3\.\s*Insight", "## 3. Insight", hasil, flags=re.MULTILINE | re.IGNORECASE)
+
+    # 3. Pangkas teks pengantar sebelum ## 1. Timeline Kronologis
+    m = re.search(r"(##\s*1\.\s*Timeline Kronologis.*)", hasil, re.DOTALL | re.IGNORECASE)
+    if m:
+        hasil = m.group(1).strip()
+
+    # 4. Bersihkan sisa ``` di bagian paling akhir jika ada
+    hasil = re.sub(r"\n*```\s*$", "", hasil).strip()
+    return hasil

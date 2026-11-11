@@ -23,15 +23,15 @@ DAILY_LIMIT_USD = float(os.environ.get("OPENROUTER_DAILY_LIMIT", "1.00"))
 
 MODEL_ALIASES = {
     "r1": "deepseek/deepseek-r1-0528", "deepseek-r1": "deepseek/deepseek-r1-0528", "o3-mini": "openai/o3-mini",
-    "claude": "anthropic/claude-sonnet-4.5", "sonnet": "anthropic/claude-sonnet-4.5",
-    "claude-4.5": "anthropic/claude-sonnet-4.5", "claude-thinking": "anthropic/claude-sonnet-4.5",
-    "claude-3.7": "anthropic/claude-sonnet-4.5", "claude-3.5-sonnet": "anthropic/claude-sonnet-4.5",
-    "claude-haiku": "anthropic/claude-3.5-haiku", "haiku": "anthropic/claude-3.5-haiku",
+    "claude": "anthropic/claude-sonnet-4.6", "sonnet": "anthropic/claude-sonnet-4.6", "claude-4.6": "anthropic/claude-sonnet-4.6",
+    "opus": "anthropic/claude-opus-4.6", "claude-opus": "anthropic/claude-opus-4.6",
+    "claude-4.5": "anthropic/claude-sonnet-4.5", "claude-thinking": "anthropic/claude-sonnet-4.6",
+    "haiku": "anthropic/claude-haiku-4.5", "claude-haiku": "anthropic/claude-haiku-4.5",
+    "codex": "openai/gpt-5-codex", "gpt5-codex": "openai/gpt-5-codex", "gpt5": "openai/gpt-5", "gpt4o": "openai/gpt-4o",
+    "deepseek": "deepseek/deepseek-v3.2", "v3": "deepseek/deepseek-v3.2", "v3.2": "deepseek/deepseek-v3.2",
+    "qwen": "qwen/qwen3-coder", "qwen-coder": "qwen/qwen3-coder", "qwen3": "qwen/qwen3-coder",
     "gemini": "google/gemini-2.5-flash", "gemini-flash": "google/gemini-2.5-flash", "gemini-pro": "google/gemini-2.5-pro",
-    "qwen": "qwen/qwen-2.5-coder-32b-instruct", "qwen-coder": "qwen/qwen-2.5-coder-32b-instruct",
-    "deepseek": "deepseek/deepseek-chat", "v3": "deepseek/deepseek-chat", "deepseek-v3": "deepseek/deepseek-chat",
-    "gpt4o": "openai/gpt-4o", "4o": "openai/gpt-4o", "gpt-4o": "openai/gpt-4o",
-    "free": "google/gemma-4-31b-it:free", "deepseek-free": "deepseek/deepseek-chat",
+    "free": "qwen/qwen3-coder:free", "gemma-free": "google/gemma-4-31b-it:free", "deepseek-free": "deepseek/deepseek-chat",
 }
 
 DEBUG_SYSTEM_PROMPT = (
@@ -45,7 +45,6 @@ DEBUG_SYSTEM_PROMPT = (
     "[PELAJARAN_KUNCI]: (Hanya jika SELESAI) 1-2 kalimat intisari akar masalah & pencegahannya untuk self-learning.\n"
     "Gunakan bahasa teknis ringkas dan padat."
 )
-
 
 def _http_json(url: str, headers: dict = None, payload: dict = None, timeout: int = 90) -> tuple[int, dict, str]:
     """Helper HTTP mandiri menggunakan standard library urllib."""
@@ -69,7 +68,6 @@ def _http_json(url: str, headers: dict = None, payload: dict = None, timeout: in
     except Exception as e:
         raise RuntimeError(str(e))
 
-
 def get_api_key() -> str:
     """Mengambil OpenRouter API Key dari environment variable atau ~/.gemini/openrouter_key.txt."""
     env_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
@@ -85,7 +83,6 @@ def get_api_key() -> str:
         except Exception:
             pass
     return ""
-
 
 def resolve_model_id(alias_or_id: str) -> str:
     """Menerjemahkan alias pendek ke model ID resmi OpenRouter."""
@@ -209,15 +206,17 @@ def tanya_openrouter(
 @mcp.tool()
 def daftar_model_rekomendasi() -> str:
     """Menampilkan katalog model AI unggulan dan alias pendek yang didukung."""
-    return """### 🏆 Katalog Model AI Pilihan OpenRouter
+    return """### 🏆 Katalog Model AI Unggulan OpenRouter
 | Kategori | Alias | Model ID Resmi | Kasus Rekomendasi |
 | :--- | :---: | :--- | :--- |
+| 👑 **Standar Emas Coding** | `claude` / `sonnet` | `anthropic/claude-sonnet-4.6` | Debugging terarah, refactoring arsitektur |
+| 🏛️ **Flagship Kompleks** | `opus` | `anthropic/claude-opus-4.6` | Investigasi bug sistemik multi-file rumit |
+| 🛠️ **Spesialis Engineering** | `codex` / `gpt5` | `openai/gpt-5-codex` | Rekayasa perangkat lunak presisi & clean code |
 | 🧠 **Penalaran (Reasoning)** | `r1` | `deepseek/deepseek-r1-0528` | Logika rumit, algoritma matematika |
-| 💻 **Standar Emas Coding** | `claude` / `sonnet` | `anthropic/claude-sonnet-4.5` | Debugging terarah, refactoring arsitektur |
-| 💻 **Spesialis Kode Ringan** | `qwen` | `qwen/qwen-2.5-coder-32b-instruct` | Cepat & hemat untuk Python/JS |
-| ⚡ **Harian Gesit & Hemat** | `deepseek` / `v3` | `deepseek/deepseek-chat` | Rekomendasi harian utama |
-| ⚡ **Multifungsi** | `gpt4o` / `4o` | `openai/gpt-4o` | Analisis dokumen & instruksi umum |
-| 🎁 **100% Gratis** | `free` | `google/gemma-4-31b-it:free` | Eksperimen bebas biaya |"""
+| ⚡ **Harian Gesit & Super Hemat** | `deepseek` / `v3` | `deepseek/deepseek-v3.2` | Rekomendasi harian utama (DSA), super hemat |
+| 💻 **Spesialis Kode Open-Weight** | `qwen` / `qwen3` | `qwen/qwen3-coder` | Cepat & efisien untuk Python/JS (MoE) |
+| 🚀 **Thinker Ringan** | `haiku` | `anthropic/claude-haiku-4.5` | Cepat & cerdas untuk tugas pembantu |
+| 🎁 **100% Gratis** | `free` | `qwen/qwen3-coder:free` | Eksperimen koding bebas biaya |"""
 
 
 @mcp.tool()

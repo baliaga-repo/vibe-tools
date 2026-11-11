@@ -187,4 +187,10 @@ Setiap pengembangan fitur atau refaktor besar wajib mengikuti 3 tahap berurutan 
       1. Wajib bungkus seluruh pembaruan widget saat restorasi cache dengan `with QSignalBlocker(widget1), QSignalBlocker(widget2): ...`.
       2. Terapkan prinsip *Explicit Apply Gate*: Jangan pernah menggabungkan eksplorasi parameter UI (slider/spinbox/preset) secara langsung dengan penulisan API eksternal yang destruktif (DaVinci Resolve timeline, disk, network). Sediakan tombol eksplisit (`🎯 Terapkan Konfigurasi`) agar mutasi eksternal hanya dieksekusi atas kehendak pengguna.
       3. Jangan panggil fungsi sinkronisasi balik (seperti `_sync_markers_background`) di dalam callback yang bertugas membaca data eksternal (seperti `_on_sync_markers_clicked`).
+22. **Pola Paritas Word-Level Timestamps ASR Lokal vs Cloud (faster-whisper vs Scribe v2) & Pencegahan Synthetic Timestamps**:
+    - **Pola Bug**: Engine transkripsi lokal (faster-whisper) secara bawaan hanya mengembalikan segmen kalimat utuh jika parameter `word_timestamps=True` tidak diaktifkan secara eksplisit. Akibatnya, downstream pipeline terpaksa membagi rata durasi segmen secara linear (`dur = (e - s) / len(words)`), menghasilkan timestamp kata sintetis yang meleset dari artikulasi suara asli, merusak Engine Perapihan Subtitle, serta tidak memiliki cache disk terstruktur.
+    - **Solusi Wajib**:
+      1. Wajib aktifkan `word_timestamps=True` pada `model.transcribe()` dan ekstrak objek `Word(start, end, word, probability)` ke dalam array terstandar `raw_words` (`word`, `start_sec`, `end_sec`, `speaker_tag`, `confidence`).
+      2. Wajib terapkan pola fungsi berakhiran `_full` (`transcribe_with_local_whisper_full`) yang mengembalikan `(segments, words, raw_json)` serta menyimpan cache disk `{timeline}_whisper_words.json` agar sejajar dengan provider cloud (Scribe v2 & Deepgram).
+      3. Pertahankan fungsi lama sebagai wrapper kompatibilitas ke belakang (*zero regression*), dan gunakan interpolasi linear hanya sebagai fallback *defense-in-depth* jika segmen audio hening/musik tidak menghasilkan token kata akustik.
 

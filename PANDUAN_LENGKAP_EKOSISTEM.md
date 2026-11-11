@@ -50,7 +50,7 @@ Panduan praktis satu pintu untuk merancang, merombak, dan mengeksekusi kodingan 
 | **Tahap 2: Spec (`docs/specs`) & Tiket (`docs/tickets`)** | Merombak/mematangkan rancangan ke `.md` resmi & memecah tiket kerja | **Gemini 4 Argon (High)** | Mode **`🔥 Grill-Me & Spec`** *(Otomatis terkunci hanya edit `docs/`)* |
 | **Tahap 3: Eksekusi Tiket Koding (`/implement`)** | Mengerjakan semua tiket sampai lulus `py_compile` dengan hemat kode (`/ponytail`) | **Gemini 3.8 Flash (High)** *(Cepat, konteks besar, 100% Gratis)* | Mode **`💻 Vibe Coder`** atau **`🪃 Orchestrator`** *(awalan `/pakai-rag` atau `/pakai-3b`)* |
 | **Kasus Khusus: Cari Bug / Rapikan Kode** | Lacak akar error runtime atau pangkas kode bertele-tele & *dead code* | **Argon / Flash** + MCP `openrouter` (`deepseek-r1`) | Mode **`🔍 Bug Hunter`** atau **`🛡️ Code Reviewer`** |
-| **Kasus Khusus: Debug Ilmiah (Otak-Tangan)** | Investigasi bug rumit via trial-and-error bertahap & self-learning | **Claude Sonnet 4.5** (Otak via `tanya_openrouter`) + **Gemini Flash** (Tangan IDE) | Mode **`🔍 Bug Hunter`** |
+| **Kasus Khusus: Debug Ilmiah (Otak-Tangan)** | Investigasi bug rumit via trial-and-error bertahap & self-learning | **Claude Sonnet 4.6** (Otak via `tanya_openrouter`) + **Gemini Flash** (Tangan IDE) | Mode **`🔍 Bug Hunter`** |
 
 ---
 
@@ -89,10 +89,10 @@ REM PENGAMAN (STRICT):
 ```
 
 <details>
-<summary>🔥 <b>(Varian Khusus) Mode Red-Team Ekstrem / Brutal Stress-Test — Gunakan saat ingin ide diuji secara tanpa ampun sebelum dispesifikasikan</b></summary>
+<summary>🔥 <b>(Varian Khusus) Mode Red-Team Ekstrem + Probe Empiris (Mini Otak-Tangan) — Gunakan saat ingin ide & asumsi teknis diuji tanpa ampun sebelum dispesifikasikan</b></summary>
 
 ```markdown
-MODE RED-TEAM & BRUTAL STRESS-TEST IDE BARU.
+MODE RED-TEAM & BRUTAL STRESS-TEST IDE BARU (+ PRE-SPEC EMPIRICAL PROBE).
 
 Ide/Inovasi Saya: [Jelaskan ide/solusi yang ingin Anda uji].
 
@@ -101,8 +101,15 @@ TUGAS ANDA (BRUTAL CRITIC & SKEPTICAL VENTURE CAPITALIST / SENIOR ARCHITECT):
 2. Serang ide ini tanpa ampun: Berikan 5 alasan utama mengapa ide ini berpotensi GAGAL TOTAL, tidak efisien, atau solusi yang mencari-cari masalah (premature optimization / over-engineering).
 3. Ajukan 3 pertanyaan paling sulit yang jika saya gagal menjawabnya secara logis, ide ini harus langsung dibatalkan atau dirombak total.
 4. Tawarkan counter-thesis (sudut pandang alternatif yang berlawanan) yang jauh lebih sederhana menggunakan bawaan Python/sistem yang sudah ada.
+5. UJI BUKTI EMPIRIS PRA-SPEC (1x PROBE OTAK-TANGAN — KHUSUS ASUMSI API/LIBRARY BELUM PASTI):
+   - Jika ide ini bergantung pada perilaku API pihak ketiga, SDK eksternal, atau fungsi sistem yang belum teruji, JANGAN MENEBAK dari ingatan.
+   - Rancang hipotesis singkat (gunakan MCP openrouter model="claude" / "r1" bila perlu) dan jalankan maksimal 1-2 one-liner probe (python -c "...") di terminal secara nyata (GRATIS) untuk membuktikan apakah asumsi tersebut benar-benar bekerja sebelum dibuatkan Draf Spesifikasi.
 
-REM PENGAMAN: Dilarang menyentuh kode (.py). Murni evaluasi logis dan konseptual.
+REM PENGAMAN (STRICT):
+- DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
+- Setelah sesi tanya jawab & uji kritis selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
+- Ingatkan dan rancangkan Prompt komplit untuk Tahap 2 yang langsung menyebutkan nama file DRAF SPESIFIKASI (.md) yang telah dibuat, jangan lakukan otomatis.
+- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, dengan draf spesifikasi di nama_spesifikasi_draf.md. jalankan Tahap 2 sekarang dalam 1 langkah simultan".
 ```
 </details>
 
@@ -133,12 +140,16 @@ Perbarui DRAF SPESIFIKASI (.md) saja, lalu perbarui rancangan Prompt komplit unt
 TAMBAHAN / MODIFIKASI / PEROMBAKAN RANCANGAN (JIKA ADA):
 1. [Tulis tambahan/perubahan rancangan di sini, atau hapus baris ini jika draf tadi sudah 100% pas]
 
-ATURAN KETAT:
+ATURAN KETAT (ANTI-BUG SPEC & IMPLEMENT):
 - JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
+- PRE-FLIGHT REALITY CHECK: Wajib periksa struktur data, tipe objek/tuple/dict, dan signature fungsi pemanggil asli di codebase terlebih dahulu. DILARANG mengarang/menebak nama atribut atau key dari ingatan.
 - Wajib patuhi aturan /ponytail (anti over-engineering, utamakan bawaan Python, tahan di file yang sama jika < 250 baris, dan gunakan Facade Pattern jika memecah file > 250-300 baris).
 - Gunakan konvensi penomoran 3-digit sekuensial (cek nomor ID terakhir di @[docs/INDEX.md], lalu buat file 0XX_nama_fitur.md di docs/specs/ dan folder 0XX_nama_fitur/ di docs/tickets/ dengan nama kembar identik tanpa awalan spec_).
 - Daftarkan fitur baru tersebut ke katalog tabel di @[docs/INDEX.md].
-- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi yang jelas ke dalam folder tiket terkait.
+- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi (DAG) yang jelas ke dalam folder tiket terkait.
+- KONTRAK DATA & TEST ORACLE TIAP TIKET: Pada setiap tiket, wajib cantumkan:
+  1. Preconditions & Postconditions (tipe input, tipe return, dan perilaku saat input kosong/None/error).
+  2. One-Liner Smoke Command (`python -c "..."`) yang wajib dijalankan saat Tahap 3 untuk menguji fungsi di tiket tersebut.
 - Buatkan daftar tiket terurut untuk saya tinjau.
 - Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan rentang nomor tiket dan direktori tiket yang baru dibuat (@[docs/tickets/0XX_nama_fitur]), jangan lakukan otomatis.
 - JANGAN sekali-kali memulai Eksekusi Tiket Koding sebelum saya mengetik kalimat: "/jalankan tahap 3, implement Tiket 1 sampai [X] sudah saya setujui".
@@ -155,20 +166,21 @@ ATURAN KETAT:
   ```markdown
   /implement Tiket 1 sampai [X] pada @[docs/tickets/0XX_nama_fitur] sudah saya setujui.
 
-  INSTRUKSI EKSEKUSI PENUH OTOMATIS:
+  INSTRUKSI EKSEKUSI PENUH OTOMATIS (TRIPLE-GATE ZERO BUG):
   1. Eksekusi SEMUA tiket secara berurutan (dari Tiket 1 -> Tiket 2 -> dst) sampai SELESAI semuanya.
   2. DILARANG berhenti di tengah jalan untuk meminta konfirmasi antar-tiket.
   3. Patuhi aturan /ponytail full (kode seringkas mungkin, stdlib-first, komentar/docstring Bahasa Indonesia).
-  4. Setelah setiap tiket selesai:
-     - Jalankan silent syntax & symbol gate (python -m py_compile <file_yang_diubah> dan python -m pyflakes <file_yang_diubah>).
-     - Langsung lanjut otomatis ke tiket berikutnya tanpa jeda.
-  5. Hanya berhenti jika menemukan error fatal yang memblokir jalannya kode.
+  4. Setelah setiap tiket selesai, WAJIB jalankan Triple-Gate Verification sebelum lanjut ke tiket berikutnya:
+     - Gate 1 (Syntax & Undefined Symbol): Jalankan `python -m py_compile <file_yang_diubah>` dan `python -m pyflakes <file_yang_diubah>`.
+     - Gate 2 (Functional Smoke Test): Jalankan one-liner smoke test (`python -c "from ... import ...; assert ..."` atau `pytest -q`) dengan data dummy/edge-case (seperti `None`/kosong) sesuai kontrak tiket untuk memastikan bebas `TypeError`, `KeyError`, dan `IndexError`.
+     - Jika ada error pada Gate 1 atau Gate 2, perbaiki saat itu juga di giliran yang sama sebelum lanjut ke tiket berikutnya.
+  5. Hanya berhenti jika menemukan error arsitektural fatal yang memblokir jalannya kode.
   6. Ketika SEMUA tiket selesai, buat rangkuman final dalam 1 pesan saja.
   ```
 
 * **Opsi B: Eksekusi Manual Satu per Satu (Jika Ingin Mengecek Tiap Tiket)**
   ```markdown
-  /implement Silakan kerjakan Tiket 1 dulu dari @[docs/tickets/0XX_nama_fitur] sesuai aturan /ponytail. Jalankan syntax & symbol gate (python -m py_compile dan python -m pyflakes), lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
+  /implement Silakan kerjakan Tiket 1 dulu dari @[docs/tickets/0XX_nama_fitur] sesuai aturan /ponytail. Jalankan Triple-Gate Verification (`py_compile`, `pyflakes`, dan one-liner smoke test `python -c "..."`), lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
   ```
 
 ---
@@ -191,10 +203,11 @@ ATURAN KETAT:
   1. [Jelaskan fitur tambahan atau perilaku baru yang diinginkan secara spesifik].
   2. [Jelaskan hal lain yang ingin diubah/disesuaikan].
 
-  ATURAN KETAT:
+  ATURAN KETAT (ANTI-BUG SPEC & IMPLEMENT):
   - JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
+  - PRE-FLIGHT REALITY CHECK: Periksa signature fungsi dan struktur data asli di kode sebelum menulis perubahan kontrak.
   - Wajib patuhi aturan /ponytail full (< 250-300 baris, stdlib-first).
-  - Pertahankan tiket yang sudah selesai, cukup tambahkan tiket baru lanjutan (misal [TICKET-04], dst.) ke indeks.
+  - Pertahankan tiket yang sudah selesai, cukup tambahkan tiket baru lanjutan (misal [TICKET-04], dst.) beserta Preconditions/Postconditions & One-Liner Smoke Command ke indeks.
   - Tampilkan draf perubahan spec dan daftar tiket baru untuk saya tinjau.
   - Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan nomor tiket baru dan direktori tiketnya (@[docs/tickets/folder_tiket]), jangan lakukan otomatis.
   ```
@@ -254,7 +267,7 @@ INSTRUKSI INVESTIGASI:
 3. Tampilkan tabel temuan untuk saya konfirmasi (JANGAN hapus/ubah kode sebelum saya setujui).
 ```
 
-#### 🔬 Kasus C: Mode Otak-Tangan (Scientific Trial-and-Error Testing: Claude Sonnet 4.5 x Gemini Flash & Self-Learning)
+#### 🔬 Kasus C: Mode Otak-Tangan (Scientific Trial-and-Error Testing: Claude Sonnet 4.6 x Gemini Flash & Self-Learning)
 > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 3.8 Flash (High)` sebagai Tangan eksekutor + `tanya_openrouter(..., model="claude", mode_debug=True)` sebagai Otak perancang tes | 🦓 Zoo Code: Mode `🔍 Bug Hunter`
 
 *Gunakan pola ini ketika Anda menghadapi bug yang membingungkan atau error misterius yang membutuhkan pengujian coba-coba (trial-and-error) bertahap untuk mempersempit kemungkinan secara ilmiah:*
@@ -266,7 +279,7 @@ DESKRIPSI MASALAH:
 [Jelaskan perilaku aneh atau paste traceback error di sini]
 
 PEMBAGIAN PERAN & ALUR KERJA:
-1. Claude Sonnet 4.5 (Otak via tanya_openrouter model="claude", mode_debug=True):
+1. Claude Sonnet 4.6 (Otak via tanya_openrouter model="claude", mode_debug=True):
    - Bertindak sebagai Lead Debugging Architect.
    - Buatkan [HIPOTESIS] dan [PERINTAH_TES] minimal untuk mempersempit akar masalah.
 2. Gemini Flash (Tangan di Antigravity IDE):
