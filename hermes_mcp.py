@@ -76,8 +76,8 @@ SETTINGS_FILE = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "L
 def muat_duo_settings() -> dict:
     default_settings = {
         "thinker": "anthropic/claude-haiku-4.5",
-        "worker": "deepseek/deepseek-chat",
-        "solo": "deepseek/deepseek-chat"
+        "worker": "baidu/ernie-5.5-flash-preview:free",
+        "solo": "baidu/ernie-5.5-flash-preview:free"
     }
     if SETTINGS_FILE.exists():
         try:
@@ -97,7 +97,7 @@ def simpan_duo_settings(settings: dict) -> bool:
     except Exception:
         return False
 
-DEFAULT_HERMES_MODEL = muat_duo_settings().get("solo", "deepseek/deepseek-chat")
+DEFAULT_HERMES_MODEL = muat_duo_settings().get("solo", "baidu/ernie-5.5-flash-preview:free")
 
 
 @mcp.tool(
@@ -184,8 +184,8 @@ def lihat_model_hermes() -> str:
         "Kirim tugas ke Hermes Agent lokal (background worker mandiri). "
         "Hermes dapat mengeksekusi terminal command/test, membaca & menyisir file luas, "
         "mencari regex di direktori kerja, scraping web, atau eksplorasi kode "
-        "secara otonom dengan model reasoning DeepSeek R1 tanpa membuang token Claude/GPT. "
-        "Hasil akan otomatis diringkas padat agar efisien di context window."
+        "secara otonom dengan model gratis cepat (free-fast) dan fallback otomatis deepseek-chat "
+        "tanpa membuang token Claude/GPT. Hasil akan otomatis diringkas padat."
     )
 )
 def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DEFAULT_HERMES_MODEL) -> str:
@@ -195,14 +195,14 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DE
     Args:
         tugas: Deskripsi perintah atau tugas lengkap yang harus dilakukan Hermes.
         direktori_kerja: Folder tempat Hermes harus bekerja (opsional, otomatis menggunakan direktori kerja aktif saat ini).
-        model: Model OpenRouter spesifik yang ingin dipakai (default: 'deepseek/deepseek-r1', atau alternatif: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
+        model: Model OpenRouter spesifik yang ingin dipakai (default: 'baidu/ernie-5.5-flash-preview:free', fallback: 'deepseek/deepseek-chat').
 
 [EN]: Send a task to Hermes Agent.
     
     Args:
         tugas: Full description of the command or task to be executed by Hermes.
         direktori_kerja: Directory where Hermes should operate (optional, defaults to the current working directory).
-        model: Specific OpenRouter model to use (default: 'deepseek/deepseek-r1', or alternatives: 'deepseek/deepseek-chat', 'meta-llama/llama-3.3-70b-instruct:free').
+        model: Specific OpenRouter model to use (default: 'baidu/ernie-5.5-flash-preview:free', fallback: 'deepseek/deepseek-chat').
 """
     # Tentukan direktori kerja aktif secara cerdas
     target_cwd = ""
@@ -226,36 +226,31 @@ def delegasikan_ke_hermes(tugas: str, direktori_kerja: str = "", model: str = DE
     )
 
     settings = muat_duo_settings()
-    active_model = model.strip() if model and model.strip() else settings.get("solo", "deepseek/deepseek-chat")
-
-    cmd = [
-        HERMES_EXE,
-        "-z", instruksi_tugas,  # oneshot mode dengan task spesifik
-        "--yolo",               # eksekusi otonom tanpa prompt interaktif
-        "-m", active_model
-    ]
+    active_model = model.strip() if model and model.strip() else settings.get("solo", "baidu/ernie-5.5-flash-preview:free")
+    kandidat_model = [active_model] + (["deepseek/deepseek-chat"] if active_model.endswith(":free") else [])
 
     try:
-        result = subprocess.run(
-            cmd,
-            cwd=target_cwd,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=300  # 5 menit timeout
-        )
-
-        output = result.stdout.strip()
-        errors = result.stderr.strip()
-
-        if result.returncode != 0:
-            return f"Hermes Error (code {result.returncode}):\n{errors or output}"
-
-        if not output and errors:
-            return f"Hermes Output (stderr):\n{errors}"
-
-        return output or "Tugas selesai dijalankan oleh Hermes Agent (tanpa output teks)."
+        last_err, last_out = "", ""
+        for idx, m_run in enumerate(kandidat_model):
+            cmd = [HERMES_EXE, "-z", instruksi_tugas, "--yolo", "-m", m_run]
+            result = subprocess.run(
+                cmd, cwd=target_cwd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=300
+            )
+            output = result.stdout.strip()
+            errors = result.stderr.strip()
+            gabung = f"{output}\n{errors}".lower()
+            is_limit = any(k in gabung for k in ("429", "404", "rate limit", "rate-limit"))
+            if result.returncode == 0 and output and not (idx == 0 and is_limit and len(kandidat_model) > 1):
+                return output
+            last_err, last_out = errors, output
+            if idx + 1 < len(kandidat_model) and (result.returncode != 0 or is_limit or not output):
+                continue
+            if result.returncode != 0:
+                return f"Hermes Error (code {result.returncode}):\n{last_err or last_out}"
+            if not last_out and last_err:
+                return f"Hermes Output (stderr):\n{last_err}"
+            return last_out or "Tugas selesai dijalankan oleh Hermes Agent (tanpa output teks)."
+        return f"Hermes Error:\n{last_err or last_out}"
 
     except subprocess.TimeoutExpired:
         return "Hermes Timeout: Tugas membutuhkan waktu lebih dari 5 menit."

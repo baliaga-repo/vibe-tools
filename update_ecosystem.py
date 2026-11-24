@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-[ID]: Universal Ecosystem Updater & Standarisasi Dual-Cockpit (Antigravity + Roo Code).
-Memperbarui konfigurasi ekosistem AI (.agents, .roomodes, .roo) secara non-destruktif
+[ID]: Universal Ecosystem Updater & Standarisasi Ekosistem (Antigravity + Aider).
+Memperbarui konfigurasi ekosistem AI (.agents & vibe_tools) secara non-destruktif
 lintas proyek melalui Remote GitHub maupun dorongan Master Lokal (--target).
 
 [EN]: [ID]: Universal Ecosystem Updater & Dual-Cockpit Standardization (Antigravity + Roo Code).
@@ -53,14 +53,14 @@ class FileDiffManifest:
 
 
 class VibeEcosystemUpdater:
-    """[ID]: Orkestrator pembaruan Dual-Cockpit (Antigravity .agents + Roo Code .roo)."""
+    """[ID]: Orkestrator pembaruan ekosistem (Antigravity .agents + Aider)."""
 
     GITHUB_TREE_API: str = "https://api.github.com/repos/baliaga-repo/vibe-tools/git/trees/main?recursive=1"
     STRICT_BLACKLIST: Tuple[str, ...] = (
         ".env", "cookies", "openrouter_key.txt", ".git", "__pycache__",
         ".pytest_cache", "graphify-out", "node_modules", "build", "dist"
     )
-    MANAGED_DIRS: Tuple[str, ...] = ("vibe_tools", ".agents", ".roomodes", ".roo", ".zoomodes", ".zoo")
+    MANAGED_DIRS: Tuple[str, ...] = ("vibe_tools", ".agents")
 
     def __init__(self, target_root: Optional[Path] = None, source_dir: Optional[Path] = None):
         self.target_root: Path = (target_root or Path.cwd()).resolve()
@@ -181,16 +181,16 @@ class VibeEcosystemUpdater:
         print(">> Rollback selesai dengan sukses.")
         return True
 
-    def sync_roo_hybrid_cockpit(self, setup_ollama: bool = False) -> None:
-        """[ID]: Memperbarui konfigurasi Zoo Code / Roo Code via setup_zoo_hybrid.py."""
+    def sync_aider_hybrid_cockpit(self, setup_ollama: bool = False) -> None:
+        """[ID]: Memperbarui konfigurasi Aider Hybrid via setup_aider_hybrid.py."""
         try:
             try:
-                from vibe_tools.setup_zoo_hybrid import pasang_zoo_hybrid
+                from vibe_tools.setup_aider_hybrid import pasang_aider_hybrid
             except ModuleNotFoundError:
-                from setup_zoo_hybrid import pasang_zoo_hybrid
-            pasang_zoo_hybrid(target_path=str(self.target_root), setup_ollama=setup_ollama)
+                from setup_aider_hybrid import pasang_aider_hybrid
+            pasang_aider_hybrid(target_path=str(self.target_root), setup_ollama=setup_ollama)
         except Exception as e:
-            print(f"[PERINGATAN] Gagal sinkronisasi Zoo Code / Roo Code Hybrid: {e}")
+            print(f"[PERINGATAN] Gagal sinkronisasi Aider Hybrid: {e}")
 
     def apply_updates(self, diffs: List[FileDiffManifest], dry_run: bool = False, setup_ollama: bool = False) -> bool:
         """[ID]: Menerapkan pembaruan berkas, backup otomatis, dan sinkronisasi kokpit."""
@@ -227,16 +227,21 @@ class VibeEcosystemUpdater:
             else:
                 shutil.copy2(src, dest)
 
-        self.sync_roo_hybrid_cockpit(setup_ollama=setup_ollama)
+        self.sync_aider_hybrid_cockpit(setup_ollama=setup_ollama)
         return True
 
 
 def main():
+<<<<<<< HEAD
     """
 [ID]: Titik masuk CLI Universal Updater Dual-Cockpit.
 [EN]: CLI entry point for the Universal Updater Dual-Cockpit.
 """
     parser = argparse.ArgumentParser(description="Vibe Tools Universal Updater (Dual-Cockpit)")
+=======
+    """[ID]: Titik masuk CLI Universal Updater Ekosistem."""
+    parser = argparse.ArgumentParser(description="Vibe Tools Universal Updater (Antigravity + Aider)")
+>>>>>>> 3be7779 (Pembaruan modul vibe_tools: 2026-11-19 10:33:05)
     parser.add_argument("--pull", action="store_true", help="Tarik pembaruan submodule dari GitHub sebelum update")
     parser.add_argument("--check", action="store_true", help="Pengecekan versi tanpa modifikasi")
     parser.add_argument("--dry-run", action="store_true", help="Simulasi pembaruan tanpa menyentuh disk")

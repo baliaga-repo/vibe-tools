@@ -1,10 +1,10 @@
 """[ID]: Skrip Otomasi Pemasangan Ekosistem Vibe Coding Universal & Lean (<250 baris).
 Memasang aturan .agents, sinkronisasi junction universal skills/rules,
-mcp bridge (openrouter & hermes), zoo hybrid dual-cockpit, dan peta AST awal.
+mcp bridge (openrouter & hermes), Aider hybrid free tier, dan peta AST awal.
 
 [EN]: Universal & Lean Vibe Coding Ecosystem Auto-Setup Script (<250 lines).
 Installs .agents rules, universal skills/rules junction sync,
-mcp bridges (openrouter & hermes), zoo hybrid dual-cockpit, and initial AST map.
+mcp bridges (openrouter & hermes), Aider hybrid free tier, and initial AST map.
 """
 
 import json
@@ -110,16 +110,12 @@ def main() -> None:
     except Exception as e:
         print(f"[WARNING] sync_universal dilewati: {e}")
 
-    # 4. Sinkronisasi Zoo Code Hybrid Dual-Cockpit
+    # 4. Sinkronisasi Aider Hybrid (On-Demand Free Tier)
     try:
-        import setup_zoo_hybrid
-        setup_zoo_hybrid.pasang_zoo_hybrid(target_path=BASE_DIR, setup_ollama=False)
-    except Exception:
-        try:
-            import setup_roo_hybrid
-            setup_roo_hybrid.pasang_roo_hybrid(target_path=BASE_DIR, setup_ollama=False)
-        except Exception as err:
-            print(f"[WARNING] setup_zoo_hybrid dilewati: {err}")
+        import setup_aider_hybrid
+        setup_aider_hybrid.pasang_aider_hybrid(target_path=str(BASE_DIR), setup_ollama=False)
+    except Exception as err:
+        print(f"[WARNING] setup_aider_hybrid dilewati: {err}")
 
     # 5. Jalankan pemetaan awal .agents/MAP.md
     print("\n[INFO] Membangun/memperbarui peta berkas (.agents/MAP.md)...")
@@ -132,7 +128,7 @@ def main() -> None:
 
     print("\n" + "=" * 65)
     print("  [SELESAI] SELURUH EKOSISTEM VIBE CODING SIAP DIGUNAKAN 100%!")
-    print("  (Restart Antigravity IDE atau Zoo Code sekali untuk memuat MCP)")
+    print("  (Restart Antigravity IDE sekali untuk memuat MCP)")
     print("=" * 65)
 
 

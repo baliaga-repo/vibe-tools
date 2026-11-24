@@ -1,0 +1,20 @@
+# Konfigurasi Generik Aider (Free Tier OpenRouter First + Anti Auto-Commit)
+model: openrouter/cohere/north-mini-code:free
+weak-model: openrouter/cohere/north-mini-code:free
+
+# --- OPSI HYBRID LOKAL (jika Ollama + model lokal GPU terpasang) ---
+# Set env: OLLAMA_API_BASE=http://127.0.0.1:11434 dan OLLAMA_KEEP_ALIVE=5m
+# weak-model: ollama_chat/qwen2.5-coder:3b
+# Fallback lokal saat Cloud :free kena 429/offline:
+# /model ollama_chat/qwen2.5-coder:7b-instruct-q4_K_M
+
+edit-format: diff
+map-tokens: 1024
+subtree-only: true
+auto-commits: false
+dirty-commits: false
+attribute-author: false
+attribute-committer: false
+read: [CONVENTIONS.md]
+check-update: false
+analytics-disable: true

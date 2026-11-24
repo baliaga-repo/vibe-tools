@@ -31,7 +31,15 @@ MODEL_ALIASES = {
     "deepseek": "deepseek/deepseek-v3.2", "v3": "deepseek/deepseek-v3.2", "v3.2": "deepseek/deepseek-v3.2",
     "qwen": "qwen/qwen3-coder", "qwen-coder": "qwen/qwen3-coder", "qwen3": "qwen/qwen3-coder",
     "gemini": "google/gemini-2.5-flash", "gemini-flash": "google/gemini-2.5-flash", "gemini-pro": "google/gemini-2.5-pro",
-    "free": "qwen/qwen3-coder:free", "gemma-free": "google/gemma-4-31b-it:free", "deepseek-free": "deepseek/deepseek-chat",
+    "free": "cohere/north-mini-code:free", "free-code": "cohere/north-mini-code:free",
+    "free-fast": "baidu/ernie-5.5-flash-preview:free", "free-reason": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "gemma-free": "google/gemma-4-31b-it:free", "deepseek-free": "deepseek/deepseek-chat",
+}
+
+FREE_FALLBACK_CHAIN: dict[str, list[str]] = {
+    "free-code": ["cohere/north-mini-code:free", "baidu/ernie-5.5-flash-preview:free", "nvidia/nemotron-3-ultra-550b-a55b:free"],
+    "free-fast": ["baidu/ernie-5.5-flash-preview:free", "particle-ai/particle-1:free", "cohere/north-mini-code:free"],
+    "free-reason": ["nvidia/nemotron-3-ultra-550b-a55b:free", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "inclusionai/ling-3.2-flash:free"],
 }
 
 DEBUG_SYSTEM_PROMPT = (
@@ -146,6 +154,29 @@ def _kelola_sesi(session_id: str, user_prompt: str = None, assistant_reply: str 
     return list(history)
 
 
+def _kirim_dengan_fallback(
+    api_key: str, payload: dict[str, object], alias_atau_id: str, headers: dict[str, str], timeout: int = 90
+) -> tuple[int, dict[str, object], str, str]:
+    """Mengirim request chat completions dengan rotasi maks 3 kandidat :free saat HTTP 429/404."""
+    kunci = alias_atau_id.strip().lower()
+    chain_key = "free-code" if kunci == "free" else kunci
+    model_awal = resolve_model_id(alias_atau_id)
+    if chain_key in FREE_FALLBACK_CHAIN:
+        kandidat = FREE_FALLBACK_CHAIN[chain_key][:3]
+    elif model_awal.endswith(":free"):
+        kandidat = ([model_awal] + [m for m in FREE_FALLBACK_CHAIN["free-code"] if m != model_awal])[:3]
+    else:
+        kandidat = [model_awal]
+    req_headers = {"Authorization": f"Bearer {api_key}", **headers}
+    status, res_json, raw_text, terpakai = 0, {}, "", kandidat[0]
+    for m_id in kandidat:
+        terpakai = m_id
+        status, res_json, raw_text = _http_json("https://openrouter.ai/api/v1/chat/completions", req_headers, {**payload, "model": m_id}, timeout)
+        if status not in (429, 404):
+            break
+    return status, res_json, raw_text, terpakai
+
+
 @mcp.tool()
 def tanya_openrouter(
     prompt: str,
@@ -162,11 +193,15 @@ def tanya_openrouter(
     if not api_key:
         return f"❌ Error: API Key belum dikonfigurasi di {Path.home() / '.gemini' / 'openrouter_key.txt'}"
 
-    is_exceeded, daily_spend = check_daily_limit_exceeded(api_key)
-    if is_exceeded:
-        return f"🛑 Batas Pengeluaran Harian Tercapai! (${daily_spend:.4f} / Maks ${DAILY_LIMIT_USD:.2f}/hari)."
-
     model_id = resolve_model_id(model)
+    # Model berakhiran ':free' ($0) dikecualikan dari batas pengeluaran harian lokal
+    if not model_id.endswith(":free"):
+        is_exceeded, daily_spend = check_daily_limit_exceeded(api_key)
+        if is_exceeded:
+            return (
+                f"🛑 Batas Pengeluaran Harian Tercapai! (${daily_spend:.4f} / Maks ${DAILY_LIMIT_USD:.2f}/hari). "
+                "Gunakan model='free' / 'free-fast' atau Mode Otak-Tangan Native Antigravity."
+            )
     full_system = f"{DEBUG_SYSTEM_PROMPT}\n\n{system_prompt}".strip() if mode_debug else system_prompt.strip()
     messages = [{"role": "system", "content": full_system}] if full_system else []
 
@@ -179,7 +214,7 @@ def tanya_openrouter(
         messages.extend(_kelola_sesi(clean_sid))
 
     messages.append({"role": "user", "content": prompt})
-    payload = {"model": model_id, "messages": messages}
+    payload = {"messages": messages}
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
@@ -188,7 +223,7 @@ def tanya_openrouter(
     }
 
     try:
-        status, res_json, raw_text = _http_json("https://openrouter.ai/api/v1/chat/completions", headers, payload, 90)
+        status, res_json, raw_text, model_id = _kirim_dengan_fallback(api_key, payload, model, headers, 90)
         if status == 200:
             choices = res_json.get("choices", [])
             if choices and "message" in choices[0]:
@@ -205,7 +240,12 @@ def tanya_openrouter(
                 return content + tokens_info
             return "⚠️ Respons dari OpenRouter tidak memiliki pesan teks yang valid."
         err_msg = res_json.get("error", {}).get("message", raw_text) if isinstance(res_json, dict) else raw_text
-        return f"❌ Error OpenRouter API (Status {status}): {err_msg}"
+        hint = (
+            "\n💡 Tips: Saldo/limit OpenRouter habis. Coba model='free' / 'free-fast' atau Mode Otak-Tangan Native Antigravity."
+            if status in (402, 429)
+            else ""
+        )
+        return f"❌ Error OpenRouter API (Status {status}, Model {model_id}): {err_msg}{hint}"
     except TimeoutError:
         return "❌ Request timeout: Model membutuhkan waktu lebih dari 90 detik."
     except Exception as e:
@@ -228,7 +268,7 @@ def daftar_model_rekomendasi() -> str:
 | ⚡ **Harian Gesit & Super Hemat** | `deepseek` / `v3` | `deepseek/deepseek-v3.2` | Rekomendasi harian utama (DSA), super hemat |
 | 💻 **Spesialis Kode Open-Weight** | `qwen` / `qwen3` | `qwen/qwen3-coder` | Cepat & efisien untuk Python/JS (MoE) |
 | 🚀 **Thinker Ringan** | `haiku` | `anthropic/claude-haiku-4.5` | Cepat & cerdas untuk tugas pembantu |
-| 🎁 **100% Gratis** | `free` | `qwen/qwen3-coder:free` | Eksperimen koding bebas biaya |"""
+| 🎁 **100% Gratis (Auto-Fallback)** | `free` / `free-code` / `free-fast` / `free-reason` | `cohere/north-mini-code:free`, `baidu/ernie-5.5-flash-preview:free`, `nvidia/nemotron-3-ultra-550b-a55b:free` | Eksperimen koding, tugas cepat, & penalaran bebas biaya |"""
 
 
 @mcp.tool()
@@ -251,7 +291,9 @@ def cek_koneksi_openrouter() -> str:
         s_cr, j_cr, _ = _http_json("https://openrouter.ai/api/v1/credits", headers=headers, timeout=15)
         if s_cr == 200:
             c_data = j_cr.get("data", {})
-            rem_cred = f"- Sisa Saldo: ${max(0.0, c_data.get('total_credits', 0.0) - c_data.get('total_usage', 0.0)):.4f}\n"
+            sisa_saldo = max(0.0, c_data.get('total_credits', 0.0) - c_data.get('total_usage', 0.0))
+            warn_saldo = "\n- ⚠️ Sisa saldo < $0.50 — disarankan top-up $5 agar fallback berbayar & ASR tidak terhenti." if sisa_saldo < 0.50 else ""
+            rem_cred = f"- Sisa Saldo: ${sisa_saldo:.4f}{warn_saldo}\n"
         return (
             f"✅ **Koneksi OpenRouter Berhasil!**\n- Label: {label}\n- Total Pakai: ${u_total:.4f}\n"
             f"- Hari Ini: ${u_daily:.4f} / Limit ${DAILY_LIMIT_USD:.2f}\n{rem_cred}🎉 Server MCP siap digunakan!"

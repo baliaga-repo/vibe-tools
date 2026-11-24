@@ -6,8 +6,8 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
 
 ## 📑 Daftar Isi
 
-1. [Panduan Strategi & Prompt Siap Pakai (Antigravity IDE, Zoo Code, & Ponytail)](#1-panduan-strategi--prompt-siap-pakai-antigravity-ide-zoo-code--ponytail)
-   * 1.1 [Contekan Cepat: Pilih Model & Cockpit Sesuai Tahap](#11-contekan-cepat-pilih-model--cockpit-sesuai-tahap)
+1. [Panduan Strategi & Prompt Siap Pakai (Antigravity IDE, Aider CLI, & Ponytail)](#1-panduan-strategi--prompt-siap-pakai-antigravity-ide-aider-cli--ponytail)
+   * 1.1 [Contekan Cepat: Pilih Model & Tingkatan Sesuai Tahap (Anti-Bingung)](#11-contekan-cepat-pilih-model--cockpit-sesuai-tahap)
    * 1.2 [Alur Utama Pembangunan & Perombakan Fitur (3 Tahap Terpadu)](#12-alur-utama-pembangunan--perombakan-fitur-3-tahap-terpadu)
      * [Alur Pasca-Implementasi: Modifikasi & Fitur Lanjutan (Hemat Token)](#alur-pasca-implementasi-modifikasi--penambahan-fitur-lanjutan-hemat-token)
    * 1.3 [Tiga Prompt Spesialis Ringkas (Atasi Bug, Rapikan Kode /ponytail, & Mode Otak-Tangan)](#13-tiga-prompt-spesialis-ringkas-di-luar-bikin-fitur-baru)
@@ -18,288 +18,286 @@ Dokumentasi komprehensif yang mengkonsolidasikan seluruh tutorial, panduan, dan 
    * 3.2 [Panduan Cepat untuk Pengguna Publik Baru (1 Menit)](#32-panduan-cepat-untuk-pengguna-publik-baru-1-menit)
    * 3.3 [Panduan Fork & Pull Request untuk Kontributor Global](#33-panduan-fork--pull-request-untuk-kontributor-global)
 4. [REA MCP: Reverse Engineer Anything](#4-rea-mcp-reverse-engineer-anything)
-5. [Hermes Agent x Antigravity IDE x Zoo Code & Self-Learning Universal](#5-hermes-agent-x-antigravity-ide-x-zoo-code--self-learning-universal)
-   * 5.1 [Sinergi 3 Cockpit: Antigravity, Zoo Code, & Hermes Agent](#51-sinergi-3-cockpit-antigravity-zoo-code--hermes-agent)
+5. [Hermes Agent x Antigravity IDE x Aider CLI & Self-Learning Universal](#5-hermes-agent-x-antigravity-ide-x-aider-cli--self-learning-universal)
+   * 5.1 [Sinergi 3 Alat: Antigravity, Aider CLI, & Hermes Agent](#51-sinergi-3-alat-antigravity-aider-cli--hermes-agent)
    * 5.2 [Metode Pemasangan Cepat Mandiri (1 Menit)](#52-metode-pemasangan-cepat-mandiri-1-menit)
    * 5.3 [Pemasangan Manual Langkah Demi Langkah](#53-pemasangan-manual-langkah-demi-langkah)
    * 5.4 [🧠 Self-Learning Universal Lintas-Proyek](#54-self-learning-universal-lintas-proyek)
 6. [Tutorial Setup PC/Laptop Baru dari Nol (Fresh Install Windows 10/11) & OpenRouter MCP](#6-tutorial-setup-pclaptop-baru-dari-nol-fresh-install-windows-1011--openrouter-mcp)
    * 6.1 [Tahap 1: Persiapan Dasar Windows 10/11 Baru](#61-tahap-1-persiapan-dasar-windows-1011-baru)
    * 6.2 [Tahap 2: Persiapan Akun & Saldo AI](#62-tahap-2-persiapan-akun--saldo-ai)
-   * 6.3 [Tahap 3: Instalasi IDE & Setting Auto-Approve Otonom](#63-tahap-3-instalasi-ide--setting-auto-approve-otonom)
+   * 6.3 [Tahap 3: Instalasi Aider Terisolasi & Auto-Approve Antigravity](#63-tahap-3-instalasi-aider-terisolasi--auto-approve-antigravity)
    * 6.4 [Tahap 4: Prompt Setup Mandiri & Alternatif Manual](#64-tahap-4-prompt-setup-mandiri--alternatif-manual)
    * 6.5 [Tahap 5: Verifikasi & Uji Koneksi](#65-tahap-5-verifikasi--uji-koneksi)
    * 6.6 [Tahap 6: Katalog Model Pilihan & Update Otomatis](#66-tahap-6-katalog-model-pilihan--update-otomatis)
    * 6.7 [Mode Otak-Tangan: Iterative Debug Loop & Session Cache](#67-mode-otak-tangan-iterative-debug-loop--session-cache)
 7. [Katalog 15 Skill Universal & Panduan Penggunaan](#7-katalog-15-skill-universal--panduan-penggunaan)
-8. [Arsitektur Hybrid Dual-Cockpit (Antigravity + VS Code Zoo Code + Ollama RTX 3060)](#8-arsitektur-hybrid-dual-cockpit-antigravity--vs-code-zoo-code--ollama-rtx-3060)
+8. [Arsitektur Hybrid Antigravity + Aider On-Demand (`:free` First) + Sinergi Hardware Lokal](#8-arsitektur-hybrid-antigravity--aider-on-demand-free-first--sinergi-hardware-lokal)
 9. [Otomasi Pemeliharaan, Sinkronisasi Database, & Universal Updater Lintas-Proyek](#9-otomasi-pemeliharaan-sinkronisasi-database--universal-updater-lintas-proyek)
 
 ---
 
-## 1. Panduan Strategi & Prompt Siap Pakai (Antigravity IDE, Zoo Code, & Ponytail)
+## 1. Panduan Strategi & Prompt Siap Pakai (Mode `/swarm` Dual-Orchestrator, Aider CLI, & Ponytail)
 
-Panduan praktis satu pintu untuk merancang, merombak, dan mengeksekusi kodingan secara terstruktur tanpa *over-engineering* (berkat **`/ponytail`**) baik di **Antigravity IDE** maupun **VS Code Zoo Code**.
+Panduan praktis satu pintu untuk merancang, memperbaiki bug, dan mengeksekusi kodingan secara terstruktur tanpa *over-engineering* (**`/ponytail`**), **0x ganti dropdown manual di tengah jalan**, serta **hemat kuota Claude hingga 85%+** dengan **Mode `/swarm` Native Antigravity**: Anda cukup parkir dropdown di **`Gemini 4 Neon (High)` / `Orchestrator (Neon)`** (atau **`Orchestrator (Argon)` / `Gemini 4 Argon (High)`** saat mode hemat Claude/refactor berat) sebagai **Coordinator**, dan biarkan Coordinator memanggil serta mematikan worker **`Claude Sonnet / Opus`** atau **`Gemini Argon / Hydrogen / Flash`** secara otomatis di ruang konteks bersih (*starts fresh*).
 
 <a id="11-contekan-cepat-pilih-model--cockpit-sesuai-tahap"></a>
-### 🧠 1.1 Contekan Cepat: Pilih Model & Cockpit Sesuai Tahap
+### 🧠 1.1 Contekan Cepat: Mode `/swarm` Dual-Orchestrator & Strategi 3 Pool Kuota (Anti-Ribet!)
 
-| Tahap Kerja | Tujuan Utama | ✈️ Di Antigravity IDE | 🦓 Di VS Code Zoo Code |
-| :--- | :--- | :--- | :--- |
-| **Tahap 1: Brainstorming & `/grill-me`** | Memahami masalah dengan bahasa sederhana, opsi solusi, & draf awal | **Gemini 4 Argon (High)** *(atau minta opini `openrouter` R1/Claude)* | Mode **`🔥 Grill-Me & Spec`** *(Model: `deepseek/deepseek-r1`)* |
-| **Tahap 2: Spec (`docs/specs`) & Tiket (`docs/tickets`)** | Merombak/mematangkan rancangan ke `.md` resmi & memecah tiket kerja | **Gemini 4 Argon (High)** | Mode **`🔥 Grill-Me & Spec`** *(Otomatis terkunci hanya edit `docs/`)* |
-| **Tahap 3: Eksekusi Tiket Koding (`/implement`)** | Mengerjakan semua tiket sampai lulus `py_compile` dengan hemat kode (`/ponytail`) | **Gemini 3.8 Flash (High)** *(Cepat, konteks besar, 100% Gratis)* | Mode **`💻 Vibe Coder`** atau **`🪃 Orchestrator`** *(awalan `/pakai-rag` atau `/pakai-3b`)* |
-| **Kasus Khusus: Cari Bug / Rapikan Kode** | Lacak akar error runtime atau pangkas kode bertele-tele & *dead code* | **Argon / Flash** + MCP `openrouter` (`deepseek-r1`) | Mode **`🔍 Bug Hunter`** atau **`🛡️ Code Reviewer`** |
-| **Kasus Khusus: Debug Ilmiah (Otak-Tangan)** | Investigasi bug rumit via trial-and-error bertahap & self-learning | **Claude Sonnet 4.6** (Otak via `tanya_openrouter`) + **Gemini Flash** (Tangan IDE) | Mode **`🔍 Bug Hunter`** |
+> [!TIP]
+> **Aturan Emas Parkir Dropdown & Manajemen 3 Pool Kuota (`/swarm`):**
+> 1. **Pahami 3 Pool (Ember) Kuota Terpisah di Antigravity**:
+>    - **Pool 1 — Harian (`Orchestrator (Neon)`, `Gemini 4 Neon`, `Hydrogen`, `3.8 Flash`)**: Reset paling cepat (harian/jam). Gunakan **`Gemini 4 Neon (High)`** atau **`Orchestrator (Neon)`** sebagai **Parkir Dropdown Harian Utama**.
+>    - **Pool 2 — Mingguan (`Orchestrator (Argon)`, `Gemini 4 Argon`)**: Reset tiap **7 hari** (terpisah 100% dari Pool Neon & Claude!). Gunakan **`Orchestrator (Argon)`** / **`Gemini 4 Argon (High)`** sebagai **Coordinator Cadangan Strategis & Refactor Berat** (saat kuota Claude kritis `<= 15%`, saat Pool Neon menurun, atau saat memimpin Tahap 2+3 multi-file). *Jangan diparkir 100% untuk obrolan ringan harian agar kuota mingguan tetap awet.*
+>    - **Pool 3 — Premium (`Claude Sonnet 5.5`, `Claude Opus 5.5`, `GPT-OSS 120B`)**: Semua model Claude berbagi **1 pool kuota yang sama** dan reset beberapa hari sekali. **DILARANG KERAS memarkir `Claude Opus` sebagai Orchestrator/Coordinator dropdown** karena riwayat chat panjang & loop tool CLI akan langsung menguras habis kuota Claude Anda!
+> 2. **Awali Prompt Utama dengan `/swarm`**: Trigger ini mengaktifkan tool `swarm` sehingga Coordinator (`Neon` / `Argon`) dapat mengecek sisa kuota (`swarm(action="models")`), memanggil worker model spesifik (`add`), dan langsung mematikannya (`kill`) setelah 1 giliran.
+> 3. **Bebas Polusi Konteks Tanpa `/compact` Manual**: Setiap worker yang dipanggil via `swarm(action="add")` otomatis lahir di ruang percakapan baru (**0% sampah history** ikut terkirim!).
+> 4. **Rem Anti-Boros Orchestrator (*3-Tier Escalation*)**:
+>    - *Catatan:* Model berlabel `Orchestrator` punya kecenderungan alami suka men-spawn worker. Untuk mencegah overhead token worker pada tugas sepele, protokol ini memasang **Rem Tier 1**:
+>    - **Tier 1 (Bug 1–2 file jelas / edit rutin)** ➔ Coordinator (`Neon` / `Argon`) wajib selesaikan sendiri (**DILARANG spawn worker = 0% kuota Claude & 0 overhead worker**).
+>    - **Tier 2 (Tugas multi-file / logika / arsitektur)** ➔ Coordinator otomatis spawn **maks 1 worker `Claude Sonnet (Low)`** (`brief` English `< 60 baris`, jawaban Claude `<= 35 baris` English diff/bullet) ➔ **langsung `kill`**.
+>    - **Tier 3 (Buntu / Red-Team ekstrem)** ➔ Coordinator otomatis eskalasi ke **`Claude Sonnet (Medium)`** atau **`Claude Opus (High)`** (tetap 1 worker 1-turn + auto-`kill`).
+> 5. **Mode Hemat & Fallback Otomatis Jika Kuota Claude Kritis (`<= 15%`) atau Limit**:
+>    - **Fallback #1 (100% Native Antigravity — Pool Mingguan/Harian):** Jika `swarm(action="models")` menunjukkan kuota Claude `<= 15%` atau habis, Coordinator otomatis mengalihkan tugas worker Otak ke **`Gemini 4 Argon (High)` / `Orchestrator (Argon)`** (arsitektur/kontrak) atau **`Gemini 4 Hydrogen (High / XHigh)`** (bug pelik/rumus) — **0% memotong sisa kuota Claude!**
+>    - **Fallback #2 (Ban Serep MCP):** Panggil `openrouter:tanya_openrouter(model="r1")` atau `model="claude"` / `:free`.
+> 6. **Kapan Buka *New Conversation*?** Selama masih di **1 fitur / 1 kasus bug yang sama**, tidak perlu *New Conversation*. Buka *New Conversation* (atau `/compact` 1x) hanya saat **pindah ke fitur baru yang berbeda topik** agar Coordinator tetap ringan.
+> 7. **Matikan MCP Berat Tak Terpakai**: Nonaktifkan MCP seperti `rea` (~160+ tools) saat coding harian agar tidak membayar pajak tetap ribuan token di setiap prompt.
+
+#### 🎛️ Peta Peran Tim Otomatis di Dalam `/swarm` (3 Pool Kuota Terpisah)
+
+| Peran di `/swarm` | Model & Pool Kuota | Tugas Spesifik & Batas Ketat |
+| :--- | :--- | :--- |
+| 🎼 **Coordinator Harian (Parkir Utama)** | 💡 **`Gemini 4 Neon (High)`** atau **`Orchestrator (Neon)`**<br>*(Pool 1 — Harian)* | Berinteraksi langsung dengan Anda (`ask_question`), menyelesaikan langsung tugas Tier 1 (1–2 file), menulis Spec/Tiket & kode utuh, menjalankan tes CLI & Triple-Gate, menyusun `brief` `< 60 baris` English, dan langsung me-`kill` worker. *(Pilih `Orchestrator (Neon)` jika ingin disiplin delegasi `/swarm` maksimal).* |
+| 🛡️ **Coordinator Arsitektur Berat / Mode Hemat Claude** | 🛡️ **`Orchestrator (Argon)`** atau **`Gemini 4 Argon (High)`**<br>*(Pool 2 — Mingguan 7 Hari)* | **Fungsi Ganda:** (1) Dipilih di dropdown saat memimpin Tahap 2+3 multi-modul berat atau saat Pool 1 menurun; (2) Di-spawn otomatis oleh Coordinator Neon untuk `/modular-refactor` (`> 250 baris` + Facade Pattern) ATAU sebagai **Pengganti Utama Claude (Fallback #1)** saat kuota Claude `<= 15%` / limit. |
+| ⚡ **Worker Scout** *(Opsional saat cari file luas)* | ⚡ **`Gemini 3.8 Flash (Medium)`**<br>*(Pool 1 — Harian)* | Mencari file lintas proyek & mengekstrak *Fact Packet* (`< 60 baris` English). **Dilarang `read_file` dump HTML/JSON/log mentah `> 5 KB`** (wajib 1-liner Python). |
+| 🧠 **Worker Otak Harian** *(Default Tier 2 — 85%)* | 🧠 **`Claude Sonnet 5.5 (Low)`**<br>*(Pool 3 — Premium Claude)* | **1-Turn Only + Auto-`kill`!** Mengeluarkan *blindspots*, pertanyaan tajam `/grill-me`, validasi kontrak Spec/Caller, atau `[ROOT_CAUSE] + [CLI_CHECK] + [CODE_DIFF]` dalam **English Telegraphic `<= 35 baris`** (tanpa tulis ulang file utuh). |
+| 👑 **Worker Otak Eskalasi** *(Tier 3 — 15% Buntu / Berat)* | 🧠 **`Claude Sonnet 5.5 (Medium)`** / 👑 **`Claude Opus 5.5 (High)`**<br>*(Pool 3 — Premium Claude)* | **Dilarang jadi Coordinator parkir!** Hanya di-spawn oleh Coordinator untuk **1 giliran (`<= 35 baris` English + auto-`kill`)** saat arsitektur sangat sistemik (4+ modul), Red-Team ekstrem, atau investigasi bug buntu. |
+| 🔬 **Worker Deep-Bug Fallback** *(Saat Claude Limit)* | 🔬 **`Gemini 4 Hydrogen (High / XHigh)`**<br>*(Pool 1 — Harian)* | Di-spawn otomatis menggantikan `Claude Opus` pada investigasi bug misterius / algoritma rumit ketika kuota Pool 3 (Claude) sedang habis atau kritis (`<= 15%`). |
+
+<details>
+<summary>🌐 <b>(Ban Serep) OpenRouter MCP & Aider CLI — Hanya Jika Limit Antigravity Habis</b></summary>
+
+* **OpenRouter MCP (`tanya_openrouter`)**: Coordinator otomatis memakai ini sebagai **Fallback #2** (`model="r1"`, `"claude"`, atau `"free-reason"`) jika kuota Claude bawaan limit dan dibutuhkan otak non-Gemini.
+* **Aider CLI (`Rp 0` via `:free`)**: Untuk tiket tunggal hemat ekstrem di luar Antigravity, jalankan `aider` ➔ `/add <file>` (`cohere/north-mini-code:free`).
+</details>
 
 ---
 
 <a id="12-alur-utama-pembangunan--perombakan-fitur-3-tahap-terpadu"></a>
-### 🚀 1.2 Alur Utama Pembangunan & Perombakan Fitur (3 Tahap Terpadu)
+### 🚀 1.2 Alur Utama Pembangunan & Perombakan Fitur (2-Prompt Fast-Track di `/swarm`)
 
-> **Alur Emas:** **Tahap 1 (Brainstorming & Paham Dulu -> Draf)** ➔ **Tahap 2 (Rombak/Resmikan ke `docs/specs` + Buat Tiket di `docs/tickets`)** ➔ **Tahap 3 (Eksekusi `/implement`)**.
-> 
-> 💡 **Protokol Pengingat & Rancang Prompt Otomatis AI:**
-> - **Selesai Tahap 1:** AI wajib otomatis mengingatkan dan merancangkan prompt **Tahap 2** secara komplit yang langsung menyebutkan **nama file Draf Spesifikasi (`.md`) yang baru dibuat** (serta melampirkan template **(Opsional) Revisi Draf**), tanpa mengeksekusinya secara otomatis.
-> - **Selesai Tahap 2:** AI wajib otomatis mengingatkan dan merancangkan prompt **Tahap 3 (Opsi A: Eksekusi Otomatis Penuh 1x Jalan)** secara komplit yang langsung menyebutkan **rentang nomor tiket dan path direktori tiket yang baru dibuat** (contoh: `@[docs/tickets/0XX_nama_fitur]`), tanpa mengeksekusinya secara otomatis.
+> **Alur 2-Prompt Otomatis (Dropdown di `Gemini 4 Neon High` / `Orchestrator Neon`, atau `Orchestrator Argon` / `Argon High`):**
+> - **Prompt 1 (Tahap 1 — Konsultasi & `/grill-me`)**: Scout kode ➔ **Tembakan Claude #1** (*fatal flaws & pertanyaan tajam* ➔ auto-`kill`; otomatis dialihkan ke `Argon High` bila kuota Claude `<= 15%`/limit) ➔ Coordinator memandu `ask_question` interaktif & menulis **Draf Spesifikasi `.md`** + **Prompt Pengingat Siap-Salin**.
+> - **Prompt 2 (Tahap 2+3 Gabung — 1x Jalan Tuntas!)**: Begitu Anda menyetujui draf, Coordinator melakukan **Tembakan Claude #2** (*validasi kontrak, caller, & test oracle* ➔ auto-`kill`), menulis `docs/specs/0XX_*.md` + `docs/INDEX.md` + `docs/tickets/0XX_*/`, lalu **langsung mengeksekusi seluruh tiket + Triple-Gate Verification** sampai kode lulus 100%!
+>
+> 💡 **Format Wajib Rujukan Raw di Kotak Pengingat Otomatis AI**:
+> - File / Folder: `` `[nama_file.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/nama_file.md#L1-1)` `` *(URL-encode `:` ➔ `%3A`, spasi ➔ `%20`)*
+> - Skill / Slash Command: `` `[swarm](slashCommand;swarm)` ``, `` `[/grill-me](slashCommand;grill-me)` ``, `` `[/to-spec](slashCommand;to-spec)` ``, `` `[/to-tickets](slashCommand;to-tickets)` ``, `` `[/ponytail](slashCommand;ponytail)` ``, `` `[/implement](slashCommand;implement)` ``
 
 <a id="tahap-1-brainstorming-detail--tanya-jawab-grill-me---masuk-ke-draf-awal"></a>
-#### 🔹 Tahap 1: Brainstorming Detail & Tanya-Jawab (`/grill-me`) -> Masuk ke Draf Awal
-> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` *(otomatis dapat memanggil opini kedua dari `hermes` self-learning & `openrouter` R1/Claude bila diperlukan)* | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
+#### 🔹 Tahap 1: Brainstorming Kritis & `/grill-me` ➔ Draf Spesifikasi `.md` (Prompt 1 dari 2)
+*Pastikan dropdown berada di **`Gemini 4 Neon (High)` / `Orchestrator (Neon)`** (atau **`Orchestrator (Argon)` / `Gemini 4 Argon (High)`**), lalu tempel prompt ini:*
 
 ```markdown
-MODE KONSULTASI & BRAINSTORMING MURNI (DEVIL'S ADVOCATE & CRITICAL THINKING).
+[swarm](slashCommand;swarm) MODE KONSULTASI & BRAINSTORMING MURNI (COORDINATOR NEON/ARGON + TEMBAKAN OTAK #1).
 
-Kondisi: [Jelaskan fitur yang ingin dibuat / masalah yang ingin diselesaikan / ide baru yang dipikirkan].
+Kondisi / Ide Fitur:
+[Jelaskan fitur yang ingin dibuat / masalah yang ingin diselesaikan]
 
-Tolong bantu saya membedah dan menguji ide ini secara kritis:
-1. SIKAP ANTI-PENJILAT (DEVIL'S ADVOCATE):
-   - Dilarang memuji atau bersikap "yes-man" (jangan katakan "ide luar biasa", "solusi brilian", dll).
-   - Bertindaklah sebagai Senior System Architect / Red Teamer yang skeptis dan kritis.
-   - Uji asumsi saya: Tunjukkan minimal 3-5 potensi cacat fatal (fatal flaws), risiko kegagalan di dunia nyata, blindspot, edge-case ekstrem, atau tanda-tanda over-engineering.
-2. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik (beserta kelebihan, kekurangan, dan trade-off masing-masing) agar saya paham betul arah solusinya.
-3. Jika diperlukan analisis mendalam atau sudut pandang penalaran kedua, gunakan opini dari Hermes (yang memiliki fitur self-learning/memori) serta OpenRouter (DeepSeek-R1 / Claude).
-4. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan kritis satu per satu menggunakan ask_question) untuk menguji kesiapan konsep saya sampai tuntas.
+PROTOKOL ORKESTRASI /SWARM (0x GANTI DROPDOWN & REM KUOTA 3-POOL):
+1. SCOUT FAKTA (COORDINATOR / WORKER FLASH):
+   - Cari lokasi file relevan & baca hanya slice fungsi terkait (< 80 baris). DILARANG `read_file` dump HTML/JSON/log mentah (> 5 KB).
+   - Susun ringkasan Fact Packet (< 60 baris English telegraphic).
+2. TEMBAKAN OTAK #1 — DEVIL'S ADVOCATE (AUTO-KILL 1-TURN):
+   - Cek kuota via `swarm(action="models")`: jika kuota Claude > 15%, spawn maks 1 worker `Claude Sonnet (Low)` (atau `Medium`/`Opus` bila arsitektur sangat berat). Jika kuota Claude <= 15% atau limit, OTOMATIS gunakan worker `Gemini 4 Argon (High)` / `Orchestrator (Argon)` (0% potong kuota Claude!).
+   - Instruksikan worker menjawab <= 35 baris English padat: (a) 3-5 fatal flaws / blindspots / over-engineering, (b) 2-3 opsi pendekatan + trade-off, (c) daftar 3-5 pertanyaan `/grill-me` paling kritis.
+   - WAJIB langsung `swarm(action="kill")` worker segera setelah 1 respons diterima!
+3. SESI INTERAKTIF `/grill-me` (COORDINATOR — 0% CLAUDE):
+   - Sajikan kritik Devil's Advocate & perbandingan opsi dalam Bahasa Indonesia (dilarang bersikap yes-man).
+   - Jalankan [/grill-me](slashCommand;grill-me) satu pertanyaan per giliran via `ask_question` sampai konsensus tercapai.
 
-REM PENGAMAN (STRICT):
-- DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
-- Setelah sesi tanya jawab & uji kritis selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
-- Ingatkan dan rancangkan Prompt komplit untuk Tahap 2 yang langsung menyebutkan nama file DRAF SPESIFIKASI (.md) yang telah dibuat, jangan lakukan otomatis.
-- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, dengan draf spesifikasi di nama_spesifikasi_draf.md. jalankan Tahap 2 sekarang dalam 1 langkah simultan".
+REM PENGAMAN & PENGINGAT OTOMATIS (STRICT):
+- DILARANG KERAS membuat atau mengedit file kodingan (.py) pada Tahap 1 ini.
+- Setelah konsensus tercapai, simpan hasil ke DRAF SPESIFIKASI (.md).
+- WAJIB cetak 2 kotak prompt siap-salin (format raw link file & skill, ganti path absolut URL-encoded):
+  1. **Kotak Revisi Draf Awal (Opsional)** — untuk mengubah poin draf sebelum dieksekusi.
+  2. **Prompt 2: Tahap 2+3 Gabung (1x Jalan Sampai Kode Lulus Tes)** — merujuk ke [nama_draf_spesifikasi.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/nama_draf_spesifikasi.md#L1-1) & [INDEX.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/INDEX.md#L1-1) (serta opsi singkat bila user ingin Tahap 2 Saja dulu).
+- JANGAN mengeksekusi Tahap 2+3 sebelum saya menempel Prompt 2 dan menyetujuinya.
 ```
 
 <details>
-<summary>🔥 <b>(Varian Khusus) Mode Red-Team Ekstrem + Probe Empiris (Mini Otak-Tangan) — Gunakan saat ingin ide & asumsi teknis diuji tanpa ampun sebelum dispesifikasikan</b></summary>
+<summary>🔥 <b>(Varian Khusus) Mode Red-Team Ekstrem — Otomatis Eskalasi Worker <code>Claude Opus 5.5 (High)</code> 1-Turn</b></summary>
 
 ```markdown
-MODE RED-TEAM & BRUTAL STRESS-TEST IDE BARU (+ PRE-SPEC EMPIRICAL PROBE).
+[swarm](slashCommand;swarm) MODE RED-TEAM EKSTREM (COORDINATOR NEON/ARGON + WORKER CLAUDE OPUS 1-TURN).
 
-Ide/Inovasi Saya: [Jelaskan ide/solusi yang ingin Anda uji].
+Ide/Inovasi Saya: [Jelaskan ide/solusi yang ingin diuji secara brutal].
 
-TUGAS ANDA (BRUTAL CRITIC & SKEPTICAL VENTURE CAPITALIST / SENIOR ARCHITECT):
-1. DILARANG MEMUJI. Hapus segala basa-basi dan kalimat penyemangat.
-2. Serang ide ini tanpa ampun: Berikan 5 alasan utama mengapa ide ini berpotensi GAGAL TOTAL, tidak efisien, atau solusi yang mencari-cari masalah (premature optimization / over-engineering).
-3. Ajukan 3 pertanyaan paling sulit yang jika saya gagal menjawabnya secara logis, ide ini harus langsung dibatalkan atau dirombak total.
-4. Tawarkan counter-thesis (sudut pandang alternatif yang berlawanan) yang jauh lebih sederhana menggunakan bawaan Python/sistem yang sudah ada.
-5. UJI BUKTI EMPIRIS PRA-SPEC (1x PROBE OTAK-TANGAN — KHUSUS ASUMSI API/LIBRARY BELUM PASTI):
-   - Jika ide ini bergantung pada perilaku API pihak ketiga, SDK eksternal, atau fungsi sistem yang belum teruji, JANGAN MENEBAK dari ingatan.
-   - Rancang hipotesis singkat (gunakan MCP openrouter model="claude" / "r1" bila perlu) dan jalankan maksimal 1-2 one-liner probe (python -c "...") di terminal secara nyata (GRATIS) untuk membuktikan apakah asumsi tersebut benar-benar bekerja sebelum dibuatkan Draf Spesifikasi.
-
-REM PENGAMAN (STRICT):
-- DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
-- Setelah sesi tanya jawab & uji kritis selesai, kumpulkan hasilnya dalam bentuk DRAF SPESIFIKASI (.md).
-- Ingatkan dan rancangkan Prompt komplit untuk Tahap 2 yang langsung menyebutkan nama file DRAF SPESIFIKASI (.md) yang telah dibuat, jangan lakukan otomatis.
-- JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, dengan draf spesifikasi di nama_spesifikasi_draf.md. jalankan Tahap 2 sekarang dalam 1 langkah simultan".
+PROTOKOL:
+1. Scout fakta kode & jalankan maks 1 one-liner probe empiris (`python -c "..."`) bila bergantung API/SDK eksternal, lalu rangkum < 60 baris English.
+2. Spawn 1 worker `Claude Opus 5.5 (High)` (fallback `Gemini 4 Hydrogen (XHigh)` / `Orchestrator (Argon)` bila kuota Claude <= 15% atau limit) untuk menjawab <= 35 baris English: 5 alasan gagal total, 3 pertanyaan pembunuh ide, & 1 counter-thesis super sederhana (stdlib/Ponytail). Langsung `swarm(action="kill")` setelah 1 respons!
+3. Terjemahkan kritik brutal ke Bahasa Indonesia, pandu `/grill-me` via `ask_question` tanpa menyentuh file `.py`, tulis Draf `.md`, dan cetak kotak prompt pengingat Revisi Draf & Tahap 2+3 Gabung (format raw).
 ```
 </details>
 
 <details>
-<summary>🔄 <b>(Opsional) Kotak Revisi Draf Awal — Gunakan jika masih ada bagian draf yang ingin diubah/ditanyakan sebelum lanjut ke Tahap 2</b></summary>
+<summary>🔄 <b>(Opsional) Kotak Revisi Draf Awal — 100% di Coordinator (0% Kuota Claude & 0 Worker)</b></summary>
 
 ```markdown
-REM PENGAMAN AKTIF: DILARANG MENYENTUH ATAU MENGUBAH FILE KODE (.py).
+REM PENGAMAN AKTIF: DILARANG MENYENTUH FILE KODE (.py) & JANGAN SPAWN WORKER APA PUN.
 
-Terkait draf spesifikasi @[nama_draf_spesifikasi.md] tadi, saya ingin merevisi/menanyakan bagian berikut:
-1. [Bagian yang belum pas / ingin diubah]: Tolong ubah menjadi [keinginan baru].
-2. [Bagian yang masih bingung]: Tolong jelaskan lebih sederhana maksud dari [istilah/poin X].
+Terkait draf [nama_draf_spesifikasi.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/nama_draf_spesifikasi.md#L1-1), tolong revisi bagian berikut:
+1. [Bagian yang ingin diubah]: ubah menjadi [keinginan baru].
+2. [Bagian yang ingin diperjelas]: jelaskan lebih sederhana.
 
-Perbarui DRAF SPESIFIKASI (.md) saja, lalu perbarui rancangan Prompt komplit untuk Tahap 2 dan jangan menyentuh kodingan dulu!
+Perbarui DRAF SPESIFIKASI (.md) saja, lalu perbarui kotak Prompt 2 (Tahap 2+3 Gabung) dalam format raw tanpa memulai kodingan dulu!
 ```
 </details>
 
 ---
 
 <a id="tahap-2-matangkanrombak-rancangan-ke-docsspecs--buat-tiket-ke-docstickets-1x-jalan"></a>
-#### 🔹 Tahap 2: Matangkan/Rombak Rancangan ke `docs/specs` + Buat Tiket ke `docs/tickets` (1x Jalan)
-*Gunakan setelah Anda paham dan cocok dengan arah Draf di Tahap 1 (AI telah menyiapkan prompt ini lengkap dengan nama file draf yang baru dibuat). Anda juga bisa menambahkan/merombak poin rancangan di dalam kotak ini:*
-> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
+<a id="tahap-3-eksekusi-tiket-koding-implement--ponytail"></a>
+#### 🔹 Tahap 2+3 Gabung (Jalur Utama 1x Jalan): Kunci Spec & Tiket ➔ Eksekusi Penuh & Triple-Gate (Prompt 2 dari 2)
+*Gunakan langsung di sesi `/swarm` yang sama begitu Anda setuju dengan Draf Tahap 1 — **1 prompt langsung mengunci Spec/Tiket sekaligus mengeksekusi kode sampai lulus tes!***
 
 ```markdown
-/to-spec Tolong buatkan rancangan spesifikasi teknis formal ke dalam @[docs/specs] berdasarkan @[nama_draf_spesifikasi.md] tadi.
+SETUJU dengan draf di [nama_draf_spesifikasi.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/nama_draf_spesifikasi.md#L1-1). Jalankan TAHAP 2+3 GABUNG (1x Jalan Penuh di [swarm](slashCommand;swarm) — Tembakan Otak #2 + Eksekusi Gemini):
 
-TAMBAHAN / MODIFIKASI / PEROMBAKAN RANCANGAN (JIKA ADA):
-1. [Tulis tambahan/perubahan rancangan di sini, atau hapus baris ini jika draf tadi sudah 100% pas]
+MODIFIKASI TAMBAHAN (HAPUS BILA DRAF SUDAH 100% PAS):
+- [Tulis penyesuaian kecil di sini]
 
-ATURAN KETAT (ANTI-BUG SPEC & IMPLEMENT):
-- JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
-- PRE-FLIGHT REALITY CHECK: Wajib periksa struktur data, tipe objek/tuple/dict, dan signature fungsi pemanggil asli di codebase terlebih dahulu. DILARANG mengarang/menebak nama atribut atau key dari ingatan.
-- Wajib patuhi aturan /ponytail (anti over-engineering, utamakan bawaan Python, tahan di file yang sama jika < 250 baris, dan gunakan Facade Pattern jika memecah file > 250-300 baris).
-- Gunakan konvensi penomoran 3-digit sekuensial (cek nomor ID terakhir di @[docs/INDEX.md], lalu buat file 0XX_nama_fitur.md di docs/specs/ dan folder 0XX_nama_fitur/ di docs/tickets/ dengan nama kembar identik tanpa awalan spec_).
-- Daftarkan fitur baru tersebut ke katalog tabel di @[docs/INDEX.md].
-- Pecah rencana ini menjadi tiket-tiket kecil (/to-tickets) dengan urutan dependensi (DAG) yang jelas ke dalam folder tiket terkait.
-- KONTRAK DATA & TEST ORACLE TIAP TIKET: Pada setiap tiket, wajib cantumkan:
-  1. Preconditions & Postconditions (tipe input, tipe return, dan perilaku saat input kosong/None/error).
-  2. One-Liner Smoke Command (`python -c "..."`) yang wajib dijalankan saat Tahap 3 untuk menguji fungsi di tiket tersebut.
-- Buatkan daftar tiket terurut untuk saya tinjau.
-- Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan rentang nomor tiket dan direktori tiket yang baru dibuat (@[docs/tickets/0XX_nama_fitur]), jangan lakukan otomatis.
-- JANGAN sekali-kali memulai Eksekusi Tiket Koding sebelum saya mengetik kalimat: "/jalankan tahap 3, implement Tiket 1 sampai [X] sudah saya setujui".
+FASE A — KUNCI KONTRAK, SPEC, & TIKET ([/to-spec](slashCommand;to-spec) + [/to-tickets](slashCommand;to-tickets)):
+1. PRE-FLIGHT REALITY CHECK (COORDINATOR): Periksa signature fungsi, struktur data, & caller aktual (< 80 baris/baca) serta cek nomor 3-digit terakhir di [INDEX.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/INDEX.md#L1-1).
+2. TEMBAKAN OTAK #2 — VALIDASI KONTRAK (AUTO-KILL 1-TURN):
+   - Jika kuota Claude > 15%, spawn maks 1 worker `Claude Sonnet (Low)` (eskalasi `Medium` bila 3+ file lintas-modul). Jika kuota Claude <= 15% / limit (atau jika Coordinator saat ini sudah `Argon High` / `Orchestrator Argon` dan modifikasi <= 2 modul), validasi menggunakan `Gemini 4 Argon (High)` / `Orchestrator (Argon)` dengan `brief` Draf + signature aktual (< 60 baris English).
+   - Minta output <= 35 baris English: daftar kontrak data/edge-case, zero-omission checklist (imports/callers), urutan DAG tiket, & one-liner smoke command tiap tiket.
+   - WAJIB langsung `swarm(action="kill")` worker segera setelah 1 respons diterima!
+3. MATERIALISASI DOKUMEN (COORDINATOR — 0% CLAUDE):
+   - Patuhi [/ponytail](slashCommand;ponytail) (< 250 baris stdlib-first; > 250-300 baris wajib Facade Pattern).
+   - Buat [0XX_nama_fitur.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/0XX_nama_fitur.md#L1-1), daftarkan ke [INDEX.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/INDEX.md#L1-1), dan pecah tiket berurutan ke [0XX_nama_fitur#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/tickets/0XX_nama_fitur#L1-1).
+
+FASE B — EKSEKUSI OTOMATIS PENUH ([/implement](slashCommand;implement) — 100% GEMINI):
+4. Langsung eksekusi SEMUA tiket (Tiket 1 -> Tiket N) tanpa berhenti meminta konfirmasi antar-tiket (spawn worker `Gemini 4 Argon (High)` / `Orchestrator (Argon)` bila Coordinator sedang di Neon dan ada tiket refactor > 250 baris / lintas 3+ modul).
+5. Komentar & docstring wajib Bahasa Indonesia; jalankan **Triple-Gate Verification** setelah tiap tiket:
+   - Gate 1 (Zero-Omission): Cocokkan semua import, parameter, return value, & caller terhadap checklist tiket.
+   - Gate 2 (Syntax & Symbol): `python -m py_compile <file>` dan `python -m pyflakes <file>` (jika terpasang).
+   - Gate 3 (Smoke Test): Jalankan one-liner smoke test (`python -c "..."` atau `pytest -q`) dengan edge-case (`None`/kosong).
+6. Jika mentok 2x pada error arsitektural fatal, spawn 1x worker `Claude Sonnet (Medium)` / `Opus (High)` (<= 35 baris English, auto-`kill`; fallback `Hydrogen XHigh` / `Argon High` bila Claude <= 15% / limit), lalu selesaikan.
+7. Setelah SEMUA tiket lulus Triple-Gate, berikan **1 ringkasan final padat dalam Bahasa Indonesia**.
 ```
 
----
+<details>
+<summary>🛡️ <b>(Opsi Terpisah — Khusus Fitur Super Sensitif) Jalankan Tahap 2 Saja Dulu agar Bisa Tinjau Tiket Sebelum Koding</b></summary>
 
-<a id="tahap-3-eksekusi-tiket-koding-implement--ponytail"></a>
-#### 🔹 Tahap 3: Eksekusi Tiket Koding (`/implement` + `/ponytail`)
-*Pilih salah satu cara eksekusi di bawah ini setelah daftar tiket di Tahap 2 Anda setujui (AI telah menyiapkan prompt Opsi A lengkap dengan direktori tiketnya):*
-> 💡 **Rekomendasi Model:** ✈️ Antigravity: Ganti ke **`Gemini 3.8 Flash (High)`** *(Gratis & Cepat)* | 🦓 Zoo Code: Mode **`💻 Vibe Coder`** *(tambahkan `/pakai-rag` atau `/pakai-3b` di baris paling atas jika ingin hemat kuota)*
-
-* **Opsi A: Eksekusi Otomatis Penuh 1x Jalan (Rekomendasi Utama / Bisa Ditinggal AFK)**
-  ```markdown
-  /implement Tiket 1 sampai [X] pada @[docs/tickets/0XX_nama_fitur] sudah saya setujui.
-
-  INSTRUKSI EKSEKUSI PENUH OTOMATIS (TRIPLE-GATE ZERO BUG):
-  1. Eksekusi SEMUA tiket secara berurutan (dari Tiket 1 -> Tiket 2 -> dst) sampai SELESAI semuanya.
-  2. DILARANG berhenti di tengah jalan untuk meminta konfirmasi antar-tiket.
-  3. Patuhi aturan /ponytail full (kode seringkas mungkin, stdlib-first, komentar/docstring Bahasa Indonesia).
-  4. Setelah setiap tiket selesai, WAJIB jalankan Triple-Gate Verification sebelum lanjut ke tiket berikutnya:
-     - Gate 1 (Syntax & Undefined Symbol): Jalankan `python -m py_compile <file_yang_diubah>` dan `python -m pyflakes <file_yang_diubah>`.
-     - Gate 2 (Functional Smoke Test): Jalankan one-liner smoke test (`python -c "from ... import ...; assert ..."` atau `pytest -q`) dengan data dummy/edge-case (seperti `None`/kosong) sesuai kontrak tiket untuk memastikan bebas `TypeError`, `KeyError`, dan `IndexError`.
-     - Jika ada error pada Gate 1 atau Gate 2, perbaiki saat itu juga di giliran yang sama sebelum lanjut ke tiket berikutnya.
-  5. Hanya berhenti jika menemukan error arsitektural fatal yang memblokir jalannya kode.
-  6. Ketika SEMUA tiket selesai, buat rangkuman final dalam 1 pesan saja.
-  ```
-
-* **Opsi B: Eksekusi Manual Satu per Satu (Jika Ingin Mengecek Tiap Tiket)**
-  ```markdown
-  /implement Silakan kerjakan Tiket 1 dulu dari @[docs/tickets/0XX_nama_fitur] sesuai aturan /ponytail. Jalankan Triple-Gate Verification (`py_compile`, `pyflakes`, dan one-liner smoke test `python -c "..."`), lalu tunggu konfirmasi saya sebelum lanjut ke Tiket 2.
-  ```
+```markdown
+SETUJU dengan draf di [nama_draf_spesifikasi.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/nama_draf_spesifikasi.md#L1-1). Jalankan TAHAP 2 SAJA DULU ([/to-spec](slashCommand;to-spec) + [/to-tickets](slashCommand;to-tickets)) di [swarm](slashCommand;swarm) — BERHENTI SEBELUM KODING:
+1. Lakukan Pre-Flight Reality Check + Tembakan Otak #2 (1x worker `Claude Sonnet Low/Medium`, <= 35 baris English, auto-`kill`; fallback `Argon High` / `Orchestrator Argon` bila kuota Claude <= 15% atau limit).
+2. Buat [0XX_nama_fitur.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/0XX_nama_fitur.md#L1-1), update [INDEX.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/INDEX.md#L1-1), dan tulis seluruh tiket di [0XX_nama_fitur#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/tickets/0XX_nama_fitur#L1-1) dengan kontrak data, daftar caller, & smoke command.
+3. JANGAN ubah file `.py` dulu! Tampilkan ringkasan daftar tiket + cetak kotak prompt pengingat siap-salin untuk mengeksekusi [/implement](slashCommand;implement) Tiket 1..N (format raw).
+```
+</details>
 
 ---
 
 <a id="alur-pasca-implementasi-modifikasi--penambahan-fitur-lanjutan-hemat-token"></a>
-#### 🔹 Alur Pasca-Implementasi: Modifikasi & Penambahan Fitur Lanjutan (Hemat Token)
-*Gunakan alur ini jika tiket sebelumnya sudah selesai diimplementasikan, tetapi Anda ingin melakukan penyesuaian, modifikasi alur, atau menambah fitur baru:*
+#### 🔹 Alur Pasca-Implementasi: Modifikasi & Fitur Lanjutan (1 Prompt Langsung di `/swarm`)
+*Gunakan jika fitur sudah selesai diimplementasikan namun Anda ingin menambah/mengubah perilaku. Jika modifikasi hanya 1–2 file dan sudah jelas, Coordinator (`Neon` / `Argon`) mengerjakannya langsung (**0% kuota Claude & 0 worker**):*
 
-> 💰 **Strategi Efisiensi Token (Kapan Langsung Edit vs Kapan Brainstorming Ulang?):**
-> * **Kapan Langsung Edit Spec/Tiket?** Jika ide & kebutuhan tambahannya **sudah jelas di kepala Anda** (misal: tambah format file baru, ubah urutan sortir, tambah tombol/kolom baru). Melewati sesi `/grill-me` akan menghemat **50%–70% token** karena tidak ada putaran tanya-jawab berulang.
-> * **Kapan Buka Sesi Brainstorming (`/grill-me`) Baru?** Hanya jika perubahannya sangat konseptual, arsitekturnya rumit, atau Anda belum yakin dampaknya ke sistem/API. **Sangat disarankan membukanya di Sesi Chat Baru** sambil melampirkan `@spec_terkait.md` agar context window lama ter-reset bersih (0 token akumulasi).
+```markdown
+[swarm](slashCommand;swarm) [/to-spec](slashCommand;to-spec) Perbarui [spec_terkait.md#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/specs/spec_terkait.md#L1-1), tambahkan tiket lanjutan ke [folder_tiket#L1-1](fileLineRange;file:///d%3A/path/proyek/docs/tickets/folder_tiket#L1-1), lalu langsung eksekusi [/implement](slashCommand;implement) sampai lulus Triple-Gate:
 
-* **Pilihan 1: Modifikasi Langsung (Cepat & Hemat Token — Tanpa `/grill-me`)**
-  *Gunakan di sesi chat saat ini atau chat baru dengan melampirkan spec & folder tiket:*
-  > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
-  ```markdown
-  /to-spec Tolong perbarui rancangan teknis di @[docs/specs/spec_terkait.md] dan tambahkan tiket kelanjutan ke @[docs/tickets/folder_tiket].
+MODIFIKASI YANG DIINGINKAN:
+1. [Jelaskan perubahan / fitur tambahan secara spesifik]
 
-  MODIFIKASI & FITUR TAMBAHAN YANG INGIN DITAMBAHKAN:
-  1. [Jelaskan fitur tambahan atau perilaku baru yang diinginkan secara spesifik].
-  2. [Jelaskan hal lain yang ingin diubah/disesuaikan].
-
-  ATURAN KETAT (ANTI-BUG SPEC & IMPLEMENT):
-  - JANGAN menyentuh atau mengedit file kodingan sekarang (READ-ONLY PLANNING).
-  - PRE-FLIGHT REALITY CHECK: Periksa signature fungsi dan struktur data asli di kode sebelum menulis perubahan kontrak.
-  - Wajib patuhi aturan /ponytail full (< 250-300 baris, stdlib-first).
-  - Pertahankan tiket yang sudah selesai, cukup tambahkan tiket baru lanjutan (misal [TICKET-04], dst.) beserta Preconditions/Postconditions & One-Liner Smoke Command ke indeks.
-  - Tampilkan draf perubahan spec dan daftar tiket baru untuk saya tinjau.
-  - Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan nomor tiket baru dan direktori tiketnya (@[docs/tickets/folder_tiket]), jangan lakukan otomatis.
-  ```
-
-* **Pilihan 2: Brainstorming Ulang Fitur Lanjutan (Jika Ide Masih Rumit / Ragu)**
-  *Buka **TAB CHAT BARU** agar context window kembali bersih dan hemat token:*
-  > 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🔥 Grill-Me & Spec`
-  ```markdown
-  MODE KONSULTASI & BRAINSTORMING FITUR LANJUTAN (DEVIL'S ADVOCATE & CRITICAL THINKING).
-
-  Dasar Proyek: Fitur sebelumnya sudah diimplementasikan sesuai @[docs/specs/spec_terkait.md].
-  Rencana Pengembangan Lanjutan: [Jelaskan ide/kebutuhan baru yang masih Anda bingungkan].
-
-  Tolong bantu saya membedah dan menguji rencana lanjutan ini secara kritis:
-  1. SIKAP ANTI-PENJILAT (DEVIL'S ADVOCATE):
-     - Dilarang memuji atau bersikap "yes-man".
-     - Uji apakah penambahan fitur ini benar-benar esensial atau sekadar over-engineering / bikin bloat.
-     - Tunjukkan potensi efek samping, risiko regresi, atau konflik dengan arsitektur yang sudah ada.
-  2. Jelaskan duduk perkaranya secara detail dan berikan 2-3 opsi pendekatan terbaik untuk menyambungkan fitur baru ini dengan arsitektur yang sudah ada (beserta kelebihan, kekurangan, dan trade-off masing-masing).
-  3. Jika diperlukan analisis mendalam, gunakan opini dari Hermes / OpenRouter (DeepSeek-R1 / Claude).
-  4. Jalankan sesi /grill-me secara interaktif (ajukan pertanyaan kritis satu per satu menggunakan ask_question) untuk membedah kebutuhan saya sampai tuntas.
-
-  REM PENGAMAN (STRICT):
-  - DILARANG KERAS membuat, mengedit, atau menyentuh file kodingan apa pun (.py).
-  - Setelah sesi tanya jawab selesai, kumpulkan hasilnya dalam bentuk perbaruan @[docs/specs/spec_terkait.md] dan buat tiket lanjutannya di @[docs/tickets/folder_tiket].
-  - Ingatkan dan rancangkan Prompt komplit untuk Tahap 3 (Opsi A) yang langsung menyebutkan nomor tiket baru dan direktori tiketnya (@[docs/tickets/folder_tiket]), jangan lakukan otomatis.
-  - JANGAN sekali-kali memulai eksekusi koding sebelum saya mengetik kalimat: "SETUJU, SILAKAN EKSEKUSI".
-  ```
+ATURAN:
+- Jika menyentuh 1-2 file jelas (Tier 1): Coordinator (`Neon` / `Argon`) kerjakan langsung sendiri (DILARANG spawn worker = 0% Claude).
+- Jika lintas 3+ modul / kompleks (Tier 2): spawn 1x worker `Claude Sonnet (Low)` untuk validasi kontrak (<= 35 baris English, auto-`kill`; fallback `Argon High` bila kuota Claude <= 15% / limit) sebelum Coordinator mengeksekusi kode.
+- Patuhi [/ponytail](slashCommand;ponytail), jalankan Triple-Gate (`Zero-Omission` + `py_compile`/`pyflakes` + smoke test), & laporkan 1 ringkasan akhir Bahasa Indonesia.
+```
 
 ---
 
 <a id="13-tiga-prompt-spesialis-ringkas-di-luar-bikin-fitur-baru"></a>
-### 🛠️ 1.3 Tiga Prompt Spesialis Ringkas (Di Luar Bikin Fitur Baru)
+### 🛠️ 1.3 Tiga Prompt Spesialis Ringkas (Semua 1-Prompt Otomatis di `/swarm` — Dual-Orchestrator `Neon` / `Argon`)
 
-#### 🐞 Kasus A: Mengatasi Error Run / Bug Saat Aplikasi Dijalankan
-> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Argon / Flash` + MCP `openrouter` (`deepseek-r1`) | 🦓 Zoo Code: Mode `🔍 Bug Hunter`
-
-```markdown
-/diagnosing-bugs Aplikasi mengalami crash/error saat dijalankan:
-
-[PASTE PESAN ERROR / TRACEBACK DI SINI]
-
-INSTRUKSI INVESTIGASI:
-1. Jangan langsung mengubah kode produksi.
-2. Analisis Root Cause (akar masalah) secara mendalam (gunakan MCP openrouter deepseek-r1 jika diperlukan).
-3. Tunjukkan lokasi file:baris penyebab masalah dan jelaskan solusinya dengan bahasa sederhana.
-4. Tunggu konfirmasi saya sebelum menerapkan perbaikan.
-```
-
-#### ✂️ Kasus B: Menyederhanakan Kode Ribet (`/ponytail`) & Hapus Fungsi Mati (*Dead Code*)
-> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 4 Argon (High)` | 🦓 Zoo Code: Mode `🛡️ Code Reviewer`
+#### 🐞 Kasus A: Mengatasi Error Run / Bug Saat Aplikasi Dijalankan (1-Prompt Otomatis 3-Tier)
+*Cukup tempel 1 prompt ini di Coordinator (`Gemini 4 Neon High` / `Orchestrator Neon` / `Orchestrator Argon`). Coordinator otomatis menentukan apakah cukup dibereskan sendiri (**0% Claude**) atau perlu memanggil 1x worker di ruang konteks bersih:*
 
 ```markdown
-/code-review Tolong audit @[file_target.py] menggunakan aturan /ponytail ultra dan graphify:
-1. Cari fungsi mati (dead code) yang memiliki 0 pemanggil (zero callers) di seluruh proyek.
-2. Cari kode yang terlalu bertele-tele (over-engineered) yang bisa dipangkas dengan bawaan Python (stdlib).
-3. Tampilkan tabel temuan untuk saya konfirmasi (JANGAN hapus/ubah kode sebelum saya setujui).
-```
+[swarm](slashCommand;swarm) [/diagnosing-bugs](slashCommand;diagnosing-bugs) Investigasi & perbaiki bug ini dengan Protokol Otomatis 3-Tier:
 
-#### 🔬 Kasus C: Mode Otak-Tangan (Scientific Trial-and-Error Testing: Claude Sonnet 4.6 x Gemini Flash & Self-Learning)
-> 💡 **Rekomendasi Model:** ✈️ Antigravity: `Gemini 3.8 Flash (High)` sebagai Tangan eksekutor + `tanya_openrouter(..., model="claude", mode_debug=True)` sebagai Otak perancang tes | 🦓 Zoo Code: Mode `🔍 Bug Hunter`
+GEJALA / TRACEBACK / KELUHAN BUG:
+[PASTE PESAN ERROR / TRACEBACK / KELUHAN BUG DI SINI]
 
-*Gunakan pola ini ketika Anda menghadapi bug yang membingungkan atau error misterius yang membutuhkan pengujian coba-coba (trial-and-error) bertahap untuk mempersempit kemungkinan secara ilmiah:*
-
-```markdown
-Selesaikan investigasi bug ini menggunakan Pola Otak-Tangan (Brain & Hands Protocol):
-
-DESKRIPSI MASALAH:
-[Jelaskan perilaku aneh atau paste traceback error di sini]
-
-PEMBAGIAN PERAN & ALUR KERJA:
-1. Claude Sonnet 4.6 (Otak via tanya_openrouter model="claude", mode_debug=True):
-   - Bertindak sebagai Lead Debugging Architect.
-   - Buatkan [HIPOTESIS] dan [PERINTAH_TES] minimal untuk mempersempit akar masalah.
-2. Gemini Flash (Tangan di Antigravity IDE):
-   - Eksekusi [PERINTAH_TES] secara nyata di terminal Windows secara GRATIS.
-   - Tangkap output stdout/stderr dan kembalikan ke Claude via session_id yang sama.
-   - Batas maksimal 4 putaran tes otomatis per sesi (jika belum selesai di putaran ke-4, lapor ke user).
-3. Saat status [STATUS: SELESAI]:
-   - Terapkan [SOLUSI_KODE] ke berkas proyek dan jalankan silent syntax gate (py_compile + pyflakes).
-   - Catat [PELAJARAN_KUNCI] ke memori pembelajaran jika merupakan pola bug baru yang penting.
+PROTOKOL EKSEKUSI OTOMATIS (COORDINATOR NEON / ARGON):
+1. SCOUT FAKTA (ANTI-POLUSI):
+   - Cari lokasi `file:line`, baca slice relevan (< 80 baris), & jalankan maks 1-2 probe CLI read-only.
+   - DILARANG `read_file` pada file HTML/JSON/log/dump mentah (> 5 KB) — wajib ekstrak ringkas lewat 1-liner Python (`len`, `<title>`, <= 5 baris sampel).
+2. ESKALASI 3-TIER MANDIRI (ZERO INTERRUPTION & REM KUOTA):
+   - **Tier 1 (Bug 1-2 file jelas):** Langsung perbaiki & verifikasi sendiri oleh Coordinator (DILARANG spawn worker = 0% kuota Claude).
+   - **Tier 2 (Bug logika / multi-file):** Susun Fact Packet (< 60 baris English), spawn 1x worker `Claude Sonnet (Low)` -> minta `<= 35 baris` English (`[ROOT_CAUSE]`, `[CLI_CHECK]`, `[CODE_DIFF]` tanpa tulis ulang file utuh) -> langsung `swarm(action="kill")`.
+   - **Tier 3 (Bug buntu / ekstrem):** Otomatis eskalasi ke 1x worker `Claude Sonnet (Medium)` atau `Claude Opus (High)` (auto-`kill`).
+   - **Mode Hemat / Fallback Limit Claude (`<= 15%`):** Otomatis alihkan worker ke `Gemini 4 Hydrogen (High/XHigh)` atau `Gemini 4 Argon (High)` / `Orchestrator (Argon)` (atau MCP `openrouter:tanya_openrouter` bila perlu).
+3. EKSEKUSI & VERIFIKASI (COORDINATOR):
+   - Kembangkan diff menjadi kode utuh (komentar/docstring Indonesia, 0 import/caller terlewat).
+   - Jalankan `python -m py_compile <file>`, `python -m pyflakes <file>` (jika terpasang), dan seluruh tes verifikasi CLI sampai lulus 100%.
+   - Laporkan akar masalah, perubahan, & hasil tes secara ringkas dalam **Bahasa Indonesia**.
 ```
 
 ---
 
-<a id="14-tiga-golden-rules-anti-blunder"></a>
-### 🛡️ 1.4 Empat "Golden Rules" Anti-Blunder
+#### ✂️ Kasus B: Menyederhanakan Kode Ribet (`/ponytail`) & Hapus Fungsi Mati (*Dead Code*)
+```markdown
+[swarm](slashCommand;swarm) [/code-review](slashCommand;code-review) Audit [file_target.py#L1-1](fileLineRange;file:///d%3A/path/proyek/src/file_target.py#L1-1) dengan aturan [/ponytail](slashCommand;ponytail) ultra & [/graphify](slashCommand;graphify):
+1. Coordinator (atau worker `Gemini Flash`) memindai seluruh fungsi mati (zero callers) dan kode bertele-tele di target, lalu meringkas temuan (< 60 baris English).
+2. Spawn 1x worker `Claude Sonnet (Low)` (fallback `Argon High` / `Orchestrator Argon` bila kuota Claude <= 15% atau limit) untuk menyusun tabel pemangkasan stdlib-first & smoke test checklist (`<= 35 baris` English) -> langsung `swarm(action="kill")`.
+3. Tampilkan tabel temuan dalam Bahasa Indonesia untuk persetujuan saya — JANGAN hapus/ubah kode sebelum saya setujui. Begitu saya ketik "SETUJU", Coordinator langsung mengeksekusi pemangkasan & memverifikasi `py_compile`, `pyflakes`, serta smoke test.
+```
 
-1. **Paham Dulu Baru Spec & Tiket**: Selalu mulai dari **Tahap 1 (Brainstorming & `/grill-me`)** dengan rem pengaman aktif sampai Anda benar-benar paham arah solusinya.
-2. **Aturan Ambang 250 Baris (`/ponytail` vs Clean Architecture)**: Selama file masih **< 250 baris**, AI wajib menulis kode sesingkat mungkin di file yang ada tanpa bikin class/file baru. Pemecahan file (`/modular-refactor` + *Facade Pattern*) baru dilakukan jika ukuran file menyentuh **250–300 baris**.
-3. **Ganti Model Sesuai Beban**: Gunakan **Argon / DeepSeek-R1** saat memikirkan arsitektur (Tahap 1 & 2), lalu pindah ke **Flash (Gratis) / Zoo Code Local Scout ($0)** saat mengeksekusi tiket koding (Tahap 3).
-4. **Anti-Sycophancy (Wajib Menantang Ide / Devil's Advocate)**: AI dilarang menjadi *cheerleader* atau *yes-man* yang langsung memuji ide baru. Dalam perencanaan ide & fitur (Tahap 1), AI wajib menguji asumsi, menunjukkan potensi cacat fatal, risiko *over-engineering*, dan blindspot sebelum menyepakati spesifikasi.
+---
+
+#### 🔬 Kasus C: Mode Otak-Tangan Ilmiah (Bug Misterius / *Race Condition* / SDK Eksternal — Loop Otomatis Hingga 4 Putaran)
+*Tidak perlu bolak-balik ganti dropdown antar putaran! Coordinator otomatis menjalankan siklus eksperimen ilmiah hingga tuntas (maks 4 putaran):*
+
+```markdown
+[swarm](slashCommand;swarm) [/diagnosing-bugs](slashCommand;diagnosing-bugs) MODE OTAK-TANGAN ILMIAH OTOMATIS (COORDINATOR NEON/ARGON + WORKER OTAK 1-TURN/PUTARAN).
+
+DESKRIPSI MASALAH MISTERIUS:
+[Jelaskan perilaku aneh, race condition, desinkronisasi, atau error SDK di sini]
+
+SIKLUS EKSPERIMEN ILMIAH OTOMATIS (MAKS 4 PUTARAN):
+1. Coordinator lakukan observasi awal + maks 1-2 probe reproduksi CLI (dilarang `read_file` dump > 5 KB) -> susun Evidence Packet (< 60 baris English).
+2. Spawn 1x worker Otak (Putaran 1: `Claude Sonnet Low`; Putaran 2+: eskalasi `Claude Sonnet Medium` / `Opus High`; Fallback otomatis bila kuota Claude <= 15% atau limit: `Gemini 4 Hydrogen XHigh` / `Argon High`, atau MCP `openrouter:tanya_openrouter`).
+   - Minta worker menjawab <= 35 baris English: `[HYPOTHESES]` (#1/#2), `[CLI_EXPERIMENTS]` (1-2 perintah pembuktian definitif), & `[CODE_DIFF]` (diterapkan HANYA bila #1 terbukti).
+   - WAJIB langsung `swarm(action="kill")` worker Otak setelah 1 respons!
+3. Coordinator eksekusi `[CLI_EXPERIMENTS]` di terminal:
+   - **Jika terbukti (`[STATUS: SELESAI]`):** Terapkan `[CODE_DIFF]` utuh, jalankan `py_compile` + `pyflakes` + tes ulang sampai lulus 100%, lalu laporkan akar masalah & `[PELAJARAN_KUNCI]` (2-3 poin) dalam **Bahasa Indonesia**.
+   - **Jika terbantahkan:** JANGAN patch spekulatif — kemas bukti baru (< 45 baris English) dan lanjutkan putaran berikutnya (maks 4 putaran; jika masih buntu setelah putaran 4, berhenti dan laporkan seluruh temuan ke saya).
+```
+
+<details>
+<summary>🛟 <b>(Ban Serep Tanpa `/swarm`) Mode Otak-Tangan via OpenRouter MCP</b></summary>
+
+```markdown
+Selesaikan investigasi bug ini via Pola Otak-Tangan MCP (`openrouter:tanya_openrouter` model="claude" atau "r1", `mode_debug=True`, session_id unik, maks 4 putaran):
+DESKRIPSI MASALAH: [Paste error/perilaku aneh di sini]
+ALUR: Kirim Evidence Packet padat (< 60 baris English) ke `tanya_openrouter` -> eksekusi `[PERINTAH_TES]` di terminal -> kirim hasil kembali sampai `[STATUS: SELESAI]` -> terapkan kode utuh + `py_compile`/`pyflakes` + ringkas dalam Bahasa Indonesia.
+```
+</details>
+
+---
+
+<a id="14-tiga-golden-rules-anti-blunder"></a>
+### 🛡️ 1.4 Empat "Golden Rules" Anti-Blunder & Hemat Kuota 3-Pool
+
+1. **Paham Dulu Baru Eksekusi**: Selalu mulai fitur baru dari **Tahap 1 (Brainstorming & `/grill-me`)** dengan rem pengaman aktif sampai Anda benar-benar sepakat pada Draf Spesifikasi `.md`.
+2. **Aturan Ambang 250 Baris (`/ponytail` vs Clean Architecture)**: Selama file masih **< 250 baris**, tulis kode sesingkat mungkin di file yang ada tanpa membuat class/file baru. Pemecahan file (`/modular-refactor` + *Facade Pattern*) baru dilakukan saat file menyentuh **250–300 baris**.
+3. **Disiplin `/swarm` Dual-Orchestrator & Proteksi 3 Pool Kuota**:
+   - Parkir dropdown harian di **`Gemini 4 Neon (High)` / `Orchestrator (Neon)`** (Pool 1 Harian), atau gunakan **`Orchestrator (Argon)` / `Gemini 4 Argon (High)`** (Pool 2 Mingguan) saat memimpin refactor berat / menghemat Claude. **Dilarang keras memarkir `Claude Opus` sebagai Coordinator dropdown!**
+   - Tugas Tier 1 (1–2 file jelas) wajib dibereskan langsung oleh Coordinator tanpa men-spawn worker (**0% Claude & 0 overhead worker**).
+   - Saat butuh worker Otak (Tembakan #1/#2 atau bug multi-file/buntu), kirim `brief` **English `< 60 baris`**, batasi jawaban **`<= 35 baris` English**, dan **langsung `swarm(action="kill")`** setelah 1 giliran (otomatis alihkan ke `Argon High` / `Orchestrator Argon` / `Hydrogen XHigh` bila kuota Claude `<= 15%` atau limit).
+4. **Anti-Sycophancy (Wajib Menantang Ide / Devil's Advocate)**: AI dilarang menjadi *cheerleader* atau *yes-man* yang langsung memuji ide baru. Dalam perencanaan fitur (Tahap 1), AI wajib menguji asumsi, menunjukkan potensi cacat fatal, risiko *over-engineering*, dan blindspot sebelum menyepakati spesifikasi.
 
 ---
 
@@ -365,7 +363,7 @@ git submodule add https://github.com/vibe-ecosystem/vibe-tools.git vibe_tools
 # 3. Jalankan setup otomatis satu klik
 python vibe_tools/setup_vibe_ecosystem.py
 ```
-Seluruh aturan `.agents`, skills universal, dan mode Zoo Code langsung aktif seketika!
+Seluruh aturan `.agents`, skills universal, dan template konfigurasi Aider langsung aktif seketika!
 
 <a id="33-panduan-fork--pull-request-untuk-kontributor-global"></a>
 ### 🤝 3.3 Panduan Fork & Pull Request untuk Kontributor Global
@@ -409,15 +407,15 @@ python vibe_tools/rea_tool.py --enable
 
 ---
 
-## 5. Hermes Agent x Antigravity IDE x Zoo Code & Self-Learning Universal
+## 5. Hermes Agent x Antigravity IDE x Aider CLI & Self-Learning Universal
 
-<a id="51-sinergi-3-cockpit-antigravity-zoo-code--hermes-agent"></a>
-### 🌐 5.1 Sinergi 3 Cockpit: Antigravity, Zoo Code, & Hermes Agent
+<a id="51-sinergi-3-alat-antigravity-aider-cli--hermes-agent"></a>
+### 🌐 5.1 Sinergi 3 Alat: Antigravity, Aider CLI, & Hermes Agent
 
 Ekosistem menggabungkan kekuatan tiga pilar AI:
-1. **Antigravity IDE**: Arsitek sistem dengan jendela konteks raksasa (1M–2M token) untuk perencanaan besar, perancangan spesifikasi, dan audit.
-2. **VS Code Zoo Code**: Kokpit kerja taktis modular dengan 7 Custom Modes dan dukungan model offline GPU Lokal RTX 3060 ($0).
-3. **Hermes Agent**: Background worker mandiri otonom berbasis CLI yang menangani investigasi mendalam dan menyimpan memori jangka panjang.
+1. **Antigravity IDE (Utama)**: Arsitek sistem dengan jendela konteks raksasa (1M–2M token) untuk perencanaan besar, `/grill-me`, spesifikasi, audit, dan eksekusi harian.
+2. **Aider CLI (Cadangan On-Demand `:free`)**: Asisten terminal ringan berbasis Tree-sitter RepoMap (`map-tokens: 1024`) dan edit diff minimal (`auto-commits: false`), siap dipakai kapan saja untuk refactor atau saat kuota IDE menipis.
+3. **Hermes Agent**: Background worker mandiri otonom berbasis CLI (default model gratis cepat + fallback `deepseek-chat`) yang menangani investigasi mendalam dan menyimpan memori jangka panjang.
 
 <a id="52-metode-pemasangan-cepat-mandiri-1-menit"></a>
 ### 🚀 5.2 Metode Pemasangan Cepat Mandiri (1 Menit)
@@ -468,18 +466,20 @@ Dengan cara ini, ilmu dan best-practice yang dipelajari pada satu proyek otomati
 1. **Google AI Studio / Gemini Plus / Advanced**: Siapkan akun Google Anda.
 2. **OpenRouter**: Daftar di [openrouter.ai](https://openrouter.ai), buat API Key di menu *Keys*, lalu lakukan top-up saldo minimal **\$5.00** (cukup untuk ribuan sesi koding hemat).
 
-<a id="63-tahap-3-instalasi-ide--setting-auto-approve-otonom"></a>
-### ⚙️ 6.3 Tahap 3: Instalasi IDE & Setting Auto-Approve Otonom
-Agar AI dapat mengeksekusi rangkaian tiket secara mandiri tanpa harus meminta persetujuan manual Enter setiap saat:
+<a id="63-tahap-3-instalasi-aider-terisolasi--auto-approve-antigravity"></a>
+### ⚙️ 6.3 Tahap 3: Instalasi Aider Terisolasi & Auto-Approve Antigravity
+Agar AI dapat mengeksekusi rangkaian tiket secara mandiri:
 * **Antigravity IDE**: Masuk ke Settings / Preferences -> Cari "Terminal Approval" -> Setel ke Auto-Approve untuk sandboxed commands.
-* **VS Code Zoo Code**:
-  1. Unduh file `.vsix` rilis terbaru dari [Zoo-Code GitHub Releases](https://github.com/Zoo-Code-Org/Zoo-Code/releases).
-  2. Buka VS Code -> Extensions (`Ctrl+Shift+X`) -> Klik `...` di kanan atas -> **Install from VSIX...**
-  3. Buka tab Zoo Code -> Klik ikon **⚙️ Settings** di kanan atas -> Centang:
-     - ✅ **Always approve read-only actions**
-     - ✅ **Always approve write actions**
-     - ✅ **Always approve execute actions**
-     - ✅ **Always approve MCP server actions**
+* **Aider CLI Terisolasi (On-Demand Free Tier)**:
+  1. Jalankan 1 perintah universal dari folder proyek Anda:
+     ```powershell
+     python vibe_tools/setup_aider_hybrid.py
+     ```
+  2. Skrip otomatis memasang `aider` via `aider-install` (`uv` virtual environment terisolasi di `~/.local/bin`, tidak mencemari Python global proyek) serta menyalin template `.aider.conf.yml`, `.aiderignore`, dan `CONVENTIONS.md` dengan `auto-commits: false`.
+  3. Untuk menguji daftar model `:free` tercepat yang lolos format diff secara live sebelum ngoding, jalankan:
+     ```powershell
+     python vibe_tools/free_model_bench.py --maks 14
+     ```
 
 <a id="64-tahap-4-prompt-setup-mandiri--alternatif-manual"></a>
 ### 🚀 6.4 Tahap 4: Prompt Setup Mandiri & Alternatif Manual
@@ -510,13 +510,16 @@ Ketikkan di chat:
 
 Server MCP OpenRouter mendukung **Sistem Alias Cerdas**:
 
-| Kategori | Alias Cepat | Model ID Terpilih | Biaya per 1M Token |
-| :--- | :---: | :--- | :---: |
-| 🧠 **Penalaran Super (Reasoning)** | **`r1`** | `deepseek/deepseek-r1-0528` | $0.55 / $2.19 |
-| 💻 **Standar Emas Coding** | **`claude`** / **`sonnet`** | `anthropic/claude-sonnet-4.5` | $3.00 / $15.00 |
-| ⚡ **Harian Gesit & Super Hemat** | **`deepseek`** / **`v3`** | `deepseek/deepseek-chat` | $0.14 / $0.28 |
-| 💻 **Spesialis Coding Cepat** | **`qwen`** / **`qwen-coder`** | `qwen/qwen-2.5-coder-32b-instruct` | $0.07 / $1.00 |
-| 🆓 **100% Gratis** | **`free`** | `google/gemma-4-31b-it:free` | $0.00 |
+| Kategori | Alias Cepat | Model ID Resmi | Kasus Rekomendasi |
+| :--- | :---: | :--- | :--- |
+| 👑 **Standar Emas Coding** | **`claude`** / **`sonnet`** | `anthropic/claude-sonnet-4.6` | Arsitektur Python, debugging terarah, & *Devil's Advocate* |
+| 🏛️ **Flagship Kompleks** | **`opus`** | `anthropic/claude-opus-4.6` | Investigasi bug sistemik & arsitektur lintas-modul rumit |
+| 🛠️ **Spesialis Engineering** | **`codex`** / **`gpt5`** | `openai/gpt-5-codex` | Rekayasa perangkat lunak presisi, kontrak data, & *clean code* |
+| 🧠 **Penalaran (Reasoning)** | **`r1`** | `deepseek/deepseek-r1-0528` | Logika rumit, algoritma matematika, & pembuktian alur data |
+| ⚡ **Harian Gesit & Super Hemat** | **`deepseek`** / **`v3`** | `deepseek/deepseek-v3.2` | Rekomendasi harian utama (DSA) & diskusi eksplorasi super hemat |
+| 💻 **Spesialis Kode Open-Weight** | **`qwen`** / **`qwen3`** | `qwen/qwen3-coder` | Cepat & efisien untuk Python/JS (MoE) |
+| 🚀 **Thinker Ringan** | **`haiku`** | `anthropic/claude-haiku-4.5` | Cepat & cerdas untuk tugas pembantu |
+| 🎁 **100% Gratis (Auto-Fallback)** | **`free`** / **`free-code`** / **`free-fast`** / **`free-reason`** | `cohere/north-mini-code:free` / `baidu/ernie-5.5-flash-preview:free` / `nvidia/nemotron-3-ultra-550b-a55b:free` | Eksperimen koding, tugas cepat, & penalaran bebas biaya (\$0.00) |
 
 > [!TIP]
 > Untuk mengecek daftar model dan harga terbaru langsung dari OpenRouter secara otomatis, ketik:  
@@ -565,22 +568,15 @@ Folder `vibe_tools/skills` terhubung secara global ke `~/.gemini/config/skills` 
 
 ---
 
-## 8. Arsitektur Hybrid Dual-Cockpit (Antigravity + VS Code Zoo Code + Ollama RTX 3060)
+## 8. Arsitektur Hybrid Antigravity + Aider On-Demand (`:free` First) + Sinergi Hardware Lokal
 
-Arsitektur **Dual-Cockpit** menyinergikan dua lingkungan pengembangan AI secara harmonis:
-- **Cockpit 1 (Antigravity IDE)**: Perencanaan arsitektur, wawancara `/grill-me`, `/to-spec`, dan audit skala besar.
-- **Cockpit 2 (VS Code Zoo Code)**: Eksekusi tiket tugas modular, tool use granular, dan model lokal Ollama (RTX 3060) untuk penelusuran kode 100% offline ($0).
-
-### 🎭 7 Custom Modes di `.roomodes` / `.zoomodes`:
-| Mode ID | Peran Utama | Rekomendasi Profil Model |
-| :--- | :--- | :--- |
-| `orchestrator` | Pintu masuk utama & pengarah tiket task | `google/gemini-2.0-flash-001` atau `deepseek/deepseek-chat` |
-| `local-scout-3b` | Grepping kode cepat offline ($0 GPU) | Ollama `qwen2.5-coder:3b-instruct` |
-| `local-scout-7b` | Analisis logika mendalam offline ($0 GPU) | Ollama `qwen2.5-coder:7b-instruct-q4_K_M` |
-| `vibe-coder` | Eksekusi koding presisi & modular (<300 baris) | `deepseek/deepseek-chat` atau `google/gemini-2.0-flash-001` |
-| `grill-me-spec` | Wawancara arsitektur (terkunci hanya edit `docs/`) | `deepseek/deepseek-r1` |
-| `bug-hunter` | Investigasi crash & traceback error | `deepseek/deepseek-r1` |
-| `code-reviewer` | Audit 3-sumbu mutu kode & Ponytail | `deepseek/deepseek-chat` |
+Arsitektur hybrid menggabungkan kepraktisan IDE dengan eksekutor CLI ultra-hemat:
+- **Utama (Antigravity IDE)**: Perencanaan arsitektur, wawancara `/grill-me`, `/to-spec`, debugging Otak-Tangan, dan coding harian tanpa overhead per-token OpenRouter.
+- **Cadangan On-Demand (Aider CLI)**: Siap dipanggil kapan saja dari terminal (`aider`), dengan konteks ramping (`map-tokens: 1024`, `subtree-only: true`, `/add` manual), proteksi rahasia via `.aiderignore`, `auto-commits: false`, serta rute model 4-State:
+  1. **Cloud `:free` Utama** (`cohere/north-mini-code:free`) — cepat, non-reasoning, Rp 0.
+  2. **Cloud `:free` Cadangan** (`baidu/ernie-5.5-flash-preview:free`, `inclusionai/ling-3.2-flash:free`, `nvidia/nemotron-3-ultra-550b-a55b:free`).
+  3. **Opsional GPU Lokal CUDA (misal RTX 3060 6GB + iGPU Display Offload)**: Jika Ollama terpasang, **jangan menggabungkan dGPU + iGPU (*Split-GPU*) untuk 1 LLM** karena RAM sistem memperlambat CUDA. Biarkan iGPU merender layar/IDE agar VRAM dGPU utuh, lalu manfaatkan dGPU untuk *offload* `weak-model` (`qwen2.5-coder:3b`) atau fallback anti-429 (`qwen2.5-coder:7b-instruct-q4_K_M`) dengan **`OLLAMA_KEEP_ALIVE=5m`** agar VRAM kembali bersih untuk rendering/AI lain.
+  4. **Fallback Berbayar Murah**: `/model openrouter/deepseek/deepseek-v3.2` saat tugas kompleks atau `:free` sedang sibuk.
 
 ---
 
